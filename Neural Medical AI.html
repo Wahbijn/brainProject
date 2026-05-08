@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Smarter Medical AI Brain</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@200;300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#f4f5f7;
+    --frame:#ffffff;
+    --ink:#0c0e12;
+    --ink-2:#5a6072;
+    --ink-3:#a4abbb;
+    --line:#e3e6ec;
+    --neon-1:#ff6a8d;
+    --neon-2:#ff3d6e;
+    --neon-3:#7a4dff;
+    --glass:rgba(255,255,255,0.55);
+    --glass-stroke:rgba(0,0,0,0.07);
+  }
+  html.dark{
+    --bg:#000000;
+    --frame:#0a0a0c;
+    --ink:#f1f2f5;
+    --ink-2:#a8acb8;
+    --ink-3:#5e6471;
+    --line:#1c1d22;
+    --neon-1:#ff8aa8;
+    --neon-2:#ff5a7d;
+    --neon-3:#9d70ff;
+    --glass:rgba(20,20,26,0.55);
+    --glass-stroke:rgba(255,255,255,0.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;overflow-x:hidden;transition:background .5s}
+  body{padding:14px;min-height:100vh}
+  .frame{
+    position:relative;background:var(--frame);
+    border-radius:18px;border:1px solid var(--line);
+    min-height:calc(100vh - 28px);overflow:hidden;
+    transition:background .5s, border-color .5s;
+  }
+
+  .nav{
+    position:relative;z-index:30;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 32px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;font-size:11px;font-weight:600;letter-spacing:0.18em;color:var(--ink)}
+  .brand-logo{
+    width:34px;height:34px;border-radius:9px;
+    position:relative;overflow:hidden;
+    background:radial-gradient(circle at 30% 30%, #ffb8c4, #ff5a7d 60%, #7a4dff);
+    display:grid;place-items:center;color:#fff;
+    font-family:'Instrument Serif',serif;font-style:italic;font-size:18px;
+    box-shadow:0 4px 12px -4px rgba(255,90,125,0.5);
+  }
+  .brand-logo::after{
+    content:"";position:absolute;inset:0;border-radius:inherit;
+    background:linear-gradient(135deg,rgba(255,255,255,0.4),transparent 50%);
+  }
+  .brand .sub{color:var(--ink-3);font-weight:400;letter-spacing:0.18em;margin-left:4px}
+
+  .nav-center{
+    display:flex;align-items:center;gap:0;
+    padding:5px;border-radius:999px;
+    background:var(--frame);
+    border:1px solid var(--line);
+    box-shadow:0 1px 2px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.5);
+    backdrop-filter:blur(12px);
+    transition:background .5s,border-color .5s;
+  }
+  html.dark .nav-center{box-shadow:0 1px 2px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)}
+  .nav-center a{
+    color:var(--ink);text-decoration:none;font-size:13px;font-weight:500;
+    padding:9px 18px;border-radius:999px;
+    transition:background .25s,color .25s;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .nav-center a:hover{background:rgba(0,0,0,0.04)}
+  html.dark .nav-center a:hover{background:rgba(255,255,255,0.06)}
+  .nav-center .live{
+    color:var(--neon-2);font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;letter-spacing:0.18em;text-transform:uppercase;
+    display:inline-flex;align-items:center;gap:7px;padding:9px 16px;
+    border-left:1px solid var(--line);
+  }
+  .nav-center .live::before{
+    content:"";width:6px;height:6px;border-radius:50%;
+    background:var(--neon-2);box-shadow:0 0 8px var(--neon-2);
+    animation:livePulse 1.4s infinite;
+  }
+  @keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+
+  .theme-switch{
+    width:54px;height:28px;border-radius:999px;
+    background:#dfe3eb;border:none;cursor:pointer;
+    position:relative;transition:background .4s;padding:0;
+  }
+  html.dark .theme-switch{background:#2a2c33}
+  .theme-knob{
+    position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;
+    background:linear-gradient(180deg,#b8c5e8,#8aa3da);
+    display:grid;place-items:center;color:#fff;
+    transition:left .4s cubic-bezier(.4,1.4,.5,1), background .4s;
+    box-shadow:0 2px 6px rgba(0,0,0,0.15);
+  }
+  html.dark .theme-knob{left:29px;background:linear-gradient(180deg,#ffd089,#f7a14a)}
+  .theme-knob svg{width:13px;height:13px}
+  .theme-switch .sun{display:none}
+  html.dark .theme-switch .moon{display:none}
+  html.dark .theme-switch .sun{display:block}
+
+  .hero{
+    position:relative;display:grid;
+    grid-template-columns:1.05fr 1fr;
+    padding:30px 50px 50px;
+    min-height:calc(100vh - 28px - 80px);gap:40px;
+  }
+  .left{position:relative;z-index:20;display:flex;flex-direction:column;justify-content:center;padding-top:30px}
+
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;
+    color:var(--ink-2);text-transform:uppercase;letter-spacing:0.22em;
+    padding:7px 14px;border-radius:999px;
+    border:1px solid var(--line);background:var(--frame);
+    width:fit-content;margin-bottom:26px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--neon-2);box-shadow:0 0 8px var(--neon-2)}
+
+  h1.headline{
+    font-family:'Instrument Serif',serif;font-weight:400;
+    font-size:clamp(46px,5.8vw,84px);
+    line-height:1.02;letter-spacing:-0.018em;color:var(--ink);
+    text-wrap:balance;
+  }
+  h1.headline em{
+    font-style:italic;font-weight:400;
+    background:linear-gradient(120deg,var(--neon-1),var(--neon-3));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  h1.headline .reg{
+    display:inline-block;font-family:'Inter',sans-serif;
+    font-size:0.32em;vertical-align:super;color:var(--ink-2);margin-left:6px;font-weight:300;
+  }
+
+  .meta{
+    display:flex;align-items:center;gap:16px;margin-top:22px;
+    color:var(--ink-2);font-size:13px;font-family:'JetBrains Mono',monospace;
+    letter-spacing:0.04em;
+  }
+  .meta .dotline{width:30px;height:1px;background:var(--ink-3)}
+  .meta b{color:var(--ink);font-weight:500}
+
+  .ctas{display:flex;align-items:center;gap:18px;margin-top:42px;flex-wrap:wrap}
+  .magnet{position:relative;display:inline-block;will-change:transform;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+
+  .btn{
+    --h:58px;
+    position:relative;height:var(--h);padding:0 32px;border-radius:16px;
+    font-family:inherit;font-size:14px;font-weight:600;letter-spacing:0.04em;
+    border:none;cursor:pointer;
+    display:inline-flex;align-items:center;gap:12px;
+    text-transform:uppercase;
+    transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s, background .35s;
+    overflow:visible;
+  }
+  .btn .label{position:relative;z-index:3;display:inline-flex;align-items:center;gap:12px;white-space:nowrap}
+  .btn .arrow{
+    width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+    transition:transform .4s cubic-bezier(.2,.8,.2,1);
+  }
+  .btn:hover .arrow{transform:translateX(4px) rotate(-12deg)}
+
+  /* SIGN UP */
+  .btn-signup{
+    color:#fff;
+    background:linear-gradient(135deg,#ff7a9c 0%,#ff3d6e 50%,#7a4dff 100%);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.25) inset,
+      0 18px 40px -12px rgba(255,61,110,0.55),
+      0 0 70px -10px rgba(122,77,255,0.45);
+  }
+  .btn-signup::before{
+    content:"";position:absolute;inset:-3px;border-radius:19px;z-index:-1;
+    background:conic-gradient(from 0deg, #ff3d6e, #7a4dff, #ff7a9c, #ff3d6e);
+    filter:blur(14px);opacity:.6;animation:spin 5s linear infinite;
+  }
+  .btn-signup::after{
+    content:"";position:absolute;inset:0;border-radius:16px;z-index:1;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.35) 0%, transparent 40%, rgba(255,255,255,0.18) 100%),
+      linear-gradient(135deg,#ff7a9c 0%,#ff3d6e 50%,#7a4dff 100%);
+    pointer-events:none;
+  }
+  .btn-signup .shimmer{
+    position:absolute;inset:0;border-radius:16px;overflow:hidden;z-index:2;pointer-events:none;
+  }
+  .btn-signup .shimmer::before{
+    content:"";position:absolute;top:0;left:-50%;width:50%;height:100%;
+    background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,0.5) 50%,transparent 70%);
+    animation:sweep 3.5s ease-in-out infinite;
+  }
+  @keyframes sweep{0%{left:-50%}55%,100%{left:120%}}
+  .btn-signup:hover{transform:translateY(-3px);box-shadow:0 0 0 1px rgba(255,255,255,0.35) inset, 0 24px 60px -10px rgba(255,61,110,0.7), 0 0 100px -8px rgba(122,77,255,0.6)}
+  .btn-signup .arrow{background:rgba(255,255,255,0.22);color:#fff}
+
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* LOGIN */
+  .btn-login{
+    color:var(--ink);
+    background:var(--glass);
+    border:1px solid var(--glass-stroke);
+    backdrop-filter:blur(16px) saturate(140%);
+    -webkit-backdrop-filter:blur(16px) saturate(140%);
+    overflow:hidden;
+    position:relative;
+  }
+  .btn-login::before{
+    content:"";position:absolute;inset:-1px;border-radius:17px;z-index:-1;
+    background:linear-gradient(135deg,#ff7a9c,#7a4dff,#ff7a9c);
+    background-size:200% 200%;
+    animation:hue 5s linear infinite;
+    opacity:.5;
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+    padding:1.4px;
+  }
+  @keyframes hue{0%{background-position:0% 0%}100%{background-position:200% 0%}}
+  .btn-login::after{
+    content:"";position:absolute;inset:0;border-radius:16px;
+    background:linear-gradient(120deg,transparent 30%, rgba(255,122,156,0.18) 50%, transparent 70%);
+    transform:translateX(-100%);transition:transform .9s;
+  }
+  .btn-login:hover{transform:translateY(-3px);box-shadow:0 16px 50px -16px rgba(255,61,110,0.45)}
+  .btn-login:hover::after{transform:translateX(100%)}
+  .btn-login .arrow{background:rgba(255,61,110,0.12);color:var(--neon-2)}
+
+  .stage{
+    position:absolute;top:0;right:0;bottom:0;width:62%;z-index:10;
+    pointer-events:none;display:grid;place-items:center;
+  }
+  .brain-3d{position:relative;width:min(760px,98%);aspect-ratio:1/1}
+  .brain-rotator{
+    position:absolute;inset:0;display:grid;place-items:center;
+    animation:brainRotate 18s ease-in-out infinite;transform-origin:center;
+  }
+  @keyframes brainRotate{
+    0%,100%{transform:rotate(-2.5deg) translateY(0)}
+    50%{transform:rotate(2.5deg) translateY(-14px)}
+  }
+  .brain-svg{width:100%;height:100%;overflow:visible}
+  .brain-glow{
+    position:absolute;width:75%;height:75%;left:12.5%;top:14%;
+    background:radial-gradient(circle,#ff8a82 0%,rgba(255,138,130,0.35) 38%,transparent 65%);
+    filter:blur(45px);opacity:.5;
+    animation:glowPulse 4s ease-in-out infinite;z-index:-1;
+  }
+  html.dark .brain-glow{
+    background:radial-gradient(circle,#ff7a72 0%,rgba(255,138,130,0.55) 35%,transparent 65%);
+    opacity:.75;
+  }
+  @keyframes glowPulse{0%,100%{opacity:.45;transform:scale(.96)}50%{opacity:.7;transform:scale(1.06)}}
+
+  .vein-group{transform-origin:center;animation:veinSway 9s ease-in-out infinite}
+  .vein-group.g2{animation-duration:12s;animation-delay:-2s}
+  .vein-group.g3{animation-duration:15s;animation-delay:-4s}
+  @keyframes veinSway{
+    0%,100%{transform:rotate(0deg) translate(0,0) scale(1)}
+    50%{transform:rotate(1.8deg) translate(2px,-6px) scale(1.01)}
+  }
+  .vein{animation:veinPulse 3.5s ease-in-out infinite}
+  @keyframes veinPulse{0%,100%{opacity:.78}50%{opacity:1}}
+  .corp{opacity:0;animation:corpFlow 2.6s linear infinite}
+  @keyframes corpFlow{0%{opacity:0}10%{opacity:1}90%{opacity:1}100%{opacity:0}}
+  .gyri-shimmer{animation:shimmer 6s ease-in-out infinite;transform-origin:center}
+  @keyframes shimmer{0%,100%{opacity:.55}50%{opacity:.85}}
+
+  .data-tag{
+    position:absolute;font-family:'JetBrains Mono',monospace;
+    font-size:10px;letter-spacing:0.16em;color:var(--ink-2);
+    text-transform:uppercase;line-height:1.6;pointer-events:none;
+  }
+  .data-tag b{color:var(--neon-2);font-weight:500}
+  .data-tag.tl{top:18px;left:18px}
+  .data-tag.tr{top:18px;right:18px;text-align:right}
+  .data-tag.br{bottom:18px;right:18px;text-align:right}
+  .data-tag::before{
+    content:"";position:absolute;width:24px;height:1px;
+    background:linear-gradient(90deg,transparent,var(--neon-2));
+    top:-6px;left:0;
+  }
+  .data-tag.tr::before,.data-tag.br::before{left:auto;right:0;background:linear-gradient(90deg,var(--neon-2),transparent)}
+
+  @media (max-width:1100px){
+    .hero{grid-template-columns:1fr;padding:24px}
+    .stage{position:relative;width:100%;height:480px;margin-top:20px}
+    .data-tag{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <header class="nav">
+    <div class="brand">
+      <div class="brand-logo">N</div>
+      <span>NEURAL <span class="sub">/ AI BRAIN</span></span>
+    </div>
+    <div class="nav-center">
+      <a href="#">Platform</a>
+      <a href="#">Diagnostics</a>
+      <a href="#">Research</a>
+      <a href="#">Clinicians</a>
+    </div>
+    <button class="theme-switch" id="themeSwitch" aria-label="Toggle theme">
+      <span class="theme-knob">
+        <svg class="moon" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></g></svg>
+      </span>
+    </button>
+  </header>
+
+  <main class="hero">
+    <section class="left">
+      <h1 class="headline">Smarter Medical <em>AI&nbsp;Brain,</em><br>Brighter Human Life.<span class="reg">®</span></h1>
+
+      <div class="ctas">
+        <span class="magnet" data-magnetic>
+          <button class="btn btn-signup">
+            <span class="shimmer"></span>
+            <span class="label">
+              Sign Up
+              <span class="arrow">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </span>
+          </button>
+        </span>
+        <span class="magnet" data-magnetic>
+          <button class="btn btn-login">
+            <span class="label">
+              Login
+              <span class="arrow">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </span>
+          </button>
+        </span>
+      </div>
+    </section>
+
+    <div class="stage" aria-hidden="true">
+      <div class="brain-3d" id="brain3d">
+        <div class="brain-glow"></div>
+        <div class="brain-rotator">
+          <svg class="brain-svg" id="brainSVG" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="brainShade" cx="36%" cy="28%" r="78%">
+                <stop offset="0%" stop-color="#ffe2dc"/>
+                <stop offset="22%" stop-color="#ffb3ab"/>
+                <stop offset="48%" stop-color="#ff8a82"/>
+                <stop offset="72%" stop-color="#e85f64"/>
+                <stop offset="100%" stop-color="#8a1f2a"/>
+              </radialGradient>
+              <radialGradient id="brainHi" cx="32%" cy="22%" r="32%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.7"/>
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="brainHi2" cx="60%" cy="35%" r="20%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45"/>
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+              </radialGradient>
+              <linearGradient id="sulcusGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#7a1822" stop-opacity="0.6"/>
+                <stop offset="100%" stop-color="#3a0a12" stop-opacity="0.75"/>
+              </linearGradient>
+              <radialGradient id="coreGlow" cx="50%" cy="55%" r="55%">
+                <stop offset="0%" stop-color="#ff5a5a" stop-opacity="0"/>
+                <stop offset="60%" stop-color="#c93d4a" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#5a1018" stop-opacity="0.6"/>
+              </radialGradient>
+              <filter id="softBlur"><feGaussianBlur stdDeviation="0.6"/></filter>
+              <filter id="bigBlur"><feGaussianBlur stdDeviation="6"/></filter>
+              <filter id="noise" x="0" y="0" width="100%" height="100%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3"/>
+                <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.22 0"/>
+                <feComposite in2="SourceGraphic" operator="in"/>
+              </filter>
+              <clipPath id="brainClip">
+                <path d="M395 215 C 320 210, 250 235, 213 290 C 178 285, 142 312, 138 358 C 108 380, 98 425, 128 462 C 113 502, 145 542, 195 547 C 195 583, 234 608, 285 602 C 295 627, 340 638, 380 617 C 395 627, 405 627, 405 617 L 405 215 Z M405 215 C 480 210, 550 235, 587 290 C 622 285, 658 312, 662 358 C 692 380, 702 425, 672 462 C 687 502, 655 542, 605 547 C 605 583, 566 608, 515 602 C 505 627, 460 638, 420 617 C 405 627, 395 627, 395 617 L 405 215 Z"/>
+              </clipPath>
+            </defs>
+
+            <g class="vein-group g3" opacity="0.55" id="backVeins"></g>
+            <g class="vein-group g2" opacity="0.78" id="midVeins"></g>
+
+            <ellipse cx="400" cy="660" rx="245" ry="22" fill="#000" opacity="0.22" filter="url(#bigBlur)"/>
+
+            <g>
+              <path d="M395 215 C 320 210, 250 235, 213 290 C 178 285, 142 312, 138 358 C 108 380, 98 425, 128 462 C 113 502, 145 542, 195 547 C 195 583, 234 608, 285 602 C 295 627, 340 638, 380 617 C 395 627, 405 627, 405 617 L 405 215 Z" fill="url(#brainShade)"/>
+              <path d="M405 215 C 480 210, 550 235, 587 290 C 622 285, 658 312, 662 358 C 692 380, 702 425, 672 462 C 687 502, 655 542, 605 547 C 605 583, 566 608, 515 602 C 505 627, 460 638, 420 617 C 405 627, 395 627, 395 617 L 405 215 Z" fill="url(#brainShade)"/>
+            </g>
+
+            <g>
+              <path d="M335 600 C 330 645, 360 672, 400 672 C 440 672, 470 645, 465 600 Z" fill="url(#brainShade)"/>
+              <g stroke="#8a1f2a" stroke-width="1.1" fill="none" opacity="0.65" stroke-linecap="round">
+                <path d="M345 615 Q 358 638, 358 668"/>
+                <path d="M362 610 Q 374 638, 374 670"/>
+                <path d="M380 608 Q 388 638, 388 672"/>
+                <path d="M412 608 Q 412 638, 412 672"/>
+                <path d="M428 610 Q 426 638, 426 670"/>
+                <path d="M446 614 Q 442 638, 442 668"/>
+              </g>
+              <ellipse cx="385" cy="615" rx="25" ry="10" fill="#ffffff" opacity="0.18"/>
+            </g>
+
+            <path d="M380 660 C 380 695, 390 715, 400 725 C 410 715, 420 695, 420 660 Z" fill="#a8323d"/>
+            <path d="M388 668 C 388 695, 393 712, 400 722 C 407 712, 412 695, 412 668" stroke="#5a1018" stroke-width="1" fill="none" opacity="0.6"/>
+
+            <g clip-path="url(#brainClip)">
+              <g class="gyri-shimmer" id="sulciL"></g>
+              <g class="gyri-shimmer" id="sulciR"></g>
+              <path d="M400 215 Q 397 320, 400 420 Q 403 520, 400 605" stroke="#3a0a12" stroke-width="3.5" fill="none" opacity="0.7"/>
+              <path d="M400 220 Q 398 320, 400 420 Q 402 520, 400 600" stroke="#1a0408" stroke-width="1.5" fill="none" opacity="0.85"/>
+              <path d="M396 220 Q 393 320, 396 420 Q 399 520, 396 600" stroke="#ffb0a8" stroke-width="0.8" fill="none" opacity="0.4"/>
+              <ellipse cx="345" cy="265" rx="80" ry="38" fill="url(#brainHi)" opacity="0.7"/>
+              <ellipse cx="490" cy="280" rx="55" ry="28" fill="url(#brainHi2)" opacity="0.6"/>
+              <ellipse cx="400" cy="430" rx="220" ry="200" fill="url(#coreGlow)" opacity="0.6"/>
+              <rect x="100" y="200" width="600" height="450" fill="#000" filter="url(#noise)" opacity="0.08"/>
+              <g id="surfaceNeurons"></g>
+            </g>
+
+            <ellipse cx="280" cy="555" rx="60" ry="14" fill="#7a1822" opacity="0.35" filter="url(#softBlur)"/>
+            <ellipse cx="520" cy="555" rx="60" ry="14" fill="#7a1822" opacity="0.35" filter="url(#softBlur)"/>
+
+            <g class="vein-group g1" opacity="0.92" id="frontVeins"></g>
+            <g id="synapseFlashes"></g>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+const ns = 'http://www.w3.org/2000/svg';
+
+function drawSulci(parent, side){
+  const sign = side==='L' ? -1 : 1;
+  const cx = 400 + sign * 130;
+  const deep = [
+    [-95, 50, 290, 0.95],[-80, 78, 270, 0.92],[-65, 105, 250, 0.88],
+    [-50, 125, 235, 0.85],[-35, 145, 220, 0.82],[-20, 165, 210, 0.80],
+    [-5, 175, 205, 0.78],[10, 175, 210, 0.78],[25, 160, 220, 0.80],
+    [40, 135, 230, 0.83],[55, 115, 245, 0.86],[70, 90, 265, 0.90],
+    [85, 65, 285, 0.93],
+  ];
+  deep.forEach((s,i)=>{
+    const startX = cx - sign*s[1];
+    const startY = 230 + Math.abs(s[0])*0.3;
+    let d = `M ${startX} ${startY}`;
+    let x=startX, y=startY;
+    const segs = 8;
+    for(let k=0;k<segs;k++){
+      const t = k/segs;
+      const ang = (s[0]*Math.PI/180) + Math.sin(t*Math.PI*2)*0.15;
+      x += Math.cos(ang) * (s[2]/segs) * sign * 0.2 + Math.sin(t*3 + i)*4;
+      y += (s[2]/segs) * 0.85;
+      d += ` Q ${x+sign*6} ${y-4}, ${x} ${y}`;
+    }
+    const p = document.createElementNS(ns,'path');
+    p.setAttribute('d',d);
+    p.setAttribute('fill','none');
+    p.setAttribute('stroke','url(#sulcusGrad)');
+    p.setAttribute('stroke-width', 4 + Math.random()*1.5);
+    p.setAttribute('stroke-linecap','round');
+    p.setAttribute('stroke-opacity', s[3]);
+    p.setAttribute('filter','url(#softBlur)');
+    parent.appendChild(p);
+    const hl = document.createElementNS(ns,'path');
+    hl.setAttribute('d',d);
+    hl.setAttribute('fill','none');
+    hl.setAttribute('stroke','#ffd0c8');
+    hl.setAttribute('stroke-width','1.6');
+    hl.setAttribute('stroke-linecap','round');
+    hl.setAttribute('stroke-opacity','0.45');
+    hl.setAttribute('transform', `translate(${sign*-3},-2)`);
+    hl.setAttribute('filter','url(#softBlur)');
+    parent.appendChild(hl);
+  });
+
+  for(let i=0;i<26;i++){
+    const angle = (Math.random()*0.9 + 0.1) * Math.PI;
+    const r = 60 + Math.random()*150;
+    const sx = cx + Math.cos(angle)*r*sign*0.6 + (Math.random()-0.5)*30;
+    const sy = 280 + Math.sin(angle)*r*0.85 + (Math.random()-0.5)*30;
+    const len = 30 + Math.random()*50;
+    const dirX = (Math.random()-0.5);
+    let d = `M ${sx} ${sy}`;
+    let x=sx,y=sy;
+    for(let k=0;k<4;k++){
+      x += dirX*len/4 + (Math.random()-0.5)*8;
+      y += len/4 + (Math.random()-0.5)*4;
+      d += ` Q ${x+3} ${y-2}, ${x} ${y}`;
+    }
+    const p = document.createElementNS(ns,'path');
+    p.setAttribute('d',d);
+    p.setAttribute('fill','none');
+    p.setAttribute('stroke','#7a1822');
+    p.setAttribute('stroke-width', (0.8 + Math.random()*0.8).toFixed(2));
+    p.setAttribute('stroke-linecap','round');
+    p.setAttribute('stroke-opacity', 0.45 + Math.random()*0.25);
+    parent.appendChild(p);
+  }
+}
+drawSulci(document.getElementById('sulciL'),'L');
+drawSulci(document.getElementById('sulciR'),'R');
+
+const sn = document.getElementById('surfaceNeurons');
+for(let i=0;i<28;i++){
+  const angle = Math.random()*Math.PI*2;
+  const r = 60 + Math.random()*180;
+  const x = 400 + Math.cos(angle)*r*0.95;
+  const y = 410 + Math.sin(angle)*r*0.85;
+  const dot = document.createElementNS(ns,'circle');
+  dot.setAttribute('cx',x); dot.setAttribute('cy',y);
+  dot.setAttribute('r', 1.1 + Math.random()*1.4);
+  dot.setAttribute('fill', Math.random()>0.5 ? '#ffe5d8' : '#ffaab2');
+  dot.setAttribute('opacity', 0.7);
+  const an = document.createElementNS(ns,'animate');
+  an.setAttribute('attributeName','opacity');
+  an.setAttribute('values','0.2;1;0.2');
+  an.setAttribute('dur',(1.5 + Math.random()*2)+'s');
+  an.setAttribute('repeatCount','indefinite');
+  an.setAttribute('begin', (Math.random()*3)+'s');
+  dot.appendChild(an);
+  sn.appendChild(dot);
+}
+
+function veinPath(x, y, angle, length, depth, color, group, opts={}){
+  if(depth<=0 || length<6) return;
+  const segs = 5 + Math.floor(Math.random()*3);
+  const points = [{x,y}];
+  let cx=x, cy=y, ca=angle;
+  for(let i=0;i<segs;i++){
+    const segLen = length/segs;
+    ca += (Math.random()-0.5) * 0.7;
+    cx += Math.cos(ca) * segLen;
+    cy += Math.sin(ca) * segLen;
+    points.push({x:cx,y:cy});
+  }
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for(let i=1;i<points.length;i++){
+    const p0 = points[i-1], p1 = points[i];
+    const mx = (p0.x+p1.x)/2, my=(p0.y+p1.y)/2;
+    d += ` Q ${p0.x} ${p0.y}, ${mx} ${my}`;
+  }
+  d += ` T ${points[points.length-1].x} ${points[points.length-1].y}`;
+  const path = document.createElementNS(ns,'path');
+  path.setAttribute('d',d);
+  path.setAttribute('fill','none');
+  path.setAttribute('stroke', color);
+  path.setAttribute('stroke-width', opts.width || (1.6 - (4-depth)*0.3));
+  path.setAttribute('stroke-linecap','round');
+  path.setAttribute('stroke-opacity', opts.opacity || 0.85);
+  path.setAttribute('class','vein');
+  path.style.animationDelay = (Math.random()*3)+'s';
+  group.appendChild(path);
+
+  if(opts.corp !== false && Math.random()>0.4 && depth>=2){
+    const corp = document.createElementNS(ns,'circle');
+    corp.setAttribute('r', 1.6 + Math.random()*1.2);
+    corp.setAttribute('fill', color);
+    corp.setAttribute('class','corp');
+    corp.style.animationDelay = (Math.random()*2.6)+'s';
+    const motion = document.createElementNS(ns,'animateMotion');
+    motion.setAttribute('dur', (1.8 + Math.random()*1.6)+'s');
+    motion.setAttribute('repeatCount','indefinite');
+    motion.setAttribute('path', d);
+    motion.setAttribute('rotate','auto');
+    corp.appendChild(motion);
+    group.appendChild(corp);
+  }
+
+  const lastP = points[points.length-1];
+  const branchCount = Math.random()>0.35 ? 2 : 1;
+  for(let b=0;b<branchCount;b++){
+    const newAngle = angle + (Math.random()-0.5) * 1.5;
+    const newLen = length * (0.55 + Math.random()*0.25);
+    veinPath(lastP.x, lastP.y, newAngle, newLen, depth-1, color, group, {...opts, width: (opts.width||1.6) * 0.7});
+  }
+}
+
+const seeds = [
+  {x:400,y:230,a:-Math.PI/2,len:140,c:'red'},{x:380,y:230,a:-1.9,len:120,c:'blue'},
+  {x:420,y:228,a:-1.2,len:130,c:'red'},{x:355,y:240,a:-2.2,len:110,c:'blue'},
+  {x:445,y:240,a:-0.95,len:120,c:'red'},{x:330,y:250,a:-2.5,len:130,c:'red'},
+  {x:470,y:250,a:-0.7,len:140,c:'blue'},{x:300,y:270,a:-2.7,len:130,c:'blue'},
+  {x:500,y:270,a:-0.5,len:120,c:'red'},{x:215,y:300,a:Math.PI,len:140,c:'red'},
+  {x:200,y:340,a:Math.PI+0.2,len:130,c:'blue'},{x:155,y:380,a:Math.PI-0.1,len:120,c:'red'},
+  {x:140,y:420,a:Math.PI+0.3,len:140,c:'blue'},{x:585,y:300,a:0,len:140,c:'blue'},
+  {x:600,y:340,a:0.2,len:130,c:'red'},{x:645,y:380,a:0.05,len:120,c:'blue'},
+  {x:660,y:420,a:-0.2,len:140,c:'red'},{x:200,y:530,a:Math.PI+0.6,len:140,c:'red'},
+  {x:240,y:580,a:Math.PI+0.9,len:130,c:'blue'},{x:285,y:610,a:1.8,len:130,c:'red'},
+  {x:600,y:530,a:-0.6,len:140,c:'blue'},{x:560,y:580,a:-0.9,len:130,c:'red'},
+  {x:515,y:610,a:1.3,len:130,c:'blue'},{x:340,y:660,a:Math.PI-0.5,len:110,c:'red'},
+  {x:460,y:660,a:0.5,len:110,c:'blue'},{x:400,y:725,a:Math.PI/2,len:90,c:'red'},
+];
+const front = document.getElementById('frontVeins');
+const mid = document.getElementById('midVeins');
+const back = document.getElementById('backVeins');
+const col = (c,l)=>{
+  if(l==='back') return c==='red'?'#a82c3a':'#3a72c4';
+  if(l==='mid')  return c==='red'?'#c93d4a':'#4a90e2';
+  return c==='red'?'#e64a55':'#5fa8ff';
+};
+seeds.forEach(s=>{
+  veinPath(s.x,s.y, s.a + (Math.random()-0.5)*0.3, s.len*1.4, 4, col(s.c,'back'), back, {width:0.7,opacity:0.6,corp:false});
+  veinPath(s.x,s.y, s.a + (Math.random()-0.5)*0.2, s.len*1.15,4, col(s.c,'mid'), mid, {width:1.0,opacity:0.75});
+  veinPath(s.x,s.y, s.a, s.len, 4, col(s.c,'front'), front, {width:1.5,opacity:0.92});
+});
+function surfaceCapillary(x,y,angleIn){
+  const segs = 4 + Math.floor(Math.random()*3);
+  let cx=x,cy=y,ca=angleIn;
+  let d = `M ${cx} ${cy}`;
+  for(let i=0;i<segs;i++){
+    ca += (Math.random()-0.5)*0.8;
+    cx += Math.cos(ca)*8; cy += Math.sin(ca)*8;
+    d += ` L ${cx} ${cy}`;
+  }
+  const p = document.createElementNS(ns,'path');
+  p.setAttribute('d',d);
+  p.setAttribute('fill','none');
+  p.setAttribute('stroke', Math.random()>0.5 ? '#a82c3a' : '#3a72c4');
+  p.setAttribute('stroke-width','0.6');
+  p.setAttribute('stroke-opacity','0.55');
+  p.setAttribute('stroke-linecap','round');
+  p.setAttribute('class','vein');
+  p.style.animationDelay = (Math.random()*3)+'s';
+  front.appendChild(p);
+}
+for(let i=0;i<26;i++){
+  const angle = Math.random()*Math.PI*2;
+  const r = 200 + Math.random()*30;
+  const x = 400 + Math.cos(angle)*r;
+  const y = 410 + Math.sin(angle)*r*0.95;
+  surfaceCapillary(x,y,angle);
+}
+
+const flashes = document.getElementById('synapseFlashes');
+function flash(){
+  const angle = Math.random()*Math.PI*2;
+  const r = 220 + Math.random()*50;
+  const x = 400 + Math.cos(angle)*r;
+  const y = 410 + Math.sin(angle)*r*0.9;
+  const c = document.createElementNS(ns,'circle');
+  c.setAttribute('cx',x); c.setAttribute('cy',y);
+  c.setAttribute('r','2');
+  c.setAttribute('fill','#fff');
+  c.setAttribute('filter','url(#softBlur)');
+  c.style.opacity='0';
+  flashes.appendChild(c);
+  c.animate([{opacity:0,r:0},{opacity:1,r:3},{opacity:0,r:8}],{duration:800+Math.random()*600,easing:'ease-out'}).onfinish=()=>c.remove();
+}
+setInterval(flash, 380);
+
+const html = document.documentElement;
+const sw = document.getElementById('themeSwitch');
+if(localStorage.getItem('theme') === 'dark') html.classList.add('dark');
+sw.addEventListener('click', ()=>{
+  html.classList.toggle('dark');
+  localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+});
+
+const stage3d = document.getElementById('brain3d');
+document.addEventListener('mousemove',(e)=>{
+  const dx=(e.clientX/innerWidth - 0.5)*16;
+  const dy=(e.clientY/innerHeight - 0.5)*12;
+  stage3d.style.transform = `translate(${dx}px,${dy}px)`;
+});
+
+document.querySelectorAll('[data-magnetic]').forEach(wrap=>{
+  const btn = wrap.querySelector('button');
+  wrap.addEventListener('mousemove',(e)=>{
+    const r = wrap.getBoundingClientRect();
+    const x = e.clientX - r.left - r.width/2;
+    const y = e.clientY - r.top - r.height/2;
+    wrap.style.transform = `translate(${x*0.22}px, ${y*0.28}px)`;
+    btn.style.transform = `translate(${x*0.10}px, ${y*0.12}px)`;
+  });
+  wrap.addEventListener('mouseleave',()=>{
+    wrap.style.transform=''; btn.style.transform='';
+  });
+});
+</script>
+</body>
+</html>

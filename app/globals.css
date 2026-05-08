@@ -1,0 +1,178 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+  --bg:#f4f5f7;
+  --frame:#ffffff;
+  --ink:#0c0e12;
+  --ink-2:#5a6072;
+  --ink-3:#a4abbb;
+  --line:#e3e6ec;
+  --glass:rgba(255,255,255,0.55);
+  --glass-stroke:rgba(0,0,0,0.07);
+}
+html.dark{
+  --bg:#000000;
+  --frame:#0a0a0c;
+  --ink:#f1f2f5;
+  --ink-2:#a8acb8;
+  --ink-3:#5e6471;
+  --line:#1c1d22;
+  --glass:rgba(20,20,26,0.55);
+  --glass-stroke:rgba(255,255,255,0.10);
+}
+
+html, body { background: var(--bg); color: var(--ink); transition: background .5s; overflow-x: hidden; }
+body { padding: 14px; min-height: 100vh; font-family: Inter, system-ui, sans-serif; }
+
+.frame{
+  position:relative;background:var(--frame);
+  border-radius:18px;border:1px solid var(--line);
+  min-height:calc(100vh - 28px);overflow:hidden;
+  transition:background .5s, border-color .5s;
+}
+
+.vein{ animation: veinPulse 3.5s ease-in-out infinite; }
+@keyframes veinPulse { 0%,100%{ opacity:.78 } 50%{ opacity:1 } }
+.corp{ opacity:0; animation: corpFlow 2.6s linear infinite; }
+@keyframes corpFlow { 0%{opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{opacity:0} }
+.gyri-shimmer{ animation: shimmer 6s ease-in-out infinite; transform-origin:center }
+@keyframes shimmer { 0%,100%{opacity:.55} 50%{opacity:.85} }
+
+.btn-signup::before{
+  content:"";position:absolute;inset:-3px;border-radius:19px;z-index:-1;
+  background: conic-gradient(from 0deg, #ff3d6e, #7a4dff, #ff7a9c, #ff3d6e);
+  filter: blur(14px); opacity:.6; animation: spin360 5s linear infinite;
+}
+.btn-signup::after{
+  content:"";position:absolute;inset:0;border-radius:16px;z-index:1;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.35) 0%, transparent 40%, rgba(255,255,255,0.18) 100%),
+    linear-gradient(135deg,#ff7a9c 0%,#ff3d6e 50%,#7a4dff 100%);
+  pointer-events:none;
+}
+.btn-signup .shimmer-track{
+  position:absolute;inset:0;border-radius:16px;overflow:hidden;z-index:2;pointer-events:none;
+}
+.btn-signup .shimmer-track::before{
+  content:"";position:absolute;top:0;left:-50%;width:50%;height:100%;
+  background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,0.5) 50%,transparent 70%);
+  animation: sweep 3.5s ease-in-out infinite;
+}
+@keyframes sweep { 0%{left:-50%} 55%,100%{left:120%} }
+
+.btn-login::before{
+  content:"";position:absolute;inset:-1px;border-radius:17px;z-index:-1;
+  background: linear-gradient(135deg,#ff7a9c,#7a4dff,#ff7a9c);
+  background-size: 200% 200%;
+  animation: hue 5s linear infinite;
+  opacity:.5;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  padding:1.4px;
+}
+@keyframes hue { 0%{background-position:0% 0%} 100%{background-position:200% 0%} }
+
+.brain-glow{
+  position:absolute;width:75%;height:75%;left:12.5%;top:14%;
+  background: radial-gradient(circle,#ff8a82 0%,rgba(255,138,130,0.35) 38%,transparent 65%);
+  filter: blur(45px); opacity:.5; z-index:-1;
+  animation: glowPulse 4s ease-in-out infinite;
+}
+html.dark .brain-glow{
+  background: radial-gradient(circle,#ff7a72 0%,rgba(255,138,130,0.55) 35%,transparent 65%);
+  opacity:.75;
+}
+@keyframes glowPulse { 0%,100%{opacity:.45;transform:scale(.96)} 50%{opacity:.7;transform:scale(1.06)} }
+
+/* ─── Input focus ─────────────────────────────────── */
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255,61,110,0.2);
+  border-color: rgba(255,61,110,0.45) !important;
+}
+
+/* ─── Custom scrollbar ───────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+
+/* ─── Glass card ─────────────────────────────────── */
+.glass-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-stroke);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border-radius: 20px;
+}
+
+/* ─── Status badges ─────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 100px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.badge-pending  { background: rgba(245,158,11,0.12); color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); }
+.badge-approved { background: rgba(34,197,94,0.12);  color: #22c55e; border: 1px solid rgba(34,197,94,0.25); }
+.badge-rejected { background: rgba(239,68,68,0.12);  color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+.badge-admin    { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+.badge-patient  { background: rgba(6,182,212,0.12);  color: #06b6d4; border: 1px solid rgba(6,182,212,0.25); }
+.badge-doctor   { background: rgba(255,61,110,0.1);  color: #ff6a8d; border: 1px solid rgba(255,61,110,0.2); }
+
+/* ─── Gradient text ─────────────────────────────── */
+.text-gradient {
+  background: linear-gradient(135deg,#ff6a8d 0%,#7a4dff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── AI scan line ─────────────────────────────── */
+@keyframes scanLine { 0%{top:0%} 100%{top:100%} }
+.ai-scan { position: relative; overflow: hidden; }
+.ai-scan::after {
+  content:''; position:absolute; left:0; right:0; height:1px;
+  background: linear-gradient(90deg,transparent,rgba(255,61,110,0.4),transparent);
+  animation: scanLine 3s linear infinite;
+}
+
+/* ─── Pulse dot ───────────────────────────────── */
+@keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.75)} }
+.pulse-dot { animation: pulseDot 2s ease-in-out infinite; }
+
+/* ─── Dashboard tab active ─────────────────────── */
+.tab-active {
+  background: linear-gradient(135deg,#ff3d6e,#7a4dff) !important;
+  color: white !important;
+}
+
+/* ─── Avatar circle ─────────────────────────────── */
+.avatar {
+  border-radius: 50%; display: grid; place-items: center;
+  font-weight: 700; letter-spacing: 0.04em; color: white; flex-shrink: 0;
+}
+
+/* ─── Stat card number ──────────────────────────── */
+@keyframes countUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.stat-number { animation: countUp 0.6s ease both; }
+
+/* ─── Spinner ───────────────────────────────────── */
+@keyframes spin360 { to { transform: rotate(360deg); } }
+
+/* ─── Notification border glow ──────────────────── */
+@keyframes borderGlow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.9; }
+}
+
+/* ─── Bell ring ─────────────────────────────────── */
+@keyframes bellRing {
+  0%, 60%, 100% { transform: rotate(0deg); }
+  10% { transform: rotate(14deg); }
+  20% { transform: rotate(-12deg); }
+  30% { transform: rotate(10deg); }
+  40% { transform: rotate(-8deg); }
+  50% { transform: rotate(5deg); }
+}
