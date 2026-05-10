@@ -8,10 +8,19 @@
 #   venv\Scripts\activate   (Windows)
 #   source venv/bin/activate (macOS / Linux)
 
+# ── Flask API ──────────────────────────────────────────────────────
 flask>=3.0.0
 flask-cors>=4.0.0
+
+# ── Brain Tumor — PyTorch models ──────────────────────────────────
 torch>=2.0.0
 torchvision>=0.15.0
 monai>=1.3.0
+
+# ── Brain Stroke — TensorFlow/Keras model ─────────────────────────
+tensorflow>=2.13.0
+
+# ── Image processing ──────────────────────────────────────────────
 Pillow>=10.0.0
 numpy>=1.24.0
+opencv-python>=4.8.0

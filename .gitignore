@@ -38,6 +38,7 @@ build/
 BrainTumor/ClassificationModel/Training/
 BrainTumor/ClassificationModel/Testing/
 BrainTumor/SegmentationModel/data/
+BrainStroke/data/
 
 # ── Large model weights – tracked via Git LFS ────────────────
 # Run: git lfs install && git lfs track "*.pth"

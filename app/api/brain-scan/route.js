@@ -8,7 +8,24 @@ function withTimeout(ms) {
   return { signal: ctrl.signal, clear: () => clearTimeout(id) };
 }
 
-export async function GET() {
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+
+  // /api/brain-scan?action=reload-stroke  → triggers model reload on the Python server
+  if (searchParams.get('action') === 'reload-stroke') {
+    const { signal, clear } = withTimeout(30000);
+    try {
+      const res  = await fetch(`${BRAIN_API}/reload-stroke`, { method:'POST', signal, cache:'no-store' });
+      clear();
+      const data = await res.json();
+      return NextResponse.json(data);
+    } catch {
+      clear();
+      return NextResponse.json({ ok: false, error: 'Brain API offline' }, { status: 503 });
+    }
+  }
+
+  // Default: ping /status
   const { signal, clear } = withTimeout(4000);
   try {
     const res  = await fetch(`${BRAIN_API}/status`, { cache: 'no-store', signal });
@@ -25,7 +42,7 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  const { signal, clear } = withTimeout(60000);
+  const { signal, clear } = withTimeout(90000);  // 90s — dual model (tumor + stroke)
   try {
     const formData = await request.formData();
     const res = await fetch(`${BRAIN_API}/analyze`, {

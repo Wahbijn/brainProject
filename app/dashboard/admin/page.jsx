@@ -566,19 +566,29 @@ export default function AdminDashboard() {
                         topDoctors[2],
                       ].filter(Boolean).map((doc, idx) => {
                         const rank = idx === 0 ? 2 : idx === 1 ? 1 : 3;
-                        const medals = { 1:{ emoji:'🥇', color:'#f59e0b', glow:'rgba(245,158,11,0.35)', h:160, bg:'linear-gradient(180deg,rgba(245,158,11,0.15),rgba(245,158,11,0.04))' }, 2:{ emoji:'🥈', color:'#9ca3af', glow:'rgba(156,163,175,0.2)', h:130, bg:'linear-gradient(180deg,rgba(156,163,175,0.1),rgba(156,163,175,0.03))' }, 3:{ emoji:'🥉', color:'#f97316', glow:'rgba(249,115,22,0.2)', h:110, bg:'linear-gradient(180deg,rgba(249,115,22,0.1),rgba(249,115,22,0.03))' } };
+                        const medals = { 1:{ emoji:'🥇', color:'#f59e0b', glow:'rgba(245,158,11,0.35)', h:165, bg:'linear-gradient(180deg,rgba(245,158,11,0.15),rgba(245,158,11,0.04))' }, 2:{ emoji:'🥈', color:'#9ca3af', glow:'rgba(156,163,175,0.2)', h:140, bg:'linear-gradient(180deg,rgba(156,163,175,0.1),rgba(156,163,175,0.03))' }, 3:{ emoji:'🥉', color:'#f97316', glow:'rgba(249,115,22,0.2)', h:128, bg:'linear-gradient(180deg,rgba(249,115,22,0.1),rgba(249,115,22,0.03))' } };
                         const m = medals[rank];
                         return (
                           <motion.div key={doc.id} initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:.05*idx+.4 }}
-                            style={{ flex:1, maxWidth:200, textAlign:'center', position:'relative' }}>
+                            style={{ flex:1, maxWidth:200, textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center' }}>
+                            {/* Crown + avatar sit ABOVE the card so overflow:hidden never clips them */}
                             {rank === 1 && (
-                              <div style={{ position:'absolute', top:-18, left:'50%', transform:'translateX(-50%)', fontSize:20 }}>👑</div>
+                              <div style={{ fontSize:20, marginBottom:4, lineHeight:1 }}>👑</div>
                             )}
-                            <div style={{ height:m.h, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'flex-end', paddingBottom:16, borderRadius:20, background:m.bg, border:`1px solid ${m.color}22`, boxShadow:`0 0 24px -6px ${m.glow}`, position:'relative', overflow:'hidden' }}>
+                            <div style={{
+                              width:rank===1?56:46, height:rank===1?56:46, borderRadius:rank===1?16:13,
+                              background:'linear-gradient(135deg,#ff7a9c,#7a4dff)',
+                              display:'grid', placeItems:'center',
+                              fontSize:rank===1?18:14, fontWeight:700, color:'white',
+                              boxShadow:`0 4px 16px -4px ${m.glow}`, flexShrink:0,
+                              marginBottom:-Math.round((rank===1?56:46)/2),  // overlap into card by half the avatar height
+                              position:'relative', zIndex:1,
+                            }}>{doc.avatar}</div>
+                            <div style={{ width:'100%', minHeight:m.h, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'flex-end', paddingBottom:14, paddingTop:Math.round((rank===1?56:46)/2)+8, borderRadius:20, background:m.bg, border:`1px solid ${m.color}22`, boxShadow:`0 0 24px -6px ${m.glow}`, position:'relative', overflow:'hidden' }}>
                               <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:m.color, opacity:.6 }} />
-                              <div style={{ width:rank===1?56:46, height:rank===1?56:46, borderRadius:rank===1?16:13, background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:rank===1?18:14, fontWeight:700, color:'white', marginBottom:8, boxShadow:`0 4px 16px -4px ${m.glow}`, flexShrink:0 }}>{doc.avatar}</div>
-                              <div style={{ fontSize:rank===1?13:12, fontWeight:700, color:'var(--ink)', marginBottom:2, paddingInline:8 }}>{doc.name.replace('Dr. ','Dr.')}</div>
-                              <div style={{ fontSize:10, color:'var(--ink-3)', marginBottom:6 }}>{doc.specialty}</div>
+                              <div style={{ position:'absolute', top:10, right:10, fontSize:rank===1?18:14 }}>{m.emoji}</div>
+                              <div style={{ fontSize:rank===1?13:12, fontWeight:700, color:'var(--ink)', marginBottom:2, paddingInline:8, maxWidth:'100%', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{doc.name.replace('Dr. ','Dr.')}</div>
+                              <div style={{ fontSize:10, color:'var(--ink-3)', marginBottom:6, maxWidth:'100%', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', paddingInline:8 }}>{doc.specialty}</div>
                               <div style={{ display:'flex', alignItems:'center', gap:4, justifyContent:'center' }}>
                                 <Stars value={Math.round(doc.avg)} size={rank===1?13:11} />
                               </div>
@@ -586,7 +596,6 @@ export default function AdminDashboard() {
                                 {doc.avg > 0 ? doc.avg : '—'}
                               </div>
                               <div style={{ fontSize:10, color:'var(--ink-3)', marginTop:1 }}>{doc.count} review{doc.count!==1?'s':''}</div>
-                              <div style={{ position:'absolute', top:10, right:10, fontSize:rank===1?18:14 }}>{m.emoji}</div>
                             </div>
                           </motion.div>
                         );
