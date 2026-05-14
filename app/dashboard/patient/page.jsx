@@ -821,14 +821,24 @@ export default function PatientDashboard() {
     setTipsLoading(true);
     setTipsError(null);
     try {
-      const res = await fetch('/api/ai-tips', { method: 'POST' });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      setTips(data.tips || []);
+      const res = await fetch('/api/ai-tips', {
+        method: 'POST',
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(`Server returned non-JSON (status ${res.status}). Make sure the dev server is running.`);
+      }
+      if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
+      if (!Array.isArray(data.tips) || data.tips.length === 0) throw new Error('Empty response from AI. Try again.');
+      setTips(data.tips);
       setTipsHeadline(data.headline || 'Your Daily Health Briefing');
       setTipsGenAt(new Date());
     } catch (e) {
-      setTipsError(e.message || 'Could not load tips. Check your connection.');
+      setTipsError(e.message || 'Could not reach Neural AI.');
     } finally {
       setTipsLoading(false);
     }
