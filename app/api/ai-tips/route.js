@@ -88,15 +88,29 @@ export async function POST() {
       return NextResponse.json({ error: msg }, { status: 502 });
     }
 
-    // Strip markdown fences if the model adds them despite the instruction
-    const clean = text.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '').trim();
+    // Parse the Groq API wrapper first
+    let groqResponse;
+    try {
+      groqResponse = JSON.parse(text);
+    } catch {
+      return NextResponse.json({ error: 'Groq API returned unreadable response.' }, { status: 502 });
+    }
+
+    // Extract the model's text content from choices[0].message.content
+    const raw = groqResponse.choices?.[0]?.message?.content;
+    if (!raw) {
+      return NextResponse.json({ error: 'No content in Groq response.' }, { status: 502 });
+    }
+
+    // Strip markdown fences in case the model wraps JSON in ```json ... ```
+    const clean = raw.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '').trim();
 
     let parsed;
     try {
       parsed = JSON.parse(clean);
     } catch {
       return NextResponse.json(
-        { error: 'Groq returned invalid JSON. Try again.' },
+        { error: 'AI returned malformed JSON. Try again.' },
         { status: 502 }
       );
     }
