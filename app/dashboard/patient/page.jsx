@@ -9,6 +9,7 @@ import {
   requestChatPermission, getChatPermission, getPatientScanReports,
 } from '@/lib/auth';
 import Particles from '@/components/Particles';
+import NeuralChatbot from '@/components/NeuralChatbot';
 
 const TABS = ['Overview', 'Appointments', 'Messages', 'Reviews', 'Reports', 'AI Insights'];
 const TIME_SLOTS = ['09:00','09:30','10:00','10:30','11:00','11:30','14:00','14:30','15:00','15:30','16:00','16:30'];
@@ -1067,17 +1068,121 @@ export default function PatientDashboard() {
               </div>
 
               <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:.5 }} className="glass-card" style={{ padding:24 }}>
-                <div style={{ fontSize:14, fontWeight:600, color:'var(--ink)', marginBottom:16 }}>Recent Test Results</div>
-                <div style={{ display:'flex', flexDirection:'column', gap:2 }}>
-                  {REPORTS.map((r, i) => (
-                    <div key={i} style={{ display:'flex', alignItems:'center', gap:14, padding:'12px 0', borderBottom:i<REPORTS.length-1?'1px solid var(--line)':'none' }}>
-                      <div style={{ fontSize:22 }}>{r.icon}</div>
-                      <div style={{ flex:1 }}><div style={{ fontSize:13, fontWeight:500, color:'var(--ink)' }}>{r.title}</div><div style={{ fontSize:11, color:'var(--ink-3)', marginTop:2 }}>{r.date}</div></div>
-                      <div className="badge badge-approved">{r.status}</div>
-                      <button style={{ fontSize:12, color:'#ff3d6e', background:'none', border:'none', cursor:'pointer', fontWeight:500 }}>View →</button>
+                {/* Header */}
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                    <div style={{ width:34, height:34, borderRadius:10, background:'linear-gradient(135deg,rgba(122,77,255,0.18),rgba(6,182,212,0.1))', border:'1px solid rgba(122,77,255,0.2)', display:'grid', placeItems:'center', fontSize:17, flexShrink:0 }}>🧠</div>
+                    <div>
+                      <div style={{ fontSize:14, fontWeight:700, color:'var(--ink)', lineHeight:1.2 }}>Brain Scan History</div>
+                      <div style={{ fontSize:11, color:'var(--ink-3)' }}>{scanReports.length === 0 ? 'No scans received yet' : `${scanReports.length} AI scan${scanReports.length!==1?'s':''} on file`}</div>
                     </div>
-                  ))}
+                  </div>
+                  {scanReports.length > 0 && (
+                    <motion.button whileHover={{ x:2 }} whileTap={{ scale:.96 }} onClick={() => setTab('Reports')}
+                      style={{ fontSize:11, fontWeight:700, color:'#7a4dff', background:'rgba(122,77,255,0.08)', border:'1px solid rgba(122,77,255,0.22)', padding:'5px 13px', borderRadius:20, cursor:'pointer', letterSpacing:'0.02em' }}>
+                      View All →
+                    </motion.button>
+                  )}
                 </div>
+
+                {scanReports.length === 0 ? (
+                  <div style={{ textAlign:'center', padding:'18px 0 6px' }}>
+                    <div style={{ width:54, height:54, borderRadius:16, background:'linear-gradient(135deg,rgba(122,77,255,0.1),rgba(6,182,212,0.06))', border:'1px solid rgba(122,77,255,0.15)', display:'grid', placeItems:'center', margin:'0 auto 12px', fontSize:26 }}>🔬</div>
+                    <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)', marginBottom:5 }}>No Brain Scans Yet</div>
+                    <div style={{ fontSize:12, color:'var(--ink-3)', lineHeight:1.65, maxWidth:230, margin:'0 auto 14px' }}>
+                      Once your doctor runs an AI scan on your MRI, the results will appear here.
+                    </div>
+                    <motion.button whileHover={{ y:-2 }} whileTap={{ scale:.97 }} onClick={() => setTab('Messages')}
+                      style={{ padding:'8px 20px', borderRadius:20, fontSize:12, fontWeight:600, color:'white', background:'linear-gradient(135deg,#7a4dff,#06b6d4)', border:'none', cursor:'pointer', boxShadow:'0 4px 14px -4px rgba(122,77,255,0.42)' }}>
+                      Message Your Doctor
+                    </motion.button>
+                  </div>
+                ) : (() => {
+                  const recent = scanReports.slice(0, 5);
+                  let score = 100;
+                  recent.forEach(r => {
+                    const rd = r.reportData || {};
+                    if (rd.hasTumor) score = Math.max(0, score - 30);
+                    if (rd.strokeDetected === true) score = Math.max(0, score - 25);
+                  });
+                  const tumorFindings  = scanReports.filter(r => r.reportData?.hasTumor).length;
+                  const strokeFindings = scanReports.filter(r => r.reportData?.strokeDetected === true).length;
+                  const hasStrokeData  = scanReports.some(r => r.reportData?.strokeDetected !== undefined);
+                  const scoreColor = score >= 85 ? '#22c55e' : score >= 60 ? '#f59e0b' : score >= 40 ? '#f97316' : '#E24B4A';
+                  const scoreLabel = score >= 85 ? 'Excellent' : score >= 60 ? 'Good' : score >= 40 ? 'Fair' : 'Needs Attention';
+                  const C = 2 * Math.PI * 26;
+                  const TC = { glioma:'Glioma', meningioma:'Meningioma', notumor:'No Tumor', pituitary:'Pituitary' };
+                  return (
+                    <>
+                      {/* Health score row */}
+                      <div style={{ display:'flex', gap:14, alignItems:'center', padding:'12px 14px', borderRadius:14, background:'var(--bg)', border:'1px solid var(--line)', marginBottom:14 }}>
+                        <div style={{ position:'relative', flexShrink:0 }}>
+                          <svg width="68" height="68" viewBox="0 0 68 68">
+                            <circle cx="34" cy="34" r="26" fill="none" stroke="rgba(122,77,255,0.1)" strokeWidth="6" />
+                            <circle cx="34" cy="34" r="26" fill="none" stroke={scoreColor} strokeWidth="6"
+                              strokeDasharray={`${(score/100)*C} ${C}`} strokeLinecap="round"
+                              transform="rotate(-90 34 34)" style={{ transition:'stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1)' }} />
+                          </svg>
+                          <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:1 }}>
+                            <span style={{ fontSize:15, fontWeight:800, color:scoreColor, lineHeight:1 }}>{score}</span>
+                            <span style={{ fontSize:7.5, color:'var(--ink-3)', fontWeight:700, letterSpacing:'0.06em' }}>SCORE</span>
+                          </div>
+                        </div>
+                        <div style={{ flex:1, minWidth:0 }}>
+                          <div style={{ fontSize:12, fontWeight:700, color:'var(--ink)', marginBottom:2 }}>Neurological Health</div>
+                          <div style={{ fontSize:11, fontWeight:700, color:scoreColor, marginBottom:8 }}>{scoreLabel}</div>
+                          <div style={{ display:'flex', flexDirection:'column', gap:3 }}>
+                            <div style={{ fontSize:10, fontWeight:600, color: tumorFindings>0 ? '#E24B4A' : '#22c55e' }}>
+                              {tumorFindings>0 ? `⚠ ${tumorFindings} tumor finding${tumorFindings!==1?'s':''}` : '✓ No tumor findings'}
+                            </div>
+                            {hasStrokeData && (
+                              <div style={{ fontSize:10, fontWeight:600, color: strokeFindings>0 ? '#7C3AED' : '#22c55e' }}>
+                                {strokeFindings>0 ? `⚠ ${strokeFindings} stroke alert${strokeFindings!==1?'s':''}` : '✓ No stroke signs'}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Last 3 scan rows */}
+                      <div style={{ display:'flex', flexDirection:'column', gap:0 }}>
+                        {scanReports.slice(0, 3).map((rep, i) => {
+                          const rd  = rep.reportData || {};
+                          const allGood = !rd.hasTumor && rd.strokeDetected !== true;
+                          const label = rd.hasTumor ? (TC[rd.tumorClass] || rd.tumorLabel || 'Tumor') : 'No Tumor';
+                          const date  = new Date(rep.timestamp).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+                          const accent = allGood ? '#22c55e' : '#E24B4A';
+                          const accentBg = allGood ? 'rgba(34,197,94,0.1)' : 'rgba(226,75,74,0.1)';
+                          const accentBorder = allGood ? 'rgba(34,197,94,0.2)' : 'rgba(226,75,74,0.2)';
+                          return (
+                            <motion.div key={rep.id||i} whileHover={{ x:3 }} transition={{ type:'spring', stiffness:400, damping:28 }}
+                              style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 4px',
+                                borderBottom: i < Math.min(scanReports.length,3)-1 ? '1px solid var(--line)' : 'none', cursor:'pointer' }}
+                              onClick={() => setTab('Reports')}>
+                              <div style={{ width:36, height:36, borderRadius:10, background:accentBg, border:`1px solid ${accentBorder}`, display:'grid', placeItems:'center', fontSize:17, flexShrink:0 }}>
+                                🧠
+                              </div>
+                              <div style={{ flex:1, minWidth:0 }}>
+                                <div style={{ fontSize:12, fontWeight:600, color:'var(--ink)', marginBottom:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                                  {allGood ? 'Brain Scan — All Clear' : `Brain Scan — ${label}${rd.strokeDetected?' + Stroke Detected':''}`}
+                                </div>
+                                <div style={{ fontSize:10, color:'var(--ink-3)' }}>{rep.fromName} · {date}</div>
+                              </div>
+                              <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:3, flexShrink:0 }}>
+                                <div style={{ padding:'2px 9px', borderRadius:20, fontSize:9, fontWeight:800, letterSpacing:'0.07em', background:accentBg, color:accent, border:`1px solid ${accentBorder}` }}>
+                                  {allGood ? 'CLEAR' : 'FLAGGED'}
+                                </div>
+                                {rd.tumorConfidence && (
+                                  <div style={{ fontSize:9, color:'var(--ink-3)', fontWeight:500 }}>{rd.tumorConfidence}% conf.</div>
+                                )}
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  );
+                })()}
               </motion.div>
             </motion.div>
           )}
@@ -2174,6 +2279,8 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
         {reviewOpen  && <ReviewModal  user={user} doctors={approvedDocs} onClose={() => setReviewOpen(false)}  onDone={() => loadData(user.id)} />}
         {newChatOpen && <NewChatPanel approvedDocs={approvedDocs} onClose={() => setNewChatOpen(false)} onStart={(doc) => { setSelDoctor(doc); setTab('Messages'); }} />}
       </AnimatePresence>
+
+      <NeuralChatbot />
     </div>
   );
 }
