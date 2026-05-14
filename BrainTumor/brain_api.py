@@ -16,7 +16,7 @@ from flask_cors import CORS
 import torch
 import torch.nn as nn
 from torchvision import models, transforms
-from PIL import Image
+from PIL import Image, ImageFilter
 
 BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
 CLF_PATH    = os.path.join(BASE_DIR, 'ClassificationModel', 'best_model.pth')
@@ -245,41 +245,78 @@ def heatmap_to_rgb(heatmap: np.ndarray) -> np.ndarray:
 
 
 def get_gradcam_stroke(img_array: np.ndarray) -> np.ndarray:
-    """Compute Grad-CAM heatmap via conv5_block3_out. Returns (7,7) float32."""
+    """Grad-CAM via conv5_block3_out with input-gradient fallback. Returns (7,7) float32 [0,1]."""
     if stroke_model is None:
         return np.zeros((7, 7), dtype=np.float32)
+
+    import tensorflow as tf
+
+    # Find single-probability classification output (None,1)
+    class_out = next(
+        (o for o in stroke_model.outputs if len(o.shape) == 2 and o.shape[-1] == 1),
+        stroke_model.outputs[0],
+    )
+
+    # ── Attempt 1: true Grad-CAM ──────────────────────────────────
+    # tape.watch MUST be called on img_t BEFORE grad_model runs so the tape
+    # records the full chain img_t → conv_out → class_pred. Watching conv_out
+    # after the model call is too late — the backward path is never registered.
     try:
-        import tensorflow as tf
-
-        # Find classification output (shape (None,1))
-        class_out = None
-        for out in stroke_model.outputs:
-            if len(out.shape) == 2 and out.shape[-1] == 1:
-                class_out = out
-                break
-        if class_out is None:
-            class_out = stroke_model.outputs[0]
-
         grad_model = tf.keras.models.Model(
             inputs  = stroke_model.inputs,
             outputs = [stroke_model.get_layer('conv5_block3_out').output, class_out],
         )
         img_t = tf.cast(img_array, tf.float32)
+
         with tf.GradientTape() as tape:
+            tape.watch(img_t)                           # ← watch BEFORE model call
             conv_out, class_pred = grad_model(img_t)
             loss = class_pred[:, 0]
 
-        grads      = tape.gradient(loss, conv_out)
-        pooled     = tf.reduce_mean(grads, axis=(0, 1, 2)).numpy()   # (C,)
-        conv_np    = conv_out[0].numpy()                              # (H,W,C)
-        heatmap    = np.einsum('hwc,c->hw', conv_np, pooled)          # (H,W)
-        heatmap    = np.maximum(heatmap, 0)
-        denom      = heatmap.max()
-        if denom > 0:
-            heatmap /= denom
+        grads = tape.gradient(loss, conv_out)           # (1,H,W,C) or None
+
+        if grads is None:
+            raise ValueError("tape returned None gradients for conv_out")
+
+        pooled  = tf.reduce_mean(grads, axis=(0, 1, 2)).numpy()  # (C,)
+        conv_np = conv_out[0].numpy()                             # (H,W,C)
+        heatmap = np.maximum(np.einsum('hwc,c->hw', conv_np, pooled), 0)
+
+        if heatmap.max() == 0:
+            raise ValueError("Grad-CAM heatmap is blank")
+
+        # Percentile normalization: clip at 99th percentile so a single bright
+        # border pixel cannot collapse the whole scale and hide the real lesion.
+        p99 = np.percentile(heatmap, 99)
+        if p99 > 1e-8:
+            heatmap = np.clip(heatmap / p99, 0, 1)
+        else:
+            heatmap = heatmap / heatmap.max()
         return heatmap.astype(np.float32)
+
     except Exception as e:
-        print(f"   Grad-CAM error: {e}")
+        print(f"   Grad-CAM attempt 1 failed ({type(e).__name__}: {e}) — trying input-gradient fallback")
+
+    # ── Fallback: input-gradient saliency (tf.Variable always watched) ──
+    # Keep full 224×224 resolution — shrinking to 7×7 destroys spatial info.
+    try:
+        img_var = tf.Variable(img_array, dtype=tf.float32)
+        with tf.GradientTape() as tape2:
+            preds = stroke_model(img_var)
+            raw   = preds[0] if isinstance(preds, (list, tuple)) else preds
+            loss2 = raw[:, 0]
+
+        ig = tape2.gradient(loss2, img_var)             # (1,224,224,3)
+
+        if ig is None:
+            raise ValueError("input gradient also None")
+
+        grad_map = tf.reduce_max(tf.abs(ig[0]), axis=-1).numpy()   # (224,224)
+        grad_map = grad_map / (grad_map.max() + 1e-8)
+        return grad_map.astype(np.float32)              # full 224×224
+
+    except Exception as e2:
+        print(f"   Grad-CAM fallback also failed: {e2}")
         return np.zeros((7, 7), dtype=np.float32)
 
 
@@ -306,21 +343,46 @@ def run_stroke(orig: Image.Image):
     confidence   = round((class_prob if has_stroke else 1.0 - class_prob) * 100, 1)
     raw_prob_pct = round(class_prob * 100, 1)   # always 0-100%, regardless of direction
 
-    # Grad-CAM → 512×512 RGB heatmap
-    heatmap7    = get_gradcam_stroke(img_arr)               # (7,7)
-    heatmap7_u8 = (heatmap7 * 255).astype(np.uint8)
+    # ── Step 1: upscale raw heatmap to 512×512 ───────────────────────
+    heatmap_raw = get_gradcam_stroke(img_arr)               # (H,W) any size
     heatmap512  = np.array(
-        Image.fromarray(heatmap7_u8, mode='L').resize((512, 512), Image.BILINEAR),
+        Image.fromarray((heatmap_raw * 255).astype(np.uint8), mode='L')
+             .resize((512, 512), Image.BICUBIC),            # bicubic → smoother
         dtype=np.float32,
-    ) / 255.0                                               # (512,512) float [0,1]
+    ) / 255.0
 
-    hm_rgb      = heatmap_to_rgb(heatmap512)                # (512,512,3)
+    # ── Step 2: Gaussian smooth — remove grid artifacts from upscaling ──
+    # PIL GaussianBlur radius=10 gives a soft, medically clean heatmap.
+    heatmap512 = np.array(
+        Image.fromarray((heatmap512 * 255).astype(np.uint8), mode='L')
+             .filter(ImageFilter.GaussianBlur(radius=10)),
+        dtype=np.float32,
+    ) / 255.0
+
+    # ── Step 3: Brain mask — zero out background / skull activations ────
+    # Brain MRI: tissue is bright; background pixels are < ~5 % of peak.
+    # Dilate the mask by 25 px with PIL MaxFilter to keep cortical edges.
+    orig512      = orig.resize((512, 512), Image.BILINEAR)
+    gray512      = np.array(orig512.convert('L'), dtype=np.float32)
+    brain_thresh = gray512.max() * 0.05
+    brain_bin    = (gray512 > brain_thresh).astype(np.uint8) * 255
+    brain_mask   = np.array(
+        Image.fromarray(brain_bin, mode='L').filter(ImageFilter.MaxFilter(size=25)),
+        dtype=np.float32,
+    ) / 255.0
+    heatmap512  *= brain_mask                               # suppress non-brain regions
+
+    # ── Step 4: re-normalise after masking ───────────────────────────
+    if heatmap512.max() > 1e-8:
+        heatmap512 = heatmap512 / heatmap512.max()
+
+    # ── Step 5: colorise and blend ───────────────────────────────────
+    hm_rgb      = heatmap_to_rgb(heatmap512)
     heatmap_img = Image.fromarray(hm_rgb)
 
-    # Blend heatmap over original at 512×512 with intensity-weighted alpha
-    orig512     = orig.resize((512, 512), Image.BILINEAR)
     orig_arr    = np.array(orig512, dtype=np.float32)
-    alpha_map   = heatmap512[..., np.newaxis] * 0.65
+    # Use intensity-weighted alpha — hot spots fully visible, cool areas transparent
+    alpha_map   = heatmap512[..., np.newaxis] * 0.70
     blended     = orig_arr * (1 - alpha_map) + hm_rgb.astype(np.float32) * alpha_map
     overlay_img = Image.fromarray(np.clip(blended, 0, 255).astype(np.uint8))
 

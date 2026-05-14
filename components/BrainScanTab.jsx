@@ -790,7 +790,7 @@ function ScanResults({ data, onReset }) {
 }
 
 // ── Main exported component ────────────────────────────────────────
-export default function BrainScanTab() {
+export default function BrainScanTab({ onScanDone } = {}) {
   const [serverOk, setServerOk] = useState(null);
   const [file,     setFile]     = useState(null);
   const [preview,  setPreview]  = useState(null);
@@ -837,6 +837,7 @@ export default function BrainScanTab() {
         setError(d.error || 'Analysis failed — make sure the AI server is running.');
       } else {
         setResults(d);
+        onScanDone?.();
       }
     } catch (e) {
       clearTimeout(tid);

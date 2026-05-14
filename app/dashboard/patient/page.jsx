@@ -6,11 +6,11 @@ import {
   bookAppointment, getAppointmentsByPatient, cancelAppointment,
   addReview, getReviewsByDoctor, getDoctorRating, acceptAlternative,
   sendMessage, getMessagesBetween, markMessagesRead, getUnreadCount, getConversations,
+  requestChatPermission, getChatPermission, getPatientScanReports,
 } from '@/lib/auth';
 import Particles from '@/components/Particles';
-import BrainScanTab from '@/components/BrainScanTab';
 
-const TABS = ['Overview', 'Appointments', 'Messages', 'Reviews', 'Reports', 'AI Insights', 'Brain Scan'];
+const TABS = ['Overview', 'Appointments', 'Messages', 'Reviews', 'Reports', 'AI Insights'];
 const TIME_SLOTS = ['09:00','09:30','10:00','10:30','11:00','11:30','14:00','14:30','15:00','15:30','16:00','16:30'];
 
 const METRICS = [
@@ -114,19 +114,19 @@ function fmtDivider(iso) {
 }
 
 function PatientChat({ user, doctor }) {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput]       = useState('');
-  const [sending, setSending]   = useState(false);
-  const [unread, setUnread]     = useState(0);
-  const endRef   = useRef(null);
-  const pollRef  = useRef(null);
-  const inputRef = useRef(null);
+  const [messages, setMessages]     = useState([]);
+  const [input, setInput]           = useState('');
+  const [sending, setSending]       = useState(false);
+  const [imgPreview, setImgPreview] = useState(null);
+  const endRef    = useRef(null);
+  const pollRef   = useRef(null);
+  const inputRef  = useRef(null);
+  const fileRef   = useRef(null);
 
   const load = () => {
     const msgs = getMessagesBetween(user.id, doctor.id);
     setMessages(msgs);
     markMessagesRead(doctor.id, user.id);
-    setUnread(0);
   };
 
   useEffect(() => {
@@ -135,15 +135,30 @@ function PatientChat({ user, doctor }) {
     return () => clearInterval(pollRef.current);
   }, [doctor.id]);
 
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior:'smooth' });
-  }, [messages]);
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior:'smooth' }); }, [messages]);
+
+  const onFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setImgPreview({ dataUrl: ev.target.result });
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
 
   const send = () => {
+    if (imgPreview) {
+      setSending(true);
+      sendMessage({ fromId:user.id, fromName:user.name, fromAvatar:user.avatar, fromRole:'patient', toId:doctor.id, toName:doctor.name, toAvatar:doctor.avatar, toRole:'doctor', text:'[Brain scan image]', type:'image', imageData:imgPreview.dataUrl });
+      setImgPreview(null);
+      setSending(false);
+      load();
+      return;
+    }
     const text = input.trim();
     if (!text || sending) return;
     setSending(true);
-    sendMessage({ fromId:user.id, fromName:user.name, fromAvatar:user.avatar, fromRole:'patient', toId:doctor.id, toName:doctor.name, toAvatar:doctor.avatar, toRole:'doctor', text });
+    sendMessage({ fromId:user.id, fromName:user.name, fromAvatar:user.avatar, fromRole:'patient', toId:doctor.id, toName:doctor.name, toAvatar:doctor.avatar, toRole:'doctor', text, type:'text' });
     setInput('');
     setSending(false);
     load();
@@ -152,7 +167,6 @@ function PatientChat({ user, doctor }) {
 
   const onKey = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } };
 
-  // Group messages by date
   const groups = [];
   let lastDate = '';
   messages.forEach(m => {
@@ -163,7 +177,6 @@ function PatientChat({ user, doctor }) {
 
   return (
     <div style={{ display:'flex', flexDirection:'column', height:'calc(100vh - 220px)', borderRadius:20, overflow:'hidden', border:'1px solid var(--line)', boxShadow:'0 8px 40px -12px rgba(0,0,0,0.3)', position:'relative' }}>
-      {/* Background decorative gradient */}
       <div style={{ position:'absolute', inset:0, pointerEvents:'none', zIndex:0, background:'var(--bg)', overflow:'hidden' }}>
         <div style={{ position:'absolute', top:'10%', right:'5%', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle,rgba(6,182,212,0.05),transparent 70%)', filter:'blur(50px)' }} />
         <div style={{ position:'absolute', bottom:'15%', left:'5%', width:250, height:250, borderRadius:'50%', background:'radial-gradient(circle,rgba(122,77,255,0.05),transparent 70%)', filter:'blur(40px)' }} />
@@ -197,7 +210,7 @@ function PatientChat({ user, doctor }) {
             </div>
             <div style={{ textAlign:'center' }}>
               <div style={{ fontSize:14, fontWeight:600, color:'var(--ink)', marginBottom:4 }}>Start the conversation</div>
-              <div style={{ fontSize:12, color:'var(--ink-3)' }}>Send a message to {doctor.name}</div>
+              <div style={{ fontSize:12, color:'var(--ink-3)' }}>Send a message or share a brain scan image</div>
             </div>
           </div>
         )}
@@ -212,17 +225,75 @@ function PatientChat({ user, doctor }) {
           );
 
           const isMe = g.fromId === user.id;
-          const prev = groups[gi - 1];
           const next = groups[gi + 1];
-          const samePrevSender = prev?.type === 'msg' && prev.fromId === g.fromId;
-          const sameNextSender = next?.type === 'msg' && next.fromId === g.fromId;
-          const isLast = !sameNextSender;
+          const isLast = !(next?.type === 'msg' && next.fromId === g.fromId);
+
+          // ── Scan report message ──
+          if (g.type === 'scan_report') {
+            const rd = g.reportData || {};
+            const tumorSafe = rd.tumorClass === 'notumor';
+            const strokeSafe = rd.strokeDetected === false;
+            return (
+              <motion.div key={g.id} initial={{ opacity:0, y:12, scale:.96 }} animate={{ opacity:1, y:0, scale:1 }} transition={{ duration:.25 }}
+                style={{ display:'flex', flexDirection:'row', alignItems:'flex-end', gap:8, marginBottom:12 }}>
+                <div style={{ width:32, height:32, borderRadius:'50%', background:'linear-gradient(135deg,#7a4dff,#7C3AED)', display:'grid', placeItems:'center', fontSize:10, fontWeight:700, color:'white', flexShrink:0 }}>{g.fromAvatar}</div>
+                <div style={{ maxWidth:'82%', borderRadius:18, overflow:'hidden', border:'1px solid rgba(122,77,255,0.25)', boxShadow:'0 8px 32px -8px rgba(122,77,255,0.2)' }}>
+                  {/* Header */}
+                  <div style={{ padding:'12px 16px', background:'linear-gradient(135deg,rgba(122,77,255,0.12),rgba(124,58,237,0.08))', borderBottom:'1px solid rgba(122,77,255,0.15)', display:'flex', alignItems:'center', gap:10 }}>
+                    <div style={{ width:34, height:34, borderRadius:10, background:'linear-gradient(135deg,#7a4dff,#7C3AED)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z"/><circle cx="12" cy="8" r="2"/></svg>
+                    </div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:13, fontWeight:700, color:'var(--ink)' }}>Brain Scan Report</div>
+                      <div style={{ fontSize:10, color:'var(--ink-3)' }}>From {g.fromName} · {fmtMsgTime(g.timestamp)}</div>
+                    </div>
+                    <div style={{ padding:'3px 9px', borderRadius:100, background:'rgba(122,77,255,0.12)', border:'1px solid rgba(122,77,255,0.25)', fontSize:9, fontWeight:800, color:'#7a4dff', letterSpacing:'0.08em' }}>OFFICIAL</div>
+                  </div>
+                  {/* Results */}
+                  <div style={{ padding:'14px 16px', background:'var(--frame)', display:'flex', flexDirection:'column', gap:8 }}>
+                    {rd.tumorLabel && (
+                      <div style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 12px', borderRadius:12, background:'var(--bg)', border:`1px solid ${tumorSafe?'rgba(34,197,94,0.2)':'rgba(226,75,74,0.2)'}` }}>
+                        <div style={{ width:10, height:10, borderRadius:'50%', background: tumorSafe?'#22c55e':'#E24B4A', flexShrink:0 }} />
+                        <div style={{ flex:1 }}>
+                          <div style={{ fontSize:11, fontWeight:700, color:'var(--ink)' }}>Tumor Analysis</div>
+                          <div style={{ fontSize:10, color:'var(--ink-3)' }}>{rd.tumorLabel} · {rd.tumorConfidence}% confidence</div>
+                        </div>
+                        <div style={{ padding:'2px 8px', borderRadius:100, background: tumorSafe?'rgba(34,197,94,0.1)':'rgba(226,75,74,0.1)', border:`1px solid ${tumorSafe?'rgba(34,197,94,0.25)':'rgba(226,75,74,0.25)'}`, fontSize:9, fontWeight:700, color:tumorSafe?'#22c55e':'#E24B4A' }}>
+                          {tumorSafe ? 'CLEAR' : 'DETECTED'}
+                        </div>
+                      </div>
+                    )}
+                    {rd.strokeDetected !== undefined && (
+                      <div style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 12px', borderRadius:12, background:'var(--bg)', border:`1px solid ${strokeSafe?'rgba(6,182,212,0.2)':'rgba(124,58,237,0.25)'}` }}>
+                        <div style={{ width:10, height:10, borderRadius:'50%', background: strokeSafe?'#06b6d4':'#7C3AED', flexShrink:0 }} />
+                        <div style={{ flex:1 }}>
+                          <div style={{ fontSize:11, fontWeight:700, color:'var(--ink)' }}>Stroke Screening</div>
+                          <div style={{ fontSize:10, color:'var(--ink-3)' }}>{rd.strokeDetected?'Stroke signs detected':'No stroke signs'} · {rd.strokeConfidence}% confidence</div>
+                        </div>
+                        <div style={{ padding:'2px 8px', borderRadius:100, background: strokeSafe?'rgba(6,182,212,0.1)':'rgba(124,58,237,0.1)', border:`1px solid ${strokeSafe?'rgba(6,182,212,0.25)':'rgba(124,58,237,0.25)'}`, fontSize:9, fontWeight:700, color:strokeSafe?'#06b6d4':'#7C3AED' }}>
+                          {strokeSafe ? 'CLEAR' : 'ALERT'}
+                        </div>
+                      </div>
+                    )}
+                    {rd.doctorNote && (
+                      <div style={{ padding:'10px 12px', borderRadius:12, background:'linear-gradient(135deg,rgba(122,77,255,0.05),rgba(255,61,110,0.03))', border:'1px solid rgba(122,77,255,0.15)' }}>
+                        <div style={{ fontSize:10, fontWeight:700, color:'#7a4dff', marginBottom:4, display:'flex', alignItems:'center', gap:5 }}>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                          Doctor's Note
+                        </div>
+                        <div style={{ fontSize:11, color:'var(--ink-2)', lineHeight:1.55 }}>{rd.doctorNote}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            );
+          }
 
           return (
             <motion.div key={g.id} initial={{ opacity:0, y:10, scale:.97 }} animate={{ opacity:1, y:0, scale:1 }} transition={{ duration:.2 }}
               style={{ display:'flex', flexDirection: isMe ? 'row-reverse' : 'row', alignItems:'flex-end', gap:8, marginBottom: isLast ? 6 : 2 }}>
 
-              {/* Avatar — only for doctor, only on last bubble in group */}
               {!isMe && (
                 <div style={{ width:30, height:30, borderRadius:'50%', background: isLast ? 'linear-gradient(135deg,#ff7a9c,#7a4dff)' : 'transparent', display:'grid', placeItems:'center', fontSize:10, fontWeight:700, color:'white', flexShrink:0, visibility: isLast ? 'visible' : 'hidden' }}>
                   {g.fromAvatar}
@@ -230,29 +301,25 @@ function PatientChat({ user, doctor }) {
               )}
 
               <div style={{ maxWidth:'70%', display:'flex', flexDirection:'column', alignItems: isMe ? 'flex-end' : 'flex-start' }}>
-                <div style={{
-                  padding:'10px 14px',
-                  borderRadius: isMe
-                    ? `16px 16px ${isLast?'4px':'16px'} 16px`
-                    : `16px 16px 16px ${isLast?'4px':'16px'}`,
-                  background: isMe ? 'linear-gradient(135deg,#0ea5e9,#7a4dff)' : 'var(--frame)',
-                  border: isMe ? 'none' : '1px solid var(--line)',
-                  color: isMe ? 'white' : 'var(--ink-2)',
-                  fontSize:14,
-                  lineHeight:1.55,
-                  boxShadow: isMe ? '0 4px 16px -4px rgba(14,165,233,0.4)' : '0 2px 8px -4px rgba(0,0,0,0.15)',
-                  wordBreak:'break-word',
-                }}>
-                  {g.text}
-                </div>
+                {g.type === 'image' && g.imageData ? (
+                  <div style={{ borderRadius: isMe?`16px 16px ${isLast?'4px':'16px'} 16px`:`16px 16px 16px ${isLast?'4px':'16px'}`, overflow:'hidden', border:'1px solid var(--line)', maxWidth:220, boxShadow: isMe?'0 4px 16px -4px rgba(14,165,233,0.4)':'0 2px 8px -4px rgba(0,0,0,0.15)' }}>
+                    <img src={g.imageData} alt="scan" style={{ width:'100%', display:'block', objectFit:'cover', maxHeight:180 }} />
+                    <div style={{ padding:'6px 10px', background: isMe?'linear-gradient(135deg,#0ea5e9,#7a4dff)':'var(--frame)', display:'flex', alignItems:'center', gap:5, fontSize:10, color: isMe?'rgba(255,255,255,0.8)':'var(--ink-3)', fontWeight:500 }}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z" strokeLinejoin="round"/></svg>
+                      Brain scan image sent to doctor
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ padding:'10px 14px', borderRadius: isMe?`16px 16px ${isLast?'4px':'16px'} 16px`:`16px 16px 16px ${isLast?'4px':'16px'}`, background: isMe?'linear-gradient(135deg,#0ea5e9,#7a4dff)':'var(--frame)', border: isMe?'none':'1px solid var(--line)', color: isMe?'white':'var(--ink-2)', fontSize:14, lineHeight:1.55, boxShadow: isMe?'0 4px 16px -4px rgba(14,165,233,0.4)':'0 2px 8px -4px rgba(0,0,0,0.15)', wordBreak:'break-word' }}>
+                    {g.text}
+                  </div>
+                )}
                 {isLast && (
                   <div style={{ display:'flex', alignItems:'center', gap:4, marginTop:3, opacity:0.6 }}>
                     <span style={{ fontSize:10, color:'var(--ink-3)' }}>{fmtMsgTime(g.timestamp)}</span>
                     {isMe && (
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={g.read?'#22c55e':'var(--ink-3)'} strokeWidth="2.5">
-                        {g.read
-                          ? <><polyline points="18 4 9 15 4 10"/><polyline points="22 4 13 15" opacity=".6"/></>
-                          : <polyline points="20 6 9 17 4 12"/>}
+                        {g.read ? <><polyline points="18 4 9 15 4 10"/><polyline points="22 4 13 15" opacity=".6"/></> : <polyline points="20 6 9 17 4 12"/>}
                       </svg>
                     )}
                   </div>
@@ -264,24 +331,52 @@ function PatientChat({ user, doctor }) {
         <div ref={endRef} />
       </div>
 
+      {/* ── Image preview ── */}
+      <AnimatePresence>
+        {imgPreview && (
+          <motion.div initial={{ height:0, opacity:0 }} animate={{ height:'auto', opacity:1 }} exit={{ height:0, opacity:0 }}
+            style={{ position:'relative', zIndex:2, borderTop:'1px solid var(--line)', padding:'10px 16px', background:'var(--frame)', display:'flex', alignItems:'center', gap:12, flexShrink:0, overflow:'hidden' }}>
+            <div style={{ position:'relative', flexShrink:0 }}>
+              <img src={imgPreview.dataUrl} alt="preview" style={{ width:72, height:52, borderRadius:10, objectFit:'cover', border:'2px solid rgba(122,77,255,0.4)' }} />
+              <button onClick={() => setImgPreview(null)} style={{ position:'absolute', top:-6, right:-6, width:18, height:18, borderRadius:'50%', background:'#ef4444', border:'none', cursor:'pointer', display:'grid', placeItems:'center', color:'white' }}>
+                <svg width="8" height="8" viewBox="0 0 12 12" fill="none"><path d="M9 3L3 9M3 3l6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+              </button>
+            </div>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:12, fontWeight:600, color:'var(--ink)', marginBottom:2 }}>Brain scan image ready to send</div>
+              <div style={{ fontSize:10, color:'var(--ink-3)' }}>Your doctor will receive this and can run an AI analysis</div>
+            </div>
+            <div style={{ display:'flex', alignItems:'center', gap:5, padding:'4px 10px', borderRadius:100, background:'rgba(122,77,255,0.08)', border:'1px solid rgba(122,77,255,0.2)', fontSize:10, fontWeight:600, color:'#7a4dff' }}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z" strokeLinejoin="round"/></svg>
+              MRI ready
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Input ── */}
       <div style={{ position:'relative', zIndex:2, padding:'12px 16px', borderTop:'1px solid var(--line)', display:'flex', gap:10, alignItems:'flex-end', background:'var(--frame)', flexShrink:0 }}>
+        <input ref={fileRef} type="file" accept="image/*" style={{ display:'none' }} onChange={onFileChange} />
+        <motion.button whileHover={{ scale:1.07 }} whileTap={{ scale:.92 }} onClick={() => fileRef.current?.click()}
+          title="Send brain scan image"
+          style={{ width:40, height:40, borderRadius:12, border:'1px solid var(--line)', background:'var(--bg)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color:'#7a4dff', transition:'all .2s' }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/><polyline points="21 15 16 10 5 21"/></svg>
+        </motion.button>
         <div style={{ flex:1, borderRadius:16, border:'1px solid var(--line)', background:'var(--bg)', display:'flex', alignItems:'flex-end', padding:'6px 12px', transition:'border-color .2s', gap:8 }}
           onFocus={e=>e.currentTarget.style.borderColor='rgba(6,182,212,0.5)'}
           onBlur={e=>e.currentTarget.style.borderColor='var(--line)'}>
           <textarea ref={inputRef} value={input} onChange={e=>setInput(e.target.value)} onKeyDown={onKey}
-            placeholder={`Message ${doctor.name}…`} rows={1}
+            placeholder={imgPreview ? 'Add a note for the doctor… (optional)' : `Message ${doctor.name}…`} rows={1}
             style={{ flex:1, border:'none', background:'transparent', outline:'none', resize:'none', fontSize:14, color:'var(--ink)', lineHeight:1.5, maxHeight:100, overflowY:'auto', fontFamily:'inherit', padding:'4px 0' }}
             onInput={e => { e.target.style.height='auto'; e.target.style.height=Math.min(e.target.scrollHeight,100)+'px'; }}
           />
         </div>
         <motion.button whileHover={{ scale:1.06 }} whileTap={{ scale:.93 }} onClick={send}
-          disabled={!input.trim() || sending}
-          style={{ width:44, height:44, borderRadius:14, border:'none', cursor:!input.trim()?'not-allowed':'pointer', background:'linear-gradient(135deg,#0ea5e9,#7a4dff)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, boxShadow:'0 4px 16px -4px rgba(14,165,233,0.5)', opacity:!input.trim()?.4:1, transition:'opacity .2s' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"/>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-          </svg>
+          disabled={(!input.trim() && !imgPreview) || sending}
+          style={{ width:44, height:44, borderRadius:14, border:'none', cursor:(!input.trim()&&!imgPreview)?'not-allowed':'pointer', background: imgPreview?'linear-gradient(135deg,#7a4dff,#7C3AED)':'linear-gradient(135deg,#0ea5e9,#7a4dff)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, boxShadow: imgPreview?'0 4px 16px -4px rgba(122,77,255,0.5)':'0 4px 16px -4px rgba(14,165,233,0.5)', opacity:(!input.trim()&&!imgPreview)?.4:1, transition:'all .2s' }}>
+          {imgPreview
+            ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z"/></svg>
+            : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>}
         </motion.button>
       </div>
     </div>
@@ -674,7 +769,11 @@ export default function PatientDashboard() {
   const [tab, setTab]             = useState('Overview');
   const [dark, setDark]           = useState(false);
   const [ready, setReady]         = useState(false);
-  const [aiTyped, setAiTyped]     = useState('');
+  const [tips, setTips]           = useState([]);
+  const [tipsLoading, setTipsLoading] = useState(false);
+  const [tipsError, setTipsError] = useState(null);
+  const [tipsHeadline, setTipsHeadline] = useState('');
+  const [tipsGenAt, setTipsGenAt] = useState(null);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [reviewOpen, setReviewOpen]   = useState(false);
   const [appointments, setAppointments] = useState([]);
@@ -687,8 +786,11 @@ export default function PatientDashboard() {
   const [selDoctor, setSelDoctor]         = useState(null);
   const [patConversations, setPatConversations] = useState([]);
   const [newChatOpen, setNewChatOpen]     = useState(false);
+  const [permRefresh, setPermRefresh]     = useState(0);
+  const [scanReports, setScanReports]     = useState([]);
+  const [reportFilter, setReportFilter]   = useState('all');
+  const [expandedRep, setExpandedRep]     = useState(null);
 
-  const aiText = 'Based on your recent vitals, your cardiovascular health is within the optimal range. Your step count has increased 18% compared to last week. Neural AI recommends maintaining current activity levels and scheduling your annual cardiac screening for proactive care.';
 
   const loadData = (uid) => {
     initAuth();
@@ -700,6 +802,7 @@ export default function PatientDashboard() {
     setDocReviewsMap(map);
     setMsgUnread(getUnreadCount(uid));
     setPatConversations(getConversations(uid));
+    setScanReports(getPatientScanReports(uid));
   };
 
   useEffect(() => {
@@ -714,12 +817,26 @@ export default function PatientDashboard() {
     setReady(true);
   }, []);
 
+  const fetchTips = async () => {
+    setTipsLoading(true);
+    setTipsError(null);
+    try {
+      const res = await fetch('/api/ai-tips', { method: 'POST' });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setTips(data.tips || []);
+      setTipsHeadline(data.headline || 'Your Daily Health Briefing');
+      setTipsGenAt(new Date());
+    } catch (e) {
+      setTipsError(e.message || 'Could not load tips. Check your connection.');
+    } finally {
+      setTipsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (tab !== 'AI Insights') return;
-    setAiTyped('');
-    let i = 0;
-    const t = setInterval(() => { i++; setAiTyped(aiText.slice(0, i)); if (i >= aiText.length) clearInterval(t); }, 20);
-    return () => clearInterval(t);
+    if (tips.length === 0 && !tipsLoading) fetchTips();
   }, [tab]);
 
   useEffect(() => {
@@ -730,10 +847,19 @@ export default function PatientDashboard() {
 
   useEffect(() => {
     if (!user || tab !== 'Messages') return;
-    const refresh = () => { setPatConversations(getConversations(user.id)); setMsgUnread(getUnreadCount(user.id)); };
+    const refresh = () => {
+      setPatConversations(getConversations(user.id));
+      setMsgUnread(getUnreadCount(user.id));
+      setScanReports(getPatientScanReports(user.id));
+    };
     refresh();
     const t = setInterval(refresh, 2500);
     return () => clearInterval(t);
+  }, [user, tab]);
+
+  useEffect(() => {
+    if (!user || tab !== 'Reports') return;
+    setScanReports(getPatientScanReports(user.id));
   }, [user, tab]);
 
   const toggleDark = () => {
@@ -857,22 +983,43 @@ export default function PatientDashboard() {
               </div>
 
               <div style={{ display:'grid', gridTemplateColumns:'1fr 380px', gap:18, marginBottom:22 }}>
-                <motion.div initial={{ opacity:0, x:-16 }} animate={{ opacity:1, x:0 }} transition={{ delay:.3 }} className="glass-card ai-scan" style={{ padding:24 }}>
+                <motion.div initial={{ opacity:0, x:-16 }} animate={{ opacity:1, x:0 }} transition={{ delay:.3 }} className="glass-card ai-scan" style={{ padding:24, cursor:'pointer' }} onClick={() => setTab('AI Insights')}>
                   <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:18 }}>
                     <div style={{ width:36, height:36, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', background:'linear-gradient(135deg,#ff3d6e,#7a4dff)', boxShadow:'0 4px 12px -4px rgba(255,61,110,0.4)' }}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12"/><path d="M12 6v6l4 2"/></svg>
                     </div>
-                    <div><div style={{ fontSize:13, fontWeight:600, color:'var(--ink)' }}>Neural AI Health Analysis</div><div style={{ fontSize:11, color:'var(--ink-3)' }}>Updated · just now</div></div>
-                    <div className="badge badge-approved" style={{ marginLeft:'auto' }}>All Clear</div>
+                    <div>
+                      <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)' }}>Neural AI Health Analysis</div>
+                      <div style={{ fontSize:11, color:'var(--ink-3)' }}>{tips.length > 0 ? `${tips.length} tips ready · Groq AI` : 'Personalized tips · Powered by Groq'}</div>
+                    </div>
+                    <div className="badge badge-approved" style={{ marginLeft:'auto' }}>Live AI</div>
                   </div>
-                  <p style={{ fontSize:14, color:'var(--ink-2)', lineHeight:1.7 }}>
-                    Based on your recent vitals, your cardiovascular health is within the <strong style={{ color:'var(--ink)' }}>optimal range</strong>. Step count has increased <strong style={{ color:'#22c55e' }}>+18%</strong> compared to last week.
-                  </p>
-                  <div style={{ marginTop:18, display:'flex', gap:10, flexWrap:'wrap' }}>
-                    {['Cardiac: Excellent','Activity: Trending Up','Sleep: Good'].map(tag => (
-                      <span key={tag} style={{ fontSize:11, padding:'3px 10px', borderRadius:100, background:'rgba(255,61,110,0.08)', color:'#ff6a8d', border:'1px solid rgba(255,61,110,0.15)' }}>{tag}</span>
-                    ))}
-                  </div>
+                  {tips.length > 0 ? (
+                    <>
+                      <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
+                        <span style={{ fontSize:28 }}>{tips[0].emoji}</span>
+                        <div>
+                          <div style={{ fontSize:13, fontWeight:700, color:'var(--ink)', marginBottom:2 }}>{tips[0].title}</div>
+                          <div style={{ fontSize:11, color:'var(--ink-3)', lineHeight:1.5 }}>{tips[0].tip.split('.')[0]}.</div>
+                        </div>
+                      </div>
+                      <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                        {tips.slice(0,3).map(t => (
+                          <span key={t.category} style={{ fontSize:10, padding:'3px 9px', borderRadius:100, background:`${t.color}14`, color:t.color, border:`1px solid ${t.color}28`, fontWeight:700 }}>{t.emoji} {t.category}</span>
+                        ))}
+                        <span style={{ fontSize:10, padding:'3px 9px', borderRadius:100, background:'var(--bg)', color:'var(--ink-3)', border:'1px solid var(--line)', fontWeight:600 }}>View all →</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <p style={{ fontSize:14, color:'var(--ink-2)', lineHeight:1.7, marginBottom:16 }}>
+                        Get <strong style={{ color:'var(--ink)' }}>personalized AI tips</strong> to protect your brain and heart — different every session, powered by Groq.
+                      </p>
+                      <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:10, background:'linear-gradient(135deg,rgba(255,61,110,0.1),rgba(122,77,255,0.12))', border:'1px solid rgba(122,77,255,0.2)', fontSize:12, fontWeight:700, color:'#7a4dff' }}>
+                        ✨ Open AI Insights
+                      </div>
+                    </>
+                  )}
                 </motion.div>
 
                 <motion.div initial={{ opacity:0, x:16 }} animate={{ opacity:1, x:0 }} transition={{ delay:.35 }} className="glass-card" style={{ padding:24 }}>
@@ -1203,9 +1350,75 @@ export default function PatientDashboard() {
                         <div style={{ position:'absolute',bottom:'10%',left:'5%',width:220,height:220,borderRadius:'50%',background:'radial-gradient(circle,rgba(122,77,255,0.05),transparent 70%)',filter:'blur(35px)' }}/>
                       </div>
                       <div style={{ position:'relative',zIndex:1,flex:1,display:'flex',flexDirection:'column',minHeight:0 }}>
-                        {selDoctor ? (
-                          <PatientChat key={selDoctor.id} user={user} doctor={selDoctor} />
-                        ) : (
+                        {selDoctor ? (() => {
+                          const perm = getChatPermission(user.id, selDoctor.id);
+                          const permStatus = perm?.status || 'none';
+                          if (permStatus === 'approved') return <PatientChat key={selDoctor.id} user={user} doctor={selDoctor} />;
+                          if (permStatus === 'pending') return (
+                            <motion.div initial={{ opacity:0, scale:.95 }} animate={{ opacity:1, scale:1 }} transition={{ type:'spring', stiffness:260, damping:24 }}
+                              style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:24, padding:'48px 40px', textAlign:'center' }}>
+                              <div style={{ position:'relative' }}>
+                                {[0,1,2].map(i=>(
+                                  <motion.div key={i} animate={{ scale:[1,1.6+i*.3,1], opacity:[0.35,0,0.35] }} transition={{ repeat:Infinity, duration:2.5, delay:i*.5 }}
+                                    style={{ position:'absolute', inset:-(i+1)*18, borderRadius:'50%', border:'1.5px solid rgba(245,158,11,0.3)' }} />
+                                ))}
+                                <div style={{ width:72, height:72, borderRadius:22, background:'linear-gradient(135deg,rgba(245,158,11,0.15),rgba(249,115,22,0.1))', border:'2px solid rgba(245,158,11,0.35)', display:'flex', alignItems:'center', justifyContent:'center', position:'relative' }}>
+                                  <motion.div animate={{ rotate:[0,10,-10,0] }} transition={{ repeat:Infinity, duration:2, ease:'easeInOut' }}>
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="1.6" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                  </motion.div>
+                                </div>
+                              </div>
+                              <div>
+                                <div style={{ fontSize:17, fontWeight:700, color:'var(--ink)', marginBottom:6 }}>Awaiting Approval</div>
+                                <div style={{ fontSize:13, color:'var(--ink-3)', lineHeight:1.7, maxWidth:280 }}>Your chat request was sent to <strong style={{ color:'var(--ink)' }}>{selDoctor.name}</strong>. You'll be notified once the doctor accepts.</div>
+                              </div>
+                              <div style={{ padding:'12px 20px', borderRadius:16, background:'rgba(245,158,11,0.06)', border:'1px solid rgba(245,158,11,0.2)', display:'flex', alignItems:'center', gap:10 }}>
+                                <motion.div animate={{ opacity:[0.4,1,0.4] }} transition={{ repeat:Infinity, duration:1.5 }} style={{ width:8, height:8, borderRadius:'50%', background:'#f59e0b', flexShrink:0 }} />
+                                <span style={{ fontSize:12, color:'#f59e0b', fontWeight:600 }}>Request pending · waiting for {selDoctor.name.replace('Dr. ','Dr.')}</span>
+                              </div>
+                            </motion.div>
+                          );
+                          // 'none' or 'denied'
+                          const isDenied = permStatus === 'denied';
+                          return (
+                            <motion.div initial={{ opacity:0, scale:.95 }} animate={{ opacity:1, scale:1 }} transition={{ type:'spring', stiffness:260, damping:24 }}
+                              style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:22, padding:'48px 40px', textAlign:'center' }}>
+                              {/* Doctor card */}
+                              <div style={{ display:'flex', alignItems:'center', gap:14, padding:'16px 20px', borderRadius:18, background:'var(--frame)', border:'1px solid var(--line)', width:'100%', maxWidth:320 }}>
+                                <div style={{ position:'relative', flexShrink:0 }}>
+                                  <div style={{ width:52, height:52, borderRadius:15, background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:16, fontWeight:700, color:'white', boxShadow:'0 4px 16px -4px rgba(122,77,255,0.4)' }}>{selDoctor.avatar}</div>
+                                  <div style={{ position:'absolute', bottom:-2, right:-2, width:14, height:14, borderRadius:'50%', background:'#22c55e', border:'2.5px solid var(--frame)' }} />
+                                </div>
+                                <div style={{ flex:1, textAlign:'left' }}>
+                                  <div style={{ fontSize:14, fontWeight:700, color:'var(--ink)', marginBottom:2 }}>{selDoctor.name}</div>
+                                  <div style={{ fontSize:11, color:'var(--ink-3)' }}>{selDoctor.specialty} · {selDoctor.hospital}</div>
+                                </div>
+                              </div>
+                              {/* Lock icon */}
+                              <div style={{ position:'relative' }}>
+                                <div style={{ width:80, height:80, borderRadius:24, background: isDenied?'rgba(239,68,68,0.08)':'linear-gradient(135deg,rgba(6,182,212,0.1),rgba(122,77,255,0.08))', border: isDenied?'1px solid rgba(239,68,68,0.25)':'1px solid rgba(6,182,212,0.25)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                                  <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke={isDenied?'#ef4444':'#06b6d4'} strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                </div>
+                              </div>
+                              <div>
+                                <div style={{ fontSize:17, fontWeight:700, color:'var(--ink)', marginBottom:6 }}>
+                                  {isDenied ? 'Chat Request Declined' : 'Request Chat Access'}
+                                </div>
+                                <div style={{ fontSize:13, color:'var(--ink-3)', lineHeight:1.7, maxWidth:280 }}>
+                                  {isDenied
+                                    ? `${selDoctor.name} declined your request. You can send a new request if needed.`
+                                    : `To message ${selDoctor.name}, you need to send a chat request. The doctor must accept before you can start talking.`}
+                                </div>
+                              </div>
+                              <motion.button whileHover={{ y:-2, scale:1.02 }} whileTap={{ scale:.97 }}
+                                onClick={() => { requestChatPermission(user.id, user.name, user.avatar, selDoctor.id); setPermRefresh(r=>r+1); }}
+                                style={{ padding:'13px 28px', borderRadius:16, fontSize:14, fontWeight:700, color:'white', background: isDenied?'linear-gradient(135deg,#f97316,#ff3d6e)':'linear-gradient(135deg,#0ea5e9,#06b6d4 50%,#7a4dff)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', gap:10, boxShadow: isDenied?'0 8px 24px -6px rgba(249,115,22,0.5)':'0 8px 24px -6px rgba(6,182,212,0.5)' }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                {isDenied ? 'Send New Request' : 'Request Chat Access'}
+                              </motion.button>
+                            </motion.div>
+                          );
+                        })() : (
                           <div style={{ flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:20,padding:'40px 32px',textAlign:'center' }}>
                             <motion.div initial={{ scale:.85,opacity:0 }} animate={{ scale:1,opacity:1 }} transition={{ type:'spring',stiffness:200,delay:.15 }}
                               style={{ width:84,height:84,borderRadius:24,background:'linear-gradient(135deg,rgba(6,182,212,0.1),rgba(122,77,255,0.1))',border:'1px solid rgba(6,182,212,0.2)',display:'flex',alignItems:'center',justifyContent:'center' }}>
@@ -1374,44 +1587,572 @@ export default function PatientDashboard() {
           )}
 
           {/* ── Reports ── */}
-          {tab === 'Reports' && (
-            <motion.div key="reports" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }}>
-              <h2 className="font-serif" style={{ fontSize:26, fontWeight:400, color:'var(--ink)', marginBottom:22 }}>Medical Reports</h2>
-              <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-                {REPORTS.map((r, i) => (
-                  <motion.div key={i} initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:i*.08 }}
-                    className="glass-card" style={{ padding:22, display:'flex', alignItems:'center', gap:16 }}>
-                    <div style={{ fontSize:32 }}>{r.icon}</div>
-                    <div style={{ flex:1 }}><div style={{ fontSize:15, fontWeight:600, color:'var(--ink)', marginBottom:4 }}>{r.title}</div><div style={{ fontSize:12, color:'var(--ink-3)' }}>{r.date}</div></div>
-                    <div className="badge badge-approved">{r.status}</div>
-                    <button style={{ padding:'8px 18px', borderRadius:10, fontSize:12, fontWeight:500, color:'#ff3d6e', background:'rgba(255,61,110,0.08)', border:'1px solid rgba(255,61,110,0.2)', cursor:'pointer' }}>Download</button>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
+          {tab === 'Reports' && (() => {
+            const TC = { glioma:'Glioma', meningioma:'Meningioma', notumor:'No Tumor', pituitary:'Pituitary Tumor' };
 
-          {/* ── Brain Scan ── */}
-          {tab === 'Brain Scan' && <BrainScanTab />}
+            const filtered = scanReports.filter(r => {
+              const rd = r.reportData || {};
+              if (reportFilter === 'tumor')  return rd.hasTumor === true;
+              if (reportFilter === 'stroke') return rd.strokeDetected === true;
+              return true;
+            });
+
+            const tumorCount  = scanReports.filter(r => r.reportData?.hasTumor).length;
+            const strokeCount = scanReports.filter(r => r.reportData?.strokeDetected).length;
+
+            const downloadReport = (rep) => {
+              const rd = rep.reportData || {};
+              const dt = new Date(rep.timestamp).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+              const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Neural Medical AI — Brain Scan Report</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f4f6fb;color:#1a1a2e;padding:40px 20px}
+.wrap{max-width:860px;margin:0 auto}
+.hdr{background:linear-gradient(135deg,#ff3d6e,#7a4dff);border-radius:20px;padding:36px 40px;color:#fff;margin-bottom:28px;display:flex;align-items:center;gap:20px}
+.hdr-logo{width:56px;height:56px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.hdr h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.hdr p{font-size:13px;opacity:.8}
+.card{background:#fff;border-radius:14px;padding:24px 28px;margin-bottom:18px;box-shadow:0 2px 16px rgba(0,0,0,0.07)}
+.card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f0f0f0}
+.tumor .card-title{color:#E24B4A}.stroke .card-title{color:#7C3AED}.info .card-title{color:#0ea5e9}
+table{width:100%;border-collapse:collapse}
+td{padding:9px 4px;border-bottom:1px solid #f5f5f5;font-size:13px}
+td:first-child{font-weight:600;color:#666;width:45%;padding-right:16px}
+.badge{display:inline-block;padding:3px 12px;border-radius:100px;font-size:11px;font-weight:700}
+.clear{background:#dcfce7;color:#16a34a}.found{background:#fee2e2;color:#dc2626}
+.imgs{display:flex;gap:12px;margin-top:16px}
+.imgs figure{flex:1;margin:0;text-align:center}
+.imgs img{width:100%;border-radius:10px;border:1px solid #eee}
+.imgs figcaption{font-size:10px;color:#999;margin-top:5px;text-transform:uppercase;letter-spacing:.06em}
+.conf-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.conf-label{font-size:11px;width:120px;flex-shrink:0;color:#555}
+.conf-bar-wrap{flex:1;height:6px;border-radius:100px;background:#f0f0f0;overflow:hidden}
+.conf-bar{height:100%;border-radius:100px}
+.conf-val{font-size:11px;width:36px;text-align:right;color:#888}
+.note-box{background:#f8f0ff;border-left:4px solid #7a4dff;padding:14px 18px;border-radius:10px;font-size:13px;font-style:italic;line-height:1.6;color:#3d2a6e}
+.footer{text-align:center;font-size:11px;color:#aaa;margin-top:28px;padding-top:20px;border-top:1px solid #eee}
+</style></head>
+<body><div class="wrap">
+<div class="hdr">
+  <div class="hdr-logo">🧠</div>
+  <div><h1>Neural Medical AI — Brain Scan Report</h1><p>Confidential Medical Document &nbsp;·&nbsp; ${dt}</p></div>
+</div>
+<div class="card info">
+  <div class="card-title">Patient Information</div>
+  <table>
+    <tr><td>Patient Name</td><td>${rep.toName || 'N/A'}</td></tr>
+    <tr><td>Referring Physician</td><td>${rep.fromName || 'N/A'}</td></tr>
+    <tr><td>Report Date</td><td>${dt}</td></tr>
+    <tr><td>Report ID</td><td>${rep.id}</td></tr>
+  </table>
+</div>
+${rd.tumorClass ? `<div class="card tumor">
+  <div class="card-title">Tumor Analysis</div>
+  <table>
+    <tr><td>Diagnosis</td><td>${TC[rd.tumorClass] || rd.tumorLabel || rd.tumorClass} &nbsp;<span class="badge ${rd.hasTumor?'found':'clear'}">${rd.hasTumor?'Tumor Detected':'Clear'}</span></td></tr>
+    ${rd.tumorConfidence !== null ? `<tr><td>Model Confidence</td><td>${rd.tumorConfidence}%</td></tr>` : ''}
+    ${rd.tumorPixels ? `<tr><td>Segmented Region</td><td>${rd.tumorPixels.toLocaleString()} pixels</td></tr>` : ''}
+  </table>
+  ${rd.allConfidences ? `<div style="margin-top:16px">${Object.entries(rd.allConfidences).map(([cls,val])=>{
+    const color = cls==='notumor'?'#22c55e':cls==='glioma'?'#E24B4A':cls==='meningioma'?'#f59e0b':'#7a4dff';
+    return `<div class="conf-row"><div class="conf-label">${TC[cls]||cls}</div><div class="conf-bar-wrap"><div class="conf-bar" style="width:${val}%;background:${color}"></div></div><div class="conf-val">${val}%</div></div>`;
+  }).join('')}</div>` : ''}
+  ${(rd.overlayB64||rd.maskB64) ? `<div class="imgs">${rd.overlayB64?`<figure><img src="data:image/png;base64,${rd.overlayB64}"/><figcaption>Segmentation Overlay</figcaption></figure>`:''}${rd.maskB64?`<figure><img src="data:image/png;base64,${rd.maskB64}"/><figcaption>Mask</figcaption></figure>`:''}</div>` : ''}
+</div>` : ''}
+${rd.strokeDetected !== undefined ? `<div class="card stroke">
+  <div class="card-title">Stroke Screening</div>
+  <table>
+    <tr><td>Result</td><td><span class="badge ${rd.strokeDetected?'found':'clear'}">${rd.strokeDetected?'Stroke Detected':'No Stroke Signs'}</span></td></tr>
+    ${rd.strokeConfidence !== undefined ? `<tr><td>Confidence</td><td>${rd.strokeConfidence}%</td></tr>` : ''}
+    ${rd.strokeLabel ? `<tr><td>Classification</td><td>${rd.strokeLabel}</td></tr>` : ''}
+  </table>
+  ${(rd.strokeOverlayB64||rd.strokeHeatmapB64) ? `<div class="imgs"><figure><img src="data:image/png;base64,${rd.strokeOverlayB64||rd.strokeHeatmapB64}"/><figcaption>Grad-CAM Overlay</figcaption></figure></div>` : ''}
+</div>` : ''}
+${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4dff">Physician Note</div><div class="note-box">"${rd.doctorNote}"</div></div>` : ''}
+<div class="footer">Generated by Neural Medical AI Platform &nbsp;·&nbsp; This report is intended for medical use only<br/>Neural Medical AI &copy; 2026</div>
+</div></body></html>`;
+              const blob = new Blob([html], { type:'text/html' });
+              const url  = URL.createObjectURL(blob);
+              const a    = document.createElement('a');
+              a.href = url; a.download = `NeuralAI_Report_${dt.replace(/\s/g,'_')}.html`;
+              a.click(); URL.revokeObjectURL(url);
+            };
+
+            return (
+              <motion.div key="reports" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }}>
+
+                {/* Header */}
+                <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginBottom:24 }}>
+                  <div>
+                    <h2 className="font-serif" style={{ fontSize:28, fontWeight:400, color:'var(--ink)', marginBottom:4 }}>
+                      Brain Scan <em className="text-gradient">Reports</em>
+                    </h2>
+                    <p style={{ fontSize:13, color:'var(--ink-3)' }}>
+                      {scanReports.length === 0 ? 'No reports received yet' : `${scanReports.length} report${scanReports.length!==1?'s':''} from your physicians`}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Stats row */}
+                {scanReports.length > 0 && (
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:22 }}>
+                    {[
+                      { label:'Total Reports', value:scanReports.length, color:'#06b6d4', icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> },
+                      { label:'Tumor Findings', value:tumorCount, color:'#E24B4A', icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z"/></svg> },
+                      { label:'Stroke Alerts', value:strokeCount, color:'#7C3AED', icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> },
+                    ].map((s,i) => (
+                      <motion.div key={s.label} initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:i*.06 }}
+                        className="glass-card" style={{ padding:'16px 18px', display:'flex', alignItems:'center', gap:12, overflow:'hidden', position:'relative' }}>
+                        <div style={{ position:'absolute', top:0, right:0, width:70, height:70, borderRadius:'50%', background:`radial-gradient(circle,${s.color}18,transparent 70%)`, pointerEvents:'none' }} />
+                        <div style={{ width:36, height:36, borderRadius:10, background:`${s.color}15`, border:`1px solid ${s.color}30`, display:'grid', placeItems:'center', color:s.color, flexShrink:0 }}>{s.icon}</div>
+                        <div>
+                          <div style={{ fontSize:22, fontWeight:800, color:s.color, lineHeight:1 }}>{s.value}</div>
+                          <div style={{ fontSize:11, color:'var(--ink-3)', marginTop:2 }}>{s.label}</div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Filter pills */}
+                {scanReports.length > 0 && (
+                  <div style={{ display:'flex', gap:8, marginBottom:20 }}>
+                    {[
+                      { id:'all',    label:'All Reports', count:scanReports.length },
+                      { id:'tumor',  label:'Tumor',       count:tumorCount,  color:'#E24B4A' },
+                      { id:'stroke', label:'Stroke',      count:strokeCount, color:'#7C3AED' },
+                    ].map(f => (
+                      <button key={f.id} onClick={() => setReportFilter(f.id)}
+                        style={{ display:'flex', alignItems:'center', gap:7, padding:'8px 16px', borderRadius:100, fontSize:12, fontWeight:600, border:'none', cursor:'pointer', transition:'all .2s',
+                          background: reportFilter===f.id ? (f.color ? `linear-gradient(135deg,${f.color}dd,${f.color}99)` : 'linear-gradient(135deg,#0ea5e9,#06b6d4)') : 'var(--frame)',
+                          color: reportFilter===f.id ? 'white' : 'var(--ink-2)',
+                          boxShadow: reportFilter===f.id ? `0 4px 14px -4px ${f.color||'#06b6d4'}66` : 'none',
+                          border: reportFilter===f.id ? 'none' : '1px solid var(--line)',
+                        }}>
+                        {f.id==='tumor' && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z"/></svg>}
+                        {f.id==='stroke' && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>}
+                        {f.label}
+                        <span style={{ padding:'1px 7px', borderRadius:100, background:'rgba(255,255,255,0.25)', fontSize:10, fontWeight:800 }}>{f.count}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Report cards */}
+                {scanReports.length === 0 ? (
+                  <motion.div initial={{ opacity:0, scale:.97 }} animate={{ opacity:1, scale:1 }} transition={{ delay:.1 }}
+                    className="glass-card" style={{ padding:'72px 40px', textAlign:'center', position:'relative', overflow:'hidden' }}>
+                    <div style={{ position:'absolute', inset:0, pointerEvents:'none' }}>
+                      <div style={{ position:'absolute', top:'20%', left:'50%', transform:'translateX(-50%)', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle,rgba(122,77,255,0.07),transparent 70%)', filter:'blur(40px)' }} />
+                    </div>
+                    <div style={{ position:'relative' }}>
+                      <div style={{ width:80, height:80, borderRadius:24, background:'linear-gradient(135deg,rgba(122,77,255,0.12),rgba(6,182,212,0.08))', border:'1px solid rgba(122,77,255,0.2)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px' }}>
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7a4dff" strokeWidth="1.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                      </div>
+                      <div style={{ fontSize:17, fontWeight:700, color:'var(--ink)', marginBottom:8 }}>No Reports Yet</div>
+                      <div style={{ fontSize:13, color:'var(--ink-3)', lineHeight:1.7, maxWidth:320, margin:'0 auto' }}>
+                        When your doctor runs an AI brain scan on your MRI images and sends you the results, they'll appear here as detailed medical reports.
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : filtered.length === 0 ? (
+                  <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} className="glass-card" style={{ padding:40, textAlign:'center' }}>
+                    <div style={{ fontSize:13, color:'var(--ink-3)' }}>No {reportFilter} reports found</div>
+                  </motion.div>
+                ) : (
+                  <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+                    <AnimatePresence>
+                      {filtered.map((rep, idx) => {
+                        const rd = rep.reportData || {};
+                        const isExpanded = expandedRep === rep.id;
+                        const dt = new Date(rep.timestamp);
+                        const dateStr = dt.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+                        const timeStr = dt.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+
+                        const hasTumor  = rd.hasTumor === true;
+                        const hasStroke = rd.strokeDetected === true;
+                        const isClear   = !hasTumor && !hasStroke;
+
+                        const topGrad = hasTumor && hasStroke
+                          ? 'linear-gradient(90deg,#E24B4A,#7C3AED)'
+                          : hasTumor  ? 'linear-gradient(90deg,#E24B4A,#f59e0b)'
+                          : hasStroke ? 'linear-gradient(90deg,#7C3AED,#06b6d4)'
+                          : 'linear-gradient(90deg,#22c55e,#06b6d4)';
+
+                        return (
+                          <motion.div key={rep.id} initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-8 }} transition={{ delay:idx*.06 }}
+                            className="glass-card" style={{ overflow:'hidden', cursor:'default' }}>
+                            {/* Color bar */}
+                            <div style={{ height:3, background:topGrad }} />
+
+                            {/* Card header */}
+                            <div style={{ padding:'18px 22px' }}>
+                              <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:14 }}>
+                                {/* Doctor avatar */}
+                                <div style={{ width:46, height:46, borderRadius:13, background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:14, fontWeight:700, color:'white', flexShrink:0, boxShadow:'0 4px 12px -4px rgba(122,77,255,0.4)' }}>
+                                  {rep.fromAvatar || rep.fromName?.slice(0,2).toUpperCase() || 'Dr'}
+                                </div>
+                                <div style={{ flex:1, minWidth:0 }}>
+                                  <div style={{ fontSize:14, fontWeight:700, color:'var(--ink)', marginBottom:2 }}>{rep.fromName || 'Physician'}</div>
+                                  <div style={{ fontSize:11, color:'var(--ink-3)', display:'flex', alignItems:'center', gap:5 }}>
+                                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    {dateStr} · {timeStr}
+                                  </div>
+                                </div>
+                                {/* Finding badges */}
+                                <div style={{ display:'flex', gap:6, flexShrink:0, flexWrap:'wrap', justifyContent:'flex-end' }}>
+                                  {hasTumor && (
+                                    <div style={{ padding:'4px 10px', borderRadius:100, background:'rgba(226,75,74,0.1)', border:'1px solid rgba(226,75,74,0.25)', fontSize:10, fontWeight:700, color:'#E24B4A', display:'flex', alignItems:'center', gap:4 }}>
+                                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z"/></svg>
+                                      {TC[rd.tumorClass] || rd.tumorLabel || 'Tumor'}
+                                    </div>
+                                  )}
+                                  {hasStroke && (
+                                    <div style={{ padding:'4px 10px', borderRadius:100, background:'rgba(124,58,237,0.1)', border:'1px solid rgba(124,58,237,0.25)', fontSize:10, fontWeight:700, color:'#7C3AED', display:'flex', alignItems:'center', gap:4 }}>
+                                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                                      Stroke Alert
+                                    </div>
+                                  )}
+                                  {isClear && (
+                                    <div style={{ padding:'4px 10px', borderRadius:100, background:'rgba(34,197,94,0.1)', border:'1px solid rgba(34,197,94,0.25)', fontSize:10, fontWeight:700, color:'#22c55e', display:'flex', alignItems:'center', gap:4 }}>
+                                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                      All Clear
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Quick summary row */}
+                              <div style={{ display:'flex', gap:10, flexWrap:'wrap', marginBottom:14 }}>
+                                {rd.tumorClass && (
+                                  <div style={{ padding:'7px 12px', borderRadius:10, background: hasTumor?'rgba(226,75,74,0.05)':'rgba(34,197,94,0.05)', border:`1px solid ${hasTumor?'rgba(226,75,74,0.15)':'rgba(34,197,94,0.15)'}`, flex:'1 1 140px' }}>
+                                    <div style={{ fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--ink-3)', marginBottom:4 }}>Tumor</div>
+                                    <div style={{ fontSize:13, fontWeight:700, color: hasTumor?'#E24B4A':'#22c55e' }}>{TC[rd.tumorClass] || rd.tumorLabel}</div>
+                                    {rd.tumorConfidence && <div style={{ fontSize:10, color:'var(--ink-3)' }}>{rd.tumorConfidence}% confidence</div>}
+                                  </div>
+                                )}
+                                {rd.strokeDetected !== undefined && (
+                                  <div style={{ padding:'7px 12px', borderRadius:10, background: hasStroke?'rgba(124,58,237,0.05)':'rgba(6,182,212,0.05)', border:`1px solid ${hasStroke?'rgba(124,58,237,0.15)':'rgba(6,182,212,0.15)'}`, flex:'1 1 140px' }}>
+                                    <div style={{ fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--ink-3)', marginBottom:4 }}>Stroke</div>
+                                    <div style={{ fontSize:13, fontWeight:700, color: hasStroke?'#7C3AED':'#06b6d4' }}>{hasStroke ? 'Signs Detected' : 'No Signs'}</div>
+                                    {rd.strokeConfidence !== undefined && <div style={{ fontSize:10, color:'var(--ink-3)' }}>{rd.strokeConfidence}% confidence</div>}
+                                  </div>
+                                )}
+                                {rd.doctorNote && (
+                                  <div style={{ padding:'7px 12px', borderRadius:10, background:'rgba(122,77,255,0.04)', border:'1px solid rgba(122,77,255,0.15)', flex:'2 1 200px' }}>
+                                    <div style={{ fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--ink-3)', marginBottom:4 }}>Physician Note</div>
+                                    <div style={{ fontSize:12, color:'var(--ink-2)', fontStyle:'italic', lineHeight:1.5, overflow:'hidden', display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical' }}>"{rd.doctorNote}"</div>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Actions */}
+                              <div style={{ display:'flex', gap:8 }}>
+                                <motion.button whileHover={{ y:-1 }} whileTap={{ scale:.97 }}
+                                  onClick={() => setExpandedRep(isExpanded ? null : rep.id)}
+                                  style={{ flex:1, height:38, borderRadius:11, fontSize:12, fontWeight:600, border:'1px solid var(--line)', background:'var(--frame)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:6, color:'var(--ink-2)', transition:'all .2s' }}>
+                                  <motion.svg animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration:.25 }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></motion.svg>
+                                  {isExpanded ? 'Collapse' : 'View Full Report'}
+                                </motion.button>
+                                <motion.button whileHover={{ y:-1, boxShadow:'0 8px 20px -6px rgba(122,77,255,0.4)' }} whileTap={{ scale:.97 }}
+                                  onClick={() => downloadReport(rep)}
+                                  style={{ padding:'0 18px', height:38, borderRadius:11, fontSize:12, fontWeight:700, border:'none', background:'linear-gradient(135deg,#7a4dff,#ff3d6e)', cursor:'pointer', display:'flex', alignItems:'center', gap:6, color:'white', flexShrink:0 }}>
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                  Download
+                                </motion.button>
+                              </div>
+                            </div>
+
+                            {/* Expanded detail panel */}
+                            <AnimatePresence>
+                              {isExpanded && (
+                                <motion.div initial={{ height:0, opacity:0 }} animate={{ height:'auto', opacity:1 }} exit={{ height:0, opacity:0 }} transition={{ duration:.35 }}
+                                  style={{ overflow:'hidden', borderTop:'1px solid var(--line)', background:'linear-gradient(135deg,rgba(122,77,255,0.02),rgba(6,182,212,0.02))' }}>
+                                  <div style={{ padding:'20px 22px', display:'flex', flexDirection:'column', gap:16 }}>
+
+                                    {/* Scan images */}
+                                    {(rd.overlayB64 || rd.maskB64 || rd.strokeOverlayB64 || rd.strokeHeatmapB64) && (
+                                      <div>
+                                        <div style={{ fontSize:10, fontWeight:700, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--ink-3)', marginBottom:10 }}>Scan Images</div>
+                                        <div style={{ display:'flex', gap:10 }}>
+                                          {rd.overlayB64 && (
+                                            <div style={{ flex:1, textAlign:'center' }}>
+                                              <img src={`data:image/png;base64,${rd.overlayB64}`} alt="overlay"
+                                                style={{ width:'100%', maxHeight:160, objectFit:'contain', borderRadius:10, border:'1px solid var(--line)', background:'#000' }} />
+                                              <div style={{ fontSize:9, color:'var(--ink-3)', marginTop:5, fontWeight:600, textTransform:'uppercase', letterSpacing:'.06em' }}>Tumor Overlay</div>
+                                            </div>
+                                          )}
+                                          {rd.maskB64 && (
+                                            <div style={{ flex:1, textAlign:'center' }}>
+                                              <img src={`data:image/png;base64,${rd.maskB64}`} alt="mask"
+                                                style={{ width:'100%', maxHeight:160, objectFit:'contain', borderRadius:10, border:'1px solid var(--line)', background:'#000' }} />
+                                              <div style={{ fontSize:9, color:'var(--ink-3)', marginTop:5, fontWeight:600, textTransform:'uppercase', letterSpacing:'.06em' }}>Seg. Mask</div>
+                                            </div>
+                                          )}
+                                          {(rd.strokeOverlayB64 || rd.strokeHeatmapB64) && (
+                                            <div style={{ flex:1, textAlign:'center' }}>
+                                              <img src={`data:image/png;base64,${rd.strokeOverlayB64 || rd.strokeHeatmapB64}`} alt="gradcam"
+                                                style={{ width:'100%', maxHeight:160, objectFit:'contain', borderRadius:10, border:'1px solid var(--line)', background:'#000' }} />
+                                              <div style={{ fontSize:9, color:'var(--ink-3)', marginTop:5, fontWeight:600, textTransform:'uppercase', letterSpacing:'.06em' }}>Stroke Grad-CAM</div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* Confidence bars */}
+                                    {rd.allConfidences && (
+                                      <div>
+                                        <div style={{ fontSize:10, fontWeight:700, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--ink-3)', marginBottom:10 }}>Tumor Classification Breakdown</div>
+                                        <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+                                          {Object.entries(rd.allConfidences).map(([cls, val]) => {
+                                            const isActive = cls === rd.tumorClass;
+                                            const barColor = cls==='notumor'?'#22c55e':cls==='glioma'?'#E24B4A':cls==='meningioma'?'#f59e0b':'#7a4dff';
+                                            return (
+                                              <div key={cls} style={{ display:'flex', alignItems:'center', gap:10 }}>
+                                                <span style={{ fontSize:11, width:100, flexShrink:0, color: isActive?'var(--ink)':'var(--ink-3)', fontWeight: isActive?700:400 }}>
+                                                  {TC[cls]||cls}
+                                                </span>
+                                                <div style={{ flex:1, height:6, borderRadius:100, background:'var(--line)', overflow:'hidden' }}>
+                                                  <motion.div initial={{ width:0 }} animate={{ width:`${val}%` }} transition={{ duration:.6, delay:.1 }}
+                                                    style={{ height:'100%', borderRadius:100, background: isActive?barColor:'var(--ink-3)', opacity: isActive?1:.35 }} />
+                                                </div>
+                                                <span style={{ fontSize:11, width:36, textAlign:'right', flexShrink:0, fontWeight: isActive?700:400, color: isActive?'var(--ink)':'var(--ink-3)' }}>{val}%</span>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* Doctor note full */}
+                                    {rd.doctorNote && (
+                                      <div>
+                                        <div style={{ fontSize:10, fontWeight:700, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--ink-3)', marginBottom:10 }}>Physician Note</div>
+                                        <div style={{ padding:'14px 16px', borderRadius:12, background:'rgba(122,77,255,0.05)', border:'1px solid rgba(122,77,255,0.15)', display:'flex', gap:12, alignItems:'flex-start' }}>
+                                          <div style={{ width:32, height:32, borderRadius:9, background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', flexShrink:0 }}>
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                                          </div>
+                                          <div>
+                                            <div style={{ fontSize:11, fontWeight:600, color:'var(--ink)', marginBottom:4 }}>{rep.fromName}</div>
+                                            <div style={{ fontSize:13, color:'var(--ink-2)', fontStyle:'italic', lineHeight:1.65 }}>"{rd.doctorNote}"</div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* Segmentation info */}
+                                    {rd.tumorPixels > 0 && (
+                                      <div style={{ padding:'10px 14px', borderRadius:10, background:'rgba(226,75,74,0.04)', border:'1px solid rgba(226,75,74,0.15)', display:'flex', alignItems:'center', gap:10 }}>
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#E24B4A" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                                        <span style={{ fontSize:12, color:'var(--ink-2)' }}>Segmented tumor region: <strong style={{ color:'#E24B4A' }}>{rd.tumorPixels.toLocaleString()} pixels</strong></span>
+                                      </div>
+                                    )}
+
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </motion.div>
+                        );
+                      })}
+                    </AnimatePresence>
+                  </div>
+                )}
+
+                {/* General reports section */}
+                {reportFilter === 'all' && (
+                  <div style={{ marginTop:30 }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:14 }}>
+                      <div style={{ height:1, flex:1, background:'var(--line)' }} />
+                      <span style={{ fontSize:11, fontWeight:700, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--ink-3)', padding:'0 10px' }}>General Records</span>
+                      <div style={{ height:1, flex:1, background:'var(--line)' }} />
+                    </div>
+                    <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                      {REPORTS.map((r, i) => (
+                        <motion.div key={i} initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:i*.06 }}
+                          className="glass-card" style={{ padding:'16px 20px', display:'flex', alignItems:'center', gap:14 }}>
+                          <div style={{ width:42, height:42, borderRadius:12, background:'var(--frame)', border:'1px solid var(--line)', display:'grid', placeItems:'center', fontSize:20, flexShrink:0 }}>{r.icon}</div>
+                          <div style={{ flex:1 }}>
+                            <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)', marginBottom:2 }}>{r.title}</div>
+                            <div style={{ fontSize:11, color:'var(--ink-3)' }}>{r.date}</div>
+                          </div>
+                          <div style={{ padding:'3px 10px', borderRadius:100, background:'rgba(34,197,94,0.1)', border:'1px solid rgba(34,197,94,0.2)', fontSize:10, fontWeight:700, color:'#22c55e' }}>{r.status}</div>
+                          <button style={{ padding:'7px 14px', borderRadius:9, fontSize:11, fontWeight:600, color:'var(--ink-2)', background:'var(--frame)', border:'1px solid var(--line)', cursor:'pointer' }}>
+                            Download
+                          </button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              </motion.div>
+            );
+          })()}
 
           {/* ── AI Insights ── */}
           {tab === 'AI Insights' && (
             <motion.div key="ai" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }}>
-              <h2 className="font-serif" style={{ fontSize:26, fontWeight:400, color:'var(--ink)', marginBottom:22 }}>
-                Neural <em className="text-gradient">AI Insights</em>
-              </h2>
-              <div className="glass-card ai-scan" style={{ padding:30 }}>
-                <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:22 }}>
-                  <div style={{ width:44, height:44, borderRadius:12, display:'flex', alignItems:'center', justifyContent:'center', background:'linear-gradient(135deg,#ff3d6e,#7a4dff)' }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12"/><path d="M12 6v6l4 2"/></svg>
-                  </div>
-                  <div><div style={{ fontSize:15, fontWeight:600, color:'var(--ink)' }}>Personalized Health Analysis</div><div style={{ fontSize:12, color:'var(--ink-3)' }}>AI-generated · May 7, 2026</div></div>
-                  <div className="badge badge-approved" style={{ marginLeft:'auto' }}>All systems normal</div>
+
+              {/* Header row */}
+              <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:28, gap:16 }}>
+                <div>
+                  <h2 className="font-serif" style={{ fontSize:28, fontWeight:400, color:'var(--ink)', marginBottom:6 }}>
+                    Neural <em className="text-gradient">AI Insights</em>
+                  </h2>
+                  <p style={{ fontSize:13, color:'var(--ink-3)' }}>
+                    {tipsGenAt
+                      ? `Generated ${tipsGenAt.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})} · ${tips.length} personalized tips`
+                      : 'Powered by Groq · Personalized every session'}
+                  </p>
                 </div>
-                <p style={{ fontSize:15, color:'var(--ink-2)', lineHeight:1.8, minHeight:80 }}>
-                  {aiTyped}<span style={{ display:'inline-block', width:2, height:16, background:'#ff3d6e', marginLeft:2, animation:'pulseDot 1s infinite' }} />
-                </p>
+                <motion.button
+                  whileHover={{ scale:1.04 }} whileTap={{ scale:.96 }}
+                  onClick={fetchTips}
+                  disabled={tipsLoading}
+                  style={{ display:'flex', alignItems:'center', gap:8, padding:'11px 22px', borderRadius:14, border:'none', cursor:tipsLoading?'not-allowed':'pointer', background:'linear-gradient(135deg,#ff3d6e,#7a4dff)', color:'white', fontSize:13, fontWeight:700, flexShrink:0, opacity:tipsLoading?.6:1, whiteSpace:'nowrap' }}>
+                  <motion.span animate={{ rotate: tipsLoading ? 360 : 0 }} transition={{ duration:1, repeat: tipsLoading ? Infinity : 0, ease:'linear' }}>
+                    ✨
+                  </motion.span>
+                  {tipsLoading ? 'Generating…' : 'New Tips'}
+                </motion.button>
               </div>
+
+              {/* Loading state */}
+              {tipsLoading && (
+                <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:24, padding:'60px 0' }}>
+                  {/* Animated brain */}
+                  <div style={{ position:'relative', width:100, height:100 }}>
+                    {[0,1,2].map(i => (
+                      <motion.div key={i}
+                        animate={{ scale:[1, 2.2, 1], opacity:[0.5, 0, 0.5] }}
+                        transition={{ repeat:Infinity, duration:2.4, delay:i * 0.7 }}
+                        style={{ position:'absolute', inset:-(i+1)*14, borderRadius:'50%', border:'1.5px solid rgba(122,77,255,0.25)' }} />
+                    ))}
+                    <motion.div animate={{ scale:[1, 1.06, 1], rotate:[0, 3, -3, 0] }} transition={{ repeat:Infinity, duration:3, ease:'easeInOut' }}
+                      style={{ width:100, height:100, borderRadius:28, background:'linear-gradient(135deg,rgba(255,61,110,0.12),rgba(122,77,255,0.15))', border:'1px solid rgba(122,77,255,0.25)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:48 }}>
+                      🧠
+                    </motion.div>
+                  </div>
+                  <div style={{ textAlign:'center' }}>
+                    <div style={{ fontSize:16, fontWeight:700, color:'var(--ink)', marginBottom:6 }}>Neural AI is thinking…</div>
+                    <div style={{ fontSize:13, color:'var(--ink-3)' }}>Crafting your personalized health briefing</div>
+                  </div>
+                  {/* Skeleton cards */}
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, width:'100%', maxWidth:680 }}>
+                    {[0,1,2,4].map(i => (
+                      <motion.div key={i} animate={{ opacity:[0.4,0.8,0.4] }} transition={{ repeat:Infinity, duration:1.8, delay:i*0.2 }}
+                        className="glass-card" style={{ padding:22, borderTop:'4px solid rgba(122,77,255,0.2)' }}>
+                        <div style={{ width:44, height:44, borderRadius:12, background:'var(--line)', marginBottom:14 }} />
+                        <div style={{ height:12, width:'60%', borderRadius:6, background:'var(--line)', marginBottom:8 }} />
+                        <div style={{ height:10, width:'90%', borderRadius:6, background:'var(--line)', marginBottom:6 }} />
+                        <div style={{ height:10, width:'75%', borderRadius:6, background:'var(--line)' }} />
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Error state */}
+              {tipsError && !tipsLoading && (
+                <motion.div initial={{ opacity:0, scale:.95 }} animate={{ opacity:1, scale:1 }}
+                  style={{ padding:32, borderRadius:20, textAlign:'center', background:'rgba(239,68,68,0.06)', border:'1px solid rgba(239,68,68,0.2)' }}>
+                  <div style={{ fontSize:48, marginBottom:12 }}>⚠️</div>
+                  <div style={{ fontSize:15, fontWeight:700, color:'#ef4444', marginBottom:6 }}>Could not reach Neural AI</div>
+                  <div style={{ fontSize:13, color:'var(--ink-3)', marginBottom:20 }}>{tipsError}</div>
+                  <button onClick={fetchTips} style={{ padding:'10px 24px', borderRadius:12, border:'1px solid rgba(239,68,68,0.3)', background:'rgba(239,68,68,0.08)', color:'#ef4444', fontSize:13, fontWeight:600, cursor:'pointer' }}>
+                    Try again
+                  </button>
+                </motion.div>
+              )}
+
+              {/* Tips */}
+              {!tipsLoading && tips.length > 0 && (
+                <div>
+                  {/* Headline banner */}
+                  <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:.05 }}
+                    style={{ padding:'18px 24px', borderRadius:18, marginBottom:20, background:'linear-gradient(135deg,rgba(255,61,110,0.07),rgba(122,77,255,0.1))', border:'1px solid rgba(122,77,255,0.18)', display:'flex', alignItems:'center', gap:14, position:'relative', overflow:'hidden' }}>
+                    <div style={{ position:'absolute', right:-20, top:-20, fontSize:100, opacity:.06, userSelect:'none' }}>🧠</div>
+                    <motion.div animate={{ rotate:[0, 8, -8, 0] }} transition={{ repeat:Infinity, duration:4, ease:'easeInOut' }}
+                      style={{ fontSize:36, flexShrink:0 }}>🧠</motion.div>
+                    <div>
+                      <div style={{ fontSize:11, fontWeight:700, letterSpacing:'.1em', textTransform:'uppercase', color:'#7a4dff', marginBottom:4 }}>Today's Briefing</div>
+                      <div style={{ fontSize:18, fontWeight:800, color:'var(--ink)', lineHeight:1.3 }}>{tipsHeadline}</div>
+                    </div>
+                    <div style={{ marginLeft:'auto', flexShrink:0, padding:'5px 12px', borderRadius:100, background:'rgba(34,197,94,0.1)', border:'1px solid rgba(34,197,94,0.25)', fontSize:11, fontWeight:700, color:'#22c55e', display:'flex', alignItems:'center', gap:5 }}>
+                      <div style={{ width:6, height:6, borderRadius:'50%', background:'#22c55e' }} className="pulse-dot" />
+                      Live AI
+                    </div>
+                  </motion.div>
+
+                  {/* Featured tip (first one, full width) */}
+                  {tips[0] && (
+                    <motion.div initial={{ opacity:0, y:18 }} animate={{ opacity:1, y:0 }} transition={{ delay:.1 }}
+                      className="glass-card"
+                      style={{ padding:0, marginBottom:14, overflow:'hidden', borderTop:`4px solid ${tips[0].color}` }}>
+                      <div style={{ padding:'24px 28px', display:'flex', gap:22, alignItems:'flex-start' }}>
+                        <motion.div whileHover={{ scale:1.15, rotate:8 }} transition={{ type:'spring', stiffness:300 }}
+                          style={{ width:72, height:72, borderRadius:20, background:`${tips[0].color}16`, border:`1.5px solid ${tips[0].color}30`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:36, flexShrink:0 }}>
+                          {tips[0].emoji}
+                        </motion.div>
+                        <div style={{ flex:1, minWidth:0 }}>
+                          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8, flexWrap:'wrap' }}>
+                            <span style={{ padding:'3px 10px', borderRadius:100, background:`${tips[0].color}18`, border:`1px solid ${tips[0].color}35`, fontSize:10, fontWeight:700, color:tips[0].color, letterSpacing:'.06em', textTransform:'uppercase' }}>
+                              {tips[0].category}
+                            </span>
+                            <span style={{ padding:'3px 10px', borderRadius:100, background:'rgba(122,77,255,0.08)', border:'1px solid rgba(122,77,255,0.18)', fontSize:10, fontWeight:600, color:'var(--ink-3)' }}>
+                              🔄 {tips[0].urgency}
+                            </span>
+                            <span style={{ marginLeft:'auto', fontSize:10, color:'var(--ink-3)', fontWeight:500 }}>⭐ Featured</span>
+                          </div>
+                          <div style={{ fontSize:18, fontWeight:800, color:'var(--ink)', marginBottom:8, lineHeight:1.3 }}>{tips[0].title}</div>
+                          <div style={{ fontSize:14, color:'var(--ink-2)', lineHeight:1.75 }}>{tips[0].tip}</div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Remaining tips grid */}
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
+                    {tips.slice(1).map((tip, i) => (
+                      <motion.div key={i}
+                        initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:.18 + i * .09 }}
+                        className="glass-card"
+                        style={{ padding:0, overflow:'hidden', borderTop:`3px solid ${tip.color}`, cursor:'default' }}>
+                        <div style={{ padding:'20px 22px' }}>
+                          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+                            <motion.div whileHover={{ scale:1.2, rotate:10 }} transition={{ type:'spring', stiffness:300 }}
+                              style={{ width:52, height:52, borderRadius:16, background:`${tip.color}14`, border:`1px solid ${tip.color}28`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:26 }}>
+                              {tip.emoji}
+                            </motion.div>
+                            <span style={{ padding:'3px 9px', borderRadius:100, background:`${tip.color}14`, border:`1px solid ${tip.color}30`, fontSize:10, fontWeight:700, color:tip.color, letterSpacing:'.06em', textTransform:'uppercase', textAlign:'right' }}>
+                              {tip.category}
+                            </span>
+                          </div>
+                          <div style={{ fontSize:15, fontWeight:800, color:'var(--ink)', marginBottom:7, lineHeight:1.3 }}>{tip.title}</div>
+                          <div style={{ fontSize:12.5, color:'var(--ink-2)', lineHeight:1.7, marginBottom:12 }}>{tip.tip}</div>
+                          <div style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'4px 10px', borderRadius:100, background:'var(--bg)', border:'1px solid var(--line)', fontSize:10, color:'var(--ink-3)', fontWeight:600 }}>
+                            🔄 {tip.urgency}
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Footer */}
+                  <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:.6 }}
+                    style={{ marginTop:20, padding:'14px 20px', borderRadius:14, background:'var(--bg)', border:'1px solid var(--line)', display:'flex', alignItems:'center', gap:12, fontSize:12, color:'var(--ink-3)' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Tips are AI-generated for educational purposes. Always consult your doctor for medical advice.
+                    <button onClick={fetchTips} style={{ marginLeft:'auto', padding:'5px 14px', borderRadius:10, border:'1px solid var(--line)', background:'var(--frame)', color:'var(--ink-2)', fontSize:11, fontWeight:600, cursor:'pointer', flexShrink:0 }}>
+                      Refresh ↺
+                    </button>
+                  </motion.div>
+                </div>
+              )}
+
             </motion.div>
           )}
 

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getCurrentUser, logout, getPendingDoctors, getAllDoctors, getAllPatients, getStats, updateUserApproval, getActiveNotifications, dismissNotification, deleteUser, getPatientsByDoctor, getTopRatedDoctors, getAllReviews, getDoctorRating } from '@/lib/auth';
+import { getCurrentUser, logout, getPendingDoctors, getAllDoctors, getAllPatients, getStats, updateUserApproval, getActiveNotifications, dismissNotification, deleteUser, getPatientsByDoctor, getTopRatedDoctors, getAllReviews, getDoctorRating, getAiScansToday } from '@/lib/auth';
 import Particles from '@/components/Particles';
 
 const TABS = ['Overview', 'Doctors', 'Patients', 'Reviews', 'System'];
@@ -217,6 +217,7 @@ export default function AdminDashboard() {
   const [dark, setDark]           = useState(false);
   const [ready, setReady]         = useState(false);
   const [stats, setStats]         = useState({ totalDoctors:0, approvedDoctors:0, pendingDoctors:0, rejectedDoctors:0, totalPatients:0 });
+  const [aiScansToday, setAiScansToday] = useState(0);
   const [pending, setPending]     = useState([]);
   const [doctors, setDoctors]     = useState([]);
   const [patients, setPatients]   = useState([]);
@@ -238,6 +239,7 @@ export default function AdminDashboard() {
     setPatients(getAllPatients());
     setTopDoctors(getTopRatedDoctors(5));
     setAllReviews(getAllReviews());
+    setAiScansToday(getAiScansToday());
   };
 
   useEffect(() => {
@@ -254,10 +256,15 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!ready) return;
-    const check = () => setDocNotifs(getActiveNotifications());
+    const check = () => {
+      setDocNotifs(getActiveNotifications());
+      setAiScansToday(getAiScansToday());
+    };
     check();
     const interval = setInterval(check, 3000);
-    const onStorage = (e) => { if (e.key === 'neural_notifications') check(); };
+    const onStorage = (e) => {
+      if (e.key === 'neural_notifications' || e.key === 'neural_ai_scan_log' || e.key === 'neural_messages') check();
+    };
     window.addEventListener('storage', onStorage);
     return () => { clearInterval(interval); window.removeEventListener('storage', onStorage); };
   }, [ready]);
@@ -918,7 +925,7 @@ export default function AdminDashboard() {
                     { label:'Total Users', value: stats.totalDoctors + stats.totalPatients + 1 },
                     { label:'Approved Doctors', value: stats.approvedDoctors },
                     { label:'Active Patients', value: stats.totalPatients },
-                    { label:'AI Scans Today', value: '1,284' },
+                    { label:'AI Scans Today', value: aiScansToday },
                   ].map(m => (
                     <div key={m.label} style={{ textAlign:'center', padding:14, borderRadius:12, background:'var(--bg)', border:'1px solid var(--line)' }}>
                       <div style={{ fontSize:22, fontWeight:800, color:'var(--ink)', marginBottom:4 }}>{m.value}</div>

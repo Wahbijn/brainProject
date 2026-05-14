@@ -8,6 +8,8 @@ import {
   getAppointmentsByDoctor, confirmAppointment, proposeAlternative,
   getPatientsByDoctor, sendMessage, getMessagesBetween, markMessagesRead,
   getConversations, getUnreadCount,
+  getPendingChatRequests, respondToChatPermission,
+  getStats, getAiScansToday, getTotalUsers, recordAiScan,
 } from '@/lib/auth';
 import Particles from '@/components/Particles';
 import BrainScanTab from '@/components/BrainScanTab';
@@ -267,14 +269,23 @@ function fmtDivider(iso) {
   return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
 }
 
+/* ── Tumor label map (mirrors BrainScanTab palette) ──────── */
+const TC_LABELS = { glioma:'Glioma', meningioma:'Meningioma', notumor:'No Tumor', pituitary:'Pituitary Tumor' };
+
 /* ── Doctor Chat ───────────────────────────────────────── */
-function DoctorChat({ doctor, patient, onBack }) {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput]       = useState('');
-  const [sending, setSending]   = useState(false);
-  const endRef   = useRef(null);
-  const pollRef  = useRef(null);
-  const inputRef = useRef(null);
+function DoctorChat({ doctor, patient, onBack, onScanDone }) {
+  const [messages, setMessages]         = useState([]);
+  const [input, setInput]               = useState('');
+  const [sending, setSending]           = useState(false);
+  const [imgPreview, setImgPreview]     = useState(null);
+  const [scanTarget, setScanTarget]     = useState(null);  // { imageData, msgId }
+  const [scanning, setScanning]         = useState(false);
+  const [scanResult, setScanResult]     = useState(null);
+  const [doctorNote, setDoctorNote]     = useState('');
+  const endRef    = useRef(null);
+  const pollRef   = useRef(null);
+  const inputRef  = useRef(null);
+  const fileRef   = useRef(null);
 
   const load = () => {
     const msgs = getMessagesBetween(doctor.id, patient.id);
@@ -290,18 +301,71 @@ function DoctorChat({ doctor, patient, onBack }) {
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior:'smooth' }); }, [messages]);
 
+  const onFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setImgPreview({ dataUrl: ev.target.result });
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
   const send = () => {
+    if (imgPreview) {
+      sendMessage({ fromId:doctor.id, fromName:doctor.name||`Dr. ${doctor.firstName} ${doctor.lastName}`, fromAvatar:doctor.avatar, fromRole:'doctor', toId:patient.id, toName:patient.name, toAvatar:patient.avatar, toRole:'patient', text:'[Image]', type:'image', imageData:imgPreview.dataUrl });
+      setImgPreview(null); load(); return;
+    }
     const text = input.trim();
     if (!text || sending) return;
     setSending(true);
-    sendMessage({ fromId:doctor.id, fromName:doctor.name||`Dr. ${doctor.firstName} ${doctor.lastName}`, fromAvatar:doctor.avatar, fromRole:'doctor', toId:patient.id, toName:patient.name, toAvatar:patient.avatar, toRole:'patient', text });
-    setInput('');
-    setSending(false);
-    load();
+    sendMessage({ fromId:doctor.id, fromName:doctor.name||`Dr. ${doctor.firstName} ${doctor.lastName}`, fromAvatar:doctor.avatar, fromRole:'doctor', toId:patient.id, toName:patient.name, toAvatar:patient.avatar, toRole:'patient', text, type:'text' });
+    setInput(''); setSending(false); load();
     setTimeout(()=>inputRef.current?.focus(),50);
   };
 
   const onKey = (e) => { if (e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();} };
+
+  const startScan = async (imageData) => {
+    setScanTarget({ imageData }); setScanResult(null); setScanning(true);
+    try {
+      const res  = await fetch(imageData);
+      const blob = await res.blob();
+      const file = new File([blob], 'scan.jpg', { type: blob.type || 'image/jpeg' });
+      const fd   = new FormData();
+      fd.append('image', file);
+      const r    = await fetch('/api/brain-scan', { method:'POST', body:fd });
+      const data = await r.json();
+      setScanResult(data);
+      if (!data.error) onScanDone?.();
+    } catch(e) {
+      setScanResult({ error: 'Scan failed: ' + (e.message || 'server offline') });
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  const sendReport = () => {
+    if (!scanResult || scanResult.error) return;
+    const s = scanResult.stroke || {};
+    const reportData = {
+      tumorClass:       scanResult.prediction,
+      tumorLabel:       TC_LABELS[scanResult.prediction] || scanResult.label || null,
+      tumorConfidence:  scanResult.confidence ? Math.round(scanResult.confidence) : null,
+      allConfidences:   scanResult.all_confidences || null,
+      hasTumor:         scanResult.has_tumor,
+      tumorPixels:      scanResult.tumor_pixels,
+      overlayB64:       scanResult.overlay_b64 || null,
+      maskB64:          scanResult.mask_b64 || null,
+      strokeDetected:   s.model_available ? s.has_stroke : undefined,
+      strokeConfidence: s.model_available ? Math.round(s.confidence) : undefined,
+      strokeLabel:      s.label || null,
+      strokeHeatmapB64: s.heatmap_b64 || null,
+      strokeOverlayB64: s.overlay_b64 || null,
+      doctorNote:       doctorNote.trim(),
+    };
+    sendMessage({ fromId:doctor.id, fromName:doctor.name||`Dr. ${doctor.firstName} ${doctor.lastName}`, fromAvatar:doctor.avatar, fromRole:'doctor', toId:patient.id, toName:patient.name, toAvatar:patient.avatar, toRole:'patient', text:'[Scan Report]', type:'scan_report', reportData });
+    setScanTarget(null); setScanResult(null); setDoctorNote(''); load();
+  };
 
   const groups = [];
   let lastDate='';
@@ -312,7 +376,7 @@ function DoctorChat({ doctor, patient, onBack }) {
   });
 
   return (
-    <div style={{ display:'flex', flexDirection:'column', height:'100%' }}>
+    <div style={{ display:'flex', flexDirection:'column', height:'100%', position:'relative' }}>
       {/* Header */}
       <div style={{ padding:'14px 20px', borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', gap:12, background:'var(--frame)', flexShrink:0 }}>
         <button onClick={onBack} style={{ width:32,height:32,borderRadius:9,border:'1px solid var(--line)',background:'var(--bg)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',color:'var(--ink-2)',flexShrink:0 }}>
@@ -341,7 +405,7 @@ function DoctorChat({ doctor, patient, onBack }) {
             </div>
             <div>
               <div style={{ fontSize:14,fontWeight:600,color:'var(--ink)',marginBottom:3 }}>Start a conversation</div>
-              <div style={{ fontSize:12,color:'var(--ink-3)' }}>Send a message to {patient.name}</div>
+              <div style={{ fontSize:12,color:'var(--ink-3)' }}>Send a message or share an image with {patient.name}</div>
             </div>
           </div>
         )}
@@ -354,19 +418,68 @@ function DoctorChat({ doctor, patient, onBack }) {
             </div>
           );
           const isMe = g.fromId===doctor.id;
-          const prev = groups[gi-1], next = groups[gi+1];
-          const sameNext = next?.type==='msg'&&next.fromId===g.fromId;
-          const isLast = !sameNext;
+          const next = groups[gi+1];
+          const isLast = !(next?.type==='msg'&&next.fromId===g.fromId);
+
+          // ── Doctor's own sent report ──
+          if (g.type==='scan_report' && isMe) {
+            const rd = g.reportData || {};
+            return (
+              <motion.div key={g.id} initial={{ opacity:0,y:8,scale:.97 }} animate={{ opacity:1,y:0,scale:1 }} transition={{ duration:.2 }}
+                style={{ display:'flex',flexDirection:'row-reverse',alignItems:'flex-end',gap:8,marginBottom:10 }}>
+                <div style={{ maxWidth:'78%', borderRadius:18, overflow:'hidden', border:'1px solid rgba(255,61,110,0.25)', boxShadow:'0 4px 20px -6px rgba(255,61,110,0.2)' }}>
+                  <div style={{ padding:'11px 14px', background:'linear-gradient(135deg,rgba(255,61,110,0.1),rgba(122,77,255,0.08))', borderBottom:'1px solid rgba(255,61,110,0.15)', display:'flex', alignItems:'center', gap:8 }}>
+                    <div style={{ width:30, height:30, borderRadius:9, background:'linear-gradient(135deg,#ff3d6e,#7a4dff)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z" strokeLinejoin="round"/></svg>
+                    </div>
+                    <div>
+                      <div style={{ fontSize:11,fontWeight:700,color:'var(--ink)' }}>Scan Report sent to patient</div>
+                      <div style={{ fontSize:9,color:'var(--ink-3)' }}>{fmtMsgTime(g.timestamp)}</div>
+                    </div>
+                    <div style={{ marginLeft:'auto', padding:'2px 7px', borderRadius:100, background:'rgba(34,197,94,0.1)', border:'1px solid rgba(34,197,94,0.25)', fontSize:9, fontWeight:700, color:'#22c55e' }}>SENT</div>
+                  </div>
+                  <div style={{ padding:'10px 14px', background:'var(--frame)', display:'flex', flexDirection:'column', gap:6 }}>
+                    {rd.tumorLabel && <div style={{ fontSize:11, color:'var(--ink-2)' }}>Tumor: <strong>{rd.tumorLabel}</strong> · {rd.tumorConfidence}%</div>}
+                    {rd.strokeDetected !== undefined && <div style={{ fontSize:11, color:'var(--ink-2)' }}>Stroke: <strong>{rd.strokeDetected?'Signs detected':'Clear'}</strong> · {rd.strokeConfidence}%</div>}
+                    {rd.doctorNote && <div style={{ fontSize:11, color:'var(--ink-3)', fontStyle:'italic' }}>"{rd.doctorNote}"</div>}
+                  </div>
+                </div>
+              </motion.div>
+            );
+          }
+
           return (
             <motion.div key={g.id} initial={{ opacity:0,y:8,scale:.97 }} animate={{ opacity:1,y:0,scale:1 }} transition={{ duration:.18 }}
               style={{ display:'flex',flexDirection:isMe?'row-reverse':'row',alignItems:'flex-end',gap:8,marginBottom:isLast?6:2 }}>
               {!isMe&&(
                 <div style={{ width:28,height:28,borderRadius:'50%',background:isLast?'linear-gradient(135deg,#0ea5e9,#06b6d4)':'transparent',display:'grid',placeItems:'center',fontSize:9,fontWeight:700,color:'white',flexShrink:0,visibility:isLast?'visible':'hidden' }}>{g.fromAvatar}</div>
               )}
-              <div style={{ maxWidth:'70%',display:'flex',flexDirection:'column',alignItems:isMe?'flex-end':'flex-start' }}>
-                <div style={{ padding:'10px 14px',borderRadius:isMe?`16px 16px ${isLast?'4px':'16px'} 16px`:`16px 16px 16px ${isLast?'4px':'16px'}`,background:isMe?'linear-gradient(135deg,#ff3d6e,#7a4dff)':'var(--frame)',border:isMe?'none':'1px solid var(--line)',color:isMe?'white':'var(--ink-2)',fontSize:13,lineHeight:1.55,boxShadow:isMe?'0 4px 16px -4px rgba(255,61,110,0.4)':'0 2px 8px -4px rgba(0,0,0,0.12)',wordBreak:'break-word' }}>
-                  {g.text}
-                </div>
+              <div style={{ maxWidth:'72%',display:'flex',flexDirection:'column',alignItems:isMe?'flex-end':'flex-start' }}>
+                {/* Image message — patient sent a scan */}
+                {g.type==='image'&&g.imageData&&!isMe ? (
+                  <div style={{ borderRadius:`16px 16px 16px ${isLast?'4px':'16px'}`, overflow:'hidden', border:'2px solid rgba(122,77,255,0.3)', boxShadow:'0 6px 20px -6px rgba(122,77,255,0.3)', position:'relative' }}>
+                    <img src={g.imageData} alt="scan" style={{ width:'100%', maxWidth:200, display:'block', objectFit:'cover', maxHeight:160 }} />
+                    <div style={{ padding:'8px 12px', background:'linear-gradient(135deg,rgba(122,77,255,0.12),rgba(124,58,237,0.1))', borderTop:'1px solid rgba(122,77,255,0.2)', display:'flex', alignItems:'center', gap:8 }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#7a4dff" strokeWidth="2"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z" strokeLinejoin="round"/></svg>
+                      <span style={{ fontSize:10, color:'#7a4dff', fontWeight:600, flex:1 }}>Brain scan from patient</span>
+                      <motion.button whileHover={{ scale:1.05 }} whileTap={{ scale:.95 }}
+                        onClick={() => startScan(g.imageData)}
+                        style={{ padding:'5px 10px', borderRadius:8, border:'none', cursor:'pointer', background:'linear-gradient(135deg,#7a4dff,#7C3AED)', color:'white', fontSize:10, fontWeight:700, display:'flex', alignItems:'center', gap:5, boxShadow:'0 3px 10px -3px rgba(122,77,255,0.6)', flexShrink:0 }}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        Run AI Scan
+                      </motion.button>
+                    </div>
+                  </div>
+                ) : g.type==='image'&&g.imageData&&isMe ? (
+                  <div style={{ borderRadius:`16px 16px ${isLast?'4px':'16px'} 16px`, overflow:'hidden', border:'1px solid var(--line)' }}>
+                    <img src={g.imageData} alt="img" style={{ width:'100%', maxWidth:200, display:'block', objectFit:'cover', maxHeight:160 }} />
+                    <div style={{ padding:'5px 10px', background:'linear-gradient(135deg,#ff3d6e,#7a4dff)', fontSize:10, color:'rgba(255,255,255,0.75)', fontWeight:500 }}>Image sent</div>
+                  </div>
+                ) : (
+                  <div style={{ padding:'10px 14px',borderRadius:isMe?`16px 16px ${isLast?'4px':'16px'} 16px`:`16px 16px 16px ${isLast?'4px':'16px'}`,background:isMe?'linear-gradient(135deg,#ff3d6e,#7a4dff)':'var(--frame)',border:isMe?'none':'1px solid var(--line)',color:isMe?'white':'var(--ink-2)',fontSize:13,lineHeight:1.55,boxShadow:isMe?'0 4px 16px -4px rgba(255,61,110,0.4)':'0 2px 8px -4px rgba(0,0,0,0.12)',wordBreak:'break-word' }}>
+                    {g.text}
+                  </div>
+                )}
                 {isLast&&(
                   <div style={{ display:'flex',alignItems:'center',gap:4,marginTop:3,opacity:.6 }}>
                     <span style={{ fontSize:10,color:'var(--ink-3)' }}>{fmtMsgTime(g.timestamp)}</span>
@@ -380,8 +493,223 @@ function DoctorChat({ doctor, patient, onBack }) {
         <div ref={endRef}/>
       </div>
 
+      {/* ── Inline Scan Panel ── */}
+      <AnimatePresence>
+        {scanTarget && (
+          <motion.div initial={{ y:'100%', opacity:0 }} animate={{ y:0, opacity:1 }} exit={{ y:'100%', opacity:0 }}
+            transition={{ type:'spring', stiffness:320, damping:32 }}
+            style={{ position:'absolute', bottom:0, left:0, right:0, zIndex:20, borderTop:'2px solid rgba(122,77,255,0.35)', background:'var(--frame)', maxHeight:'65%', display:'flex', flexDirection:'column', overflow:'hidden', boxShadow:'0 -16px 40px -8px rgba(122,77,255,0.2)' }}>
+            <div style={{ height:3, background:'linear-gradient(90deg,#7a4dff,#7C3AED,#ff3d6e)', flexShrink:0 }} />
+            {/* Panel header */}
+            <div style={{ padding:'12px 16px', borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', gap:12, flexShrink:0 }}>
+              <div style={{ width:36, height:36, borderRadius:10, background:'linear-gradient(135deg,#7a4dff,#7C3AED)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z" strokeLinejoin="round"/></svg>
+              </div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:13, fontWeight:700, color:'var(--ink)' }}>AI Brain Scan Analysis</div>
+                <div style={{ fontSize:10, color:'var(--ink-3)' }}>Patient: {patient.name}</div>
+              </div>
+              <button onClick={() => { setScanTarget(null); setScanResult(null); setDoctorNote(''); }}
+                style={{ width:28, height:28, borderRadius:8, border:'1px solid var(--line)', background:'var(--bg)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--ink-3)', flexShrink:0 }}>
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M9 3L3 9M3 3l6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+              </button>
+            </div>
+
+            <div style={{ flex:1, overflowY:'auto', padding:'14px 16px', display:'flex', flexDirection:'column', gap:12 }}>
+              {/* Scan preview + status */}
+              <div style={{ display:'flex', gap:12, alignItems:'flex-start' }}>
+                <div style={{ position:'relative', flexShrink:0 }}>
+                  <img
+                    src={scanResult?.overlay_b64 ? `data:image/png;base64,${scanResult.overlay_b64}` : scanTarget.imageData}
+                    alt="scan"
+                    style={{ width:80, height:80, borderRadius:12, objectFit:'cover', border:'1px solid var(--line)' }}
+                  />
+                  {scanning && (
+                    <div style={{ position:'absolute', inset:0, borderRadius:12, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <motion.div animate={{ rotate:360 }} transition={{ repeat:Infinity, duration:1, ease:'linear' }}
+                        style={{ width:24, height:24, borderRadius:'50%', border:'3px solid rgba(122,77,255,0.3)', borderTopColor:'#7a4dff' }} />
+                    </div>
+                  )}
+                  {scanResult && !scanResult.error && (
+                    <div style={{ position:'absolute', bottom:-6, left:'50%', transform:'translateX(-50%)', padding:'2px 7px', borderRadius:100, background: scanResult.has_tumor?'#E24B4A':'#22c55e', fontSize:8, fontWeight:800, color:'white', whiteSpace:'nowrap' }}>
+                      {scanResult.has_tumor ? 'TUMOR' : 'CLEAR'}
+                    </div>
+                  )}
+                </div>
+                <div style={{ flex:1 }}>
+                  {scanning ? (
+                    <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                        <motion.div animate={{ opacity:[0.4,1,0.4] }} transition={{ repeat:Infinity, duration:1.2 }} style={{ width:8, height:8, borderRadius:'50%', background:'#7a4dff' }} />
+                        <span style={{ fontSize:13, fontWeight:700, color:'var(--ink)' }}>Dual-model analysis running…</span>
+                      </div>
+                      {['Tumor Classification','Segmentation','Stroke Screening','Grad-CAM'].map((s,i)=>(
+                        <motion.div key={s} initial={{ opacity:0, x:-10 }} animate={{ opacity:1, x:0 }} transition={{ delay:i*.3 }}
+                          style={{ display:'flex', alignItems:'center', gap:6, fontSize:11, color:'var(--ink-3)' }}>
+                          <motion.div animate={{ background:['rgba(122,77,255,0.2)','rgba(122,77,255,0.8)','rgba(122,77,255,0.2)'] }} transition={{ repeat:Infinity, duration:1.8, delay:i*.25 }}
+                            style={{ width:6, height:6, borderRadius:'50%', background:'rgba(122,77,255,0.3)' }} />
+                          {s}
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : scanResult?.error ? (
+                    <div style={{ padding:'10px 12px', borderRadius:10, background:'rgba(239,68,68,0.06)', border:'1px solid rgba(239,68,68,0.2)' }}>
+                      <div style={{ fontSize:12, fontWeight:600, color:'#ef4444', marginBottom:4 }}>Scan failed</div>
+                      <div style={{ fontSize:11, color:'var(--ink-3)' }}>{scanResult.error}</div>
+                    </div>
+                  ) : scanResult ? (
+                    <div style={{ display:'flex', flexDirection:'column', gap:2 }}>
+                      <div style={{ fontSize:12, fontWeight:700, color:'var(--ink)' }}>{TC_LABELS[scanResult.prediction] || scanResult.label}</div>
+                      <div style={{ fontSize:11, color:'var(--ink-3)' }}>Confidence: <strong style={{ color:'var(--ink)' }}>{Math.round(scanResult.confidence)}%</strong></div>
+                      {scanResult.has_tumor && scanResult.tumor_pixels > 0 && (
+                        <div style={{ fontSize:10, color:'#E24B4A' }}>{scanResult.tumor_pixels.toLocaleString()} tumor pixels segmented</div>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+
+              {/* Full result cards — shown after scan completes */}
+              {scanResult && !scanResult.error && (
+                <motion.div initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} transition={{ duration:.3 }}
+                  style={{ display:'flex', flexDirection:'column', gap:10 }}>
+
+                  {/* Scan images row */}
+                  {(scanResult.overlay_b64 || scanResult.mask_b64 || scanResult.stroke?.overlay_b64) && (
+                    <div style={{ display:'flex', gap:8 }}>
+                      {scanResult.overlay_b64 && (
+                        <div style={{ flex:1, textAlign:'center' }}>
+                          <img src={`data:image/png;base64,${scanResult.overlay_b64}`}
+                            style={{ width:'100%', height:90, objectFit:'contain', borderRadius:8, border:'1px solid var(--line)', background:'#000' }} />
+                          <div style={{ fontSize:9, color:'var(--ink-3)', marginTop:3, fontWeight:600 }}>OVERLAY</div>
+                        </div>
+                      )}
+                      {scanResult.mask_b64 && (
+                        <div style={{ flex:1, textAlign:'center' }}>
+                          <img src={`data:image/png;base64,${scanResult.mask_b64}`}
+                            style={{ width:'100%', height:90, objectFit:'contain', borderRadius:8, border:'1px solid var(--line)', background:'#000' }} />
+                          <div style={{ fontSize:9, color:'var(--ink-3)', marginTop:3, fontWeight:600 }}>MASK</div>
+                        </div>
+                      )}
+                      {scanResult.stroke?.overlay_b64 && (
+                        <div style={{ flex:1, textAlign:'center' }}>
+                          <img src={`data:image/png;base64,${scanResult.stroke.overlay_b64}`}
+                            style={{ width:'100%', height:90, objectFit:'contain', borderRadius:8, border:'1px solid var(--line)', background:'#000' }} />
+                          <div style={{ fontSize:9, color:'var(--ink-3)', marginTop:3, fontWeight:600 }}>GRAD-CAM</div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Tumor classification card */}
+                  <div style={{ padding:'12px 14px', borderRadius:12, background: scanResult.has_tumor?'rgba(226,75,74,0.06)':'rgba(34,197,94,0.06)', border:`1px solid ${scanResult.has_tumor?'rgba(226,75,74,0.2)':'rgba(34,197,94,0.2)'}` }}>
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
+                      <span style={{ fontSize:11, fontWeight:700, color:'var(--ink)', display:'flex', alignItems:'center', gap:6 }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z"/></svg>
+                        Tumor Analysis
+                      </span>
+                      <span style={{ fontSize:10, fontWeight:800, padding:'2px 8px', borderRadius:100, background: scanResult.has_tumor?'rgba(226,75,74,0.15)':'rgba(34,197,94,0.15)', color: scanResult.has_tumor?'#E24B4A':'#22c55e' }}>
+                        {scanResult.has_tumor ? 'DETECTED' : 'CLEAR'}
+                      </span>
+                    </div>
+                    {scanResult.low_confidence && (
+                      <div style={{ fontSize:10, color:'#f59e0b', marginBottom:6, padding:'4px 8px', borderRadius:6, background:'rgba(245,158,11,0.08)', border:'1px solid rgba(245,158,11,0.2)' }}>
+                        ⚠ Low confidence — result may be uncertain
+                      </div>
+                    )}
+                    {/* All confidence bars */}
+                    {scanResult.all_confidences && (
+                      <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
+                        {Object.entries(scanResult.all_confidences).map(([cls, val]) => {
+                          const isActive = cls === scanResult.prediction;
+                          const barColor = cls === 'notumor' ? '#22c55e' : cls === 'glioma' ? '#E24B4A' : cls === 'meningioma' ? '#f59e0b' : '#7a4dff';
+                          return (
+                            <div key={cls} style={{ display:'flex', alignItems:'center', gap:7 }}>
+                              <span style={{ fontSize:9, width:76, flexShrink:0, color: isActive?'var(--ink)':'var(--ink-3)', fontWeight: isActive?700:400 }}>
+                                {TC_LABELS[cls] || cls}
+                              </span>
+                              <div style={{ flex:1, height:5, borderRadius:100, background:'var(--line)', overflow:'hidden' }}>
+                                <motion.div initial={{ width:0 }} animate={{ width:`${val}%` }} transition={{ duration:.6, delay:.1 }}
+                                  style={{ height:'100%', borderRadius:100, background: isActive ? barColor : 'var(--ink-3)', opacity: isActive ? 1 : 0.4 }} />
+                              </div>
+                              <span style={{ fontSize:9, width:30, textAlign:'right', flexShrink:0, color: isActive?'var(--ink)':'var(--ink-3)', fontWeight: isActive?700:400 }}>
+                                {val}%
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Stroke card */}
+                  {scanResult.stroke?.model_available && (
+                    <div style={{ padding:'12px 14px', borderRadius:12, background: !scanResult.stroke.has_stroke?'rgba(6,182,212,0.06)':'rgba(124,58,237,0.06)', border:`1px solid ${!scanResult.stroke.has_stroke?'rgba(6,182,212,0.2)':'rgba(124,58,237,0.25)'}` }}>
+                      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4 }}>
+                        <span style={{ fontSize:11, fontWeight:700, color:'var(--ink)', display:'flex', alignItems:'center', gap:6 }}>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                          Stroke Screening
+                        </span>
+                        <span style={{ fontSize:10, fontWeight:800, padding:'2px 8px', borderRadius:100, background: !scanResult.stroke.has_stroke?'rgba(6,182,212,0.15)':'rgba(124,58,237,0.15)', color: !scanResult.stroke.has_stroke?'#06b6d4':'#7C3AED' }}>
+                          {!scanResult.stroke.has_stroke ? 'CLEAR' : 'ALERT'}
+                        </span>
+                      </div>
+                      <div style={{ fontSize:11, color:'var(--ink-3)', marginBottom:4 }}>
+                        {scanResult.stroke.label} · <strong style={{ color:'var(--ink)' }}>{Math.round(scanResult.stroke.confidence)}%</strong> confidence
+                      </div>
+                      {scanResult.stroke.out_of_distribution && (
+                        <div style={{ fontSize:10, color:'#f59e0b', padding:'4px 8px', borderRadius:6, background:'rgba(245,158,11,0.08)', border:'1px solid rgba(245,158,11,0.2)' }}>
+                          ⚠ Tumor present — stroke result may be less reliable
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Doctor note + send report */}
+              {scanResult && !scanResult.error && (
+                <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ delay:.2 }}>
+                  <textarea value={doctorNote} onChange={e=>setDoctorNote(e.target.value)} placeholder="Add your clinical note for the patient… (optional)"
+                    style={{ width:'100%', height:60, borderRadius:10, padding:'9px 12px', fontSize:12, outline:'none', background:'var(--bg)', color:'var(--ink)', border:'1px solid var(--line)', resize:'none', lineHeight:1.5, fontFamily:'inherit', boxSizing:'border-box' }} />
+                  <motion.button whileHover={{ y:-1 }} whileTap={{ scale:.97 }} onClick={sendReport}
+                    style={{ marginTop:8, width:'100%', height:42, borderRadius:11, fontSize:13, fontWeight:700, color:'white', background:'linear-gradient(135deg,#7a4dff,#7C3AED,#ff3d6e)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8, boxShadow:'0 6px 18px -4px rgba(122,77,255,0.5)' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    Send Report to {patient.name}
+                  </motion.button>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Image preview */}
+      <AnimatePresence>
+        {imgPreview && (
+          <motion.div initial={{ height:0, opacity:0 }} animate={{ height:'auto', opacity:1 }} exit={{ height:0, opacity:0 }}
+            style={{ borderTop:'1px solid var(--line)', padding:'10px 16px', background:'var(--frame)', display:'flex', alignItems:'center', gap:12, flexShrink:0, overflow:'hidden' }}>
+            <div style={{ position:'relative', flexShrink:0 }}>
+              <img src={imgPreview.dataUrl} alt="preview" style={{ width:64, height:48, borderRadius:9, objectFit:'cover', border:'2px solid rgba(255,61,110,0.4)' }} />
+              <button onClick={() => setImgPreview(null)} style={{ position:'absolute', top:-5, right:-5, width:16, height:16, borderRadius:'50%', background:'#ef4444', border:'none', cursor:'pointer', display:'grid', placeItems:'center', color:'white' }}>
+                <svg width="7" height="7" viewBox="0 0 12 12" fill="none"><path d="M9 3L3 9M3 3l6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+              </button>
+            </div>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:12, fontWeight:600, color:'var(--ink)' }}>Image ready to send</div>
+              <div style={{ fontSize:10, color:'var(--ink-3)' }}>Patient will receive this in the chat</div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Input */}
-      <div style={{ padding:'12px 16px',borderTop:'1px solid var(--line)',display:'flex',gap:10,alignItems:'flex-end',background:'var(--frame)',flexShrink:0 }}>
+      <div style={{ padding:'12px 16px',borderTop:'1px solid var(--line)',display:'flex',gap:10,alignItems:'flex-end',background:'var(--frame)',flexShrink:0, position:'relative', zIndex:1 }}>
+        <input ref={fileRef} type="file" accept="image/*" style={{ display:'none' }} onChange={onFileChange} />
+        <motion.button whileHover={{ scale:1.07 }} whileTap={{ scale:.92 }} onClick={() => fileRef.current?.click()}
+          title="Send image" style={{ width:38, height:38, borderRadius:11, border:'1px solid var(--line)', background:'var(--bg)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color:'#ff6a8d', transition:'all .2s' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/><polyline points="21 15 16 10 5 21"/></svg>
+        </motion.button>
         <div style={{ flex:1,borderRadius:16,border:'1px solid var(--line)',background:'var(--bg)',display:'flex',alignItems:'flex-end',padding:'6px 12px',gap:8 }}>
           <textarea ref={inputRef} value={input} onChange={e=>setInput(e.target.value)} onKeyDown={onKey}
             placeholder={`Message ${patient.name}…`} rows={1}
@@ -390,8 +718,8 @@ function DoctorChat({ doctor, patient, onBack }) {
           />
         </div>
         <motion.button whileHover={{ scale:1.06 }} whileTap={{ scale:.93 }} onClick={send}
-          disabled={!input.trim()||sending}
-          style={{ width:42,height:42,borderRadius:13,border:'none',cursor:!input.trim()?'not-allowed':'pointer',background:'linear-gradient(135deg,#ff3d6e,#7a4dff)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,boxShadow:'0 4px 14px -4px rgba(255,61,110,0.5)',opacity:!input.trim()?.4:1,transition:'opacity .2s' }}>
+          disabled={(!input.trim()&&!imgPreview)||sending}
+          style={{ width:42,height:42,borderRadius:13,border:'none',cursor:(!input.trim()&&!imgPreview)?'not-allowed':'pointer',background:'linear-gradient(135deg,#ff3d6e,#7a4dff)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,boxShadow:'0 4px 14px -4px rgba(255,61,110,0.5)',opacity:(!input.trim()&&!imgPreview)?.4:1,transition:'opacity .2s' }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         </motion.button>
       </div>
@@ -441,10 +769,15 @@ export default function DoctorDashboard() {
   const toastTimer                      = useRef(null);
 
   // Messages
-  const [conversations, setConversations] = useState([]);
-  const [allPatients, setAllPatients]     = useState([]);
-  const [selPatient, setSelPatient]       = useState(null);
-  const [msgUnread, setMsgUnread]         = useState(0);
+  const [conversations, setConversations]   = useState([]);
+  const [allPatients, setAllPatients]       = useState([]);
+  const [selPatient, setSelPatient]         = useState(null);
+  const [msgUnread, setMsgUnread]           = useState(0);
+  const [pendingChatReqs, setPendingChatReqs] = useState([]);
+  const [reqBusy, setReqBusy]               = useState(null);
+
+  // System stats
+  const [sysStats, setSysStats]             = useState({ totalUsers:0, approvedDoctors:0, activePatients:0, aiScansToday:0 });
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -464,15 +797,23 @@ export default function DoctorDashboard() {
     setConversations(getConversations(u.id));
     setAllPatients(getPatientsByDoctor(u.id));
     setMsgUnread(getUnreadCount(u.id));
+    setPendingChatReqs(getPendingChatRequests(u.id));
+    const st = getStats();
+    setSysStats({ totalUsers: getTotalUsers(), approvedDoctors: st.approvedDoctors, activePatients: st.totalPatients, aiScansToday: getAiScansToday() });
     setReady(true);
   }, []);
 
   const refreshReviews  = (uid) => { setReviews(getReviewsByDoctor(uid)); setDocRating(getDoctorRating(uid)); };
   const refreshAppts    = (uid) => setDocAppts(getAppointmentsByDoctor(uid));
+  const refreshSysStats = () => {
+    const st = getStats();
+    setSysStats({ totalUsers: getTotalUsers(), approvedDoctors: st.approvedDoctors, activePatients: st.totalPatients, aiScansToday: getAiScansToday() });
+  };
   const refreshMessages = (uid) => {
     setConversations(getConversations(uid));
     setMsgUnread(getUnreadCount(uid));
     setAllPatients(getPatientsByDoctor(uid));
+    setPendingChatReqs(getPendingChatRequests(uid));
   };
 
   useEffect(() => {
@@ -480,6 +821,11 @@ export default function DoctorDashboard() {
     if (tab === 'Messages') {
       refreshMessages(user.id);
       const t = setInterval(() => refreshMessages(user.id), 2500);
+      return () => clearInterval(t);
+    }
+    if (tab === 'Overview') {
+      refreshSysStats();
+      const t = setInterval(refreshSysStats, 5000);
       return () => clearInterval(t);
     }
     const t = setInterval(() => setMsgUnread(getUnreadCount(user.id)), 3000);
@@ -525,6 +871,15 @@ export default function DoctorDashboard() {
       setAltDate(''); setAltTime(''); setAltNote('');
       showToast('alt', a, { altDate, altTime });
     }, 700);
+  };
+
+  const handleChatReq = (req, approved) => {
+    setReqBusy(req.patientId);
+    setTimeout(() => {
+      respondToChatPermission(req.patientId, user.id, approved);
+      refreshMessages(user.id);
+      setReqBusy(null);
+    }, 600);
   };
 
   const toggleDark = () => {
@@ -576,8 +931,10 @@ export default function DoctorDashboard() {
               {t==='Schedule' && pendingAppts.length>0 && tab!=='Schedule' && (
                 <span style={{ position:'absolute', top:3, right:3, minWidth:16, height:16, borderRadius:100, background:'#f59e0b', color:'white', fontSize:9, fontWeight:800, display:'grid', placeItems:'center', border:'1.5px solid var(--frame)', lineHeight:1, padding:'0 3px' }}>{pendingAppts.length}</span>
               )}
-              {t==='Messages' && msgUnread>0 && tab!=='Messages' && (
-                <span style={{ position:'absolute', top:2, right:2, minWidth:16, height:16, borderRadius:100, background:'#ff3d6e', color:'white', fontSize:9, fontWeight:800, display:'grid', placeItems:'center', border:'1.5px solid var(--frame)', lineHeight:1, padding:'0 3px' }}>{msgUnread}</span>
+              {t==='Messages' && tab!=='Messages' && (msgUnread>0 || pendingChatReqs.length>0) && (
+                <span style={{ position:'absolute', top:2, right:2, minWidth:16, height:16, borderRadius:100, background: pendingChatReqs.length>0 ? '#7a4dff' : '#ff3d6e', color:'white', fontSize:9, fontWeight:800, display:'grid', placeItems:'center', border:'1.5px solid var(--frame)', lineHeight:1, padding:'0 3px' }}>
+                  {pendingChatReqs.length > 0 ? pendingChatReqs.length : msgUnread}
+                </span>
               )}
               {t==='Reviews' && reviews.length>0 && tab!=='Reviews' && (
                 <span style={{ position:'absolute', top:4, right:4, width:7, height:7, borderRadius:'50%', background:'#f59e0b', border:'1.5px solid var(--frame)' }} />
@@ -639,6 +996,69 @@ export default function DoctorDashboard() {
                   <span style={{ fontSize:13, color:'#22c55e', fontWeight:600 }}>All features unlocked — welcome to Neural AI, Dr. {user.lastName}!</span>
                 </motion.div>
               )}
+              {/* ── System Stats ── */}
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:28 }}>
+                {[
+                  {
+                    label: 'Total Users',
+                    value: sysStats.totalUsers,
+                    color: '#06b6d4',
+                    icon: (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                      </svg>
+                    ),
+                  },
+                  {
+                    label: 'Approved Doctors',
+                    value: sysStats.approvedDoctors,
+                    color: '#22c55e',
+                    icon: (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                      </svg>
+                    ),
+                  },
+                  {
+                    label: 'Active Patients',
+                    value: sysStats.activePatients,
+                    color: '#7a4dff',
+                    icon: (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                    ),
+                  },
+                  {
+                    label: 'AI Scans Today',
+                    value: sysStats.aiScansToday,
+                    color: '#ff3d6e',
+                    pulse: sysStats.aiScansToday > 0,
+                    icon: (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 3C6.24 3 4 5.24 4 8c0 1.68.83 3.17 2.1 4C4.83 12.83 4 14.32 4 16c0 2.76 2.24 5 5 5h6c2.76 0 5-2.24 5-5 0-1.68-.83-3.17-2.1-4C19.17 11.17 20 9.68 20 8c0-2.76-2.24-5-5-5H9z"/>
+                        <path d="M9 9.5s1.2 1 3 1 3-1 3-1M9 14s1.2 1 3 1 3-1 3-1"/>
+                        <line x1="12" y1="5.5" x2="12" y2="18.5"/>
+                      </svg>
+                    ),
+                  },
+                ].map((s, i) => (
+                  <motion.div key={s.label} initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:.05 + i*.07 }}
+                    className="glass-card" style={{ padding:'18px 20px', display:'flex', alignItems:'center', gap:14, position:'relative', overflow:'hidden' }}>
+                    {s.pulse && <div className="pulse-dot" style={{ position:'absolute', top:12, right:12, width:8, height:8, borderRadius:'50%', background:s.color }} />}
+                    <div style={{ width:42, height:42, borderRadius:12, background:`${s.color}18`, border:`1px solid ${s.color}2e`, display:'grid', placeItems:'center', color:s.color, flexShrink:0 }}>{s.icon}</div>
+                    <div>
+                      <div style={{ fontSize:26, fontWeight:800, color:s.color, lineHeight:1 }}>{s.value}</div>
+                      <div style={{ fontSize:11, color:'var(--ink-3)', marginTop:3 }}>{s.label}</div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
               <div style={{ marginBottom:24 }}>
                 <h2 className="font-serif" style={{ fontSize:26, fontWeight:400, color:'var(--ink)', marginBottom:4 }}>Dr. <em className="text-gradient">{user.firstName} {user.lastName}</em></h2>
                 <p style={{ fontSize:13, color:'var(--ink-3)' }}>{user.specialty||'General Medicine'} · {user.hospital||'Neural Medical Center'}</p>
@@ -978,7 +1398,14 @@ export default function DoctorDashboard() {
                         Patient <em className="text-gradient">Messages</em>
                       </h2>
                       <p style={{ fontSize:13,color:'var(--ink-3)' }}>
-                        {selPatient ? `Chatting with ${selPatient.name}` : `${allPatients.length} patient${allPatients.length!==1?'s':''} · ${msgUnread>0?`${msgUnread} unread`:'All caught up'}`}
+                        {selPatient
+                          ? `Chatting with ${selPatient.name}`
+                          : pendingChatReqs.length > 0
+                            ? <span style={{ color:'#7a4dff', fontWeight:600 }}>
+                                <motion.span animate={{ opacity:[1,0.5,1] }} transition={{ duration:1.6, repeat:Infinity }}>⚡ </motion.span>
+                                {pendingChatReqs.length} access request{pendingChatReqs.length>1?'s':''} waiting · {allPatients.length} patient{allPatients.length!==1?'s':''}
+                              </span>
+                            : `${allPatients.length} patient${allPatients.length!==1?'s':''} · ${msgUnread>0?`${msgUnread} unread`:'All caught up'}`}
                       </p>
                     </div>
                     {selPatient && (
@@ -989,6 +1416,111 @@ export default function DoctorDashboard() {
                       </button>
                     )}
                   </div>
+
+                  {/* ── Pending Chat Access Requests ── */}
+                  <AnimatePresence>
+                    {pendingChatReqs.length > 0 && (
+                      <motion.div
+                        key="pending-reqs"
+                        initial={{ opacity:0, height:0, marginBottom:0 }}
+                        animate={{ opacity:1, height:'auto', marginBottom:16 }}
+                        exit={{ opacity:0, height:0, marginBottom:0 }}
+                        transition={{ duration:.4 }}
+                        style={{ overflow:'hidden' }}
+                      >
+                        {/* Section label */}
+                        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
+                          <div style={{ width:8, height:8, borderRadius:'50%', background:'#7a4dff' }} className="pulse-dot" />
+                          <span style={{ fontSize:11, fontWeight:700, letterSpacing:'0.1em', textTransform:'uppercase', color:'#7a4dff' }}>
+                            Chat Access Requests
+                          </span>
+                          <div style={{ height:1, flex:1, background:'rgba(122,77,255,0.2)' }} />
+                          <div style={{ padding:'3px 10px', borderRadius:100, background:'rgba(122,77,255,0.12)', border:'1px solid rgba(122,77,255,0.3)', fontSize:11, fontWeight:800, color:'#7a4dff' }}>
+                            {pendingChatReqs.length}
+                          </div>
+                        </div>
+
+                        {/* Cards row */}
+                        <div style={{ display:'flex', gap:12, overflowX:'auto', paddingBottom:4, scrollbarWidth:'none' }}>
+                          <AnimatePresence>
+                            {pendingChatReqs.map((req, i) => (
+                              <motion.div key={req.id}
+                                initial={{ opacity:0, scale:.88, x:20 }}
+                                animate={{ opacity:1, scale:1, x:0 }}
+                                exit={{ opacity:0, scale:.82, x:-20 }}
+                                transition={{ delay:i*.06, type:'spring', stiffness:280, damping:22 }}
+                                className="glass-card"
+                                style={{ minWidth:240, maxWidth:260, flexShrink:0, overflow:'hidden', position:'relative' }}
+                              >
+                                {/* Gradient top bar */}
+                                <div style={{ height:3, background:'linear-gradient(90deg,#7a4dff,#ff3d6e,#06b6d4)' }} />
+
+                                {/* Glow orb */}
+                                <div style={{ position:'absolute', top:0, right:0, width:100, height:100, borderRadius:'50%', background:'radial-gradient(circle,rgba(122,77,255,0.1),transparent 70%)', pointerEvents:'none' }} />
+
+                                <div style={{ padding:'14px 16px' }}>
+                                  {/* Patient info */}
+                                  <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
+                                    <div style={{ position:'relative', flexShrink:0 }}>
+                                      <div style={{ width:44, height:44, borderRadius:13, background:'linear-gradient(135deg,#7a4dff,#ff3d6e)', display:'grid', placeItems:'center', fontSize:14, fontWeight:700, color:'white', boxShadow:'0 4px 14px -4px rgba(122,77,255,0.5)' }}>
+                                        {req.patientAvatar || req.patientName?.slice(0,2).toUpperCase()}
+                                      </div>
+                                      {/* Animated ring */}
+                                      <motion.div
+                                        animate={{ scale:[1,1.28,1], opacity:[0.6,0,0.6] }}
+                                        transition={{ duration:2.2, repeat:Infinity, ease:'easeInOut' }}
+                                        style={{ position:'absolute', inset:-4, borderRadius:17, border:'1.5px solid rgba(122,77,255,0.45)', pointerEvents:'none' }}
+                                      />
+                                    </div>
+                                    <div style={{ flex:1, minWidth:0 }}>
+                                      <div style={{ fontSize:13, fontWeight:700, color:'var(--ink)', marginBottom:2, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{req.patientName}</div>
+                                      <div style={{ fontSize:10, color:'var(--ink-3)', display:'flex', alignItems:'center', gap:4 }}>
+                                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        {new Date(req.timestamp).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Request description */}
+                                  <div style={{ fontSize:11, color:'var(--ink-3)', lineHeight:1.5, marginBottom:14, padding:'8px 10px', borderRadius:9, background:'rgba(122,77,255,0.05)', border:'1px solid rgba(122,77,255,0.1)' }}>
+                                    Wants permission to chat with you directly
+                                  </div>
+
+                                  {/* Buttons */}
+                                  <div style={{ display:'flex', gap:8 }}>
+                                    <motion.button
+                                      whileHover={{ y:-2, boxShadow:'0 8px 20px -6px rgba(34,197,94,0.5)' }}
+                                      whileTap={{ scale:.95 }}
+                                      disabled={reqBusy === req.patientId}
+                                      onClick={() => handleChatReq(req, true)}
+                                      style={{ flex:1, height:38, borderRadius:11, fontSize:12, fontWeight:700, color:'white', background:'linear-gradient(135deg,#22c55e,#16a34a)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:6, transition:'all .2s' }}
+                                    >
+                                      {reqBusy === req.patientId ? (
+                                        <span style={{ width:12, height:12, borderRadius:'50%', border:'2px solid rgba(255,255,255,0.3)', borderTopColor:'white', animation:'spin360 0.8s linear infinite', display:'inline-block' }} />
+                                      ) : (
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                      )}
+                                      Accept
+                                    </motion.button>
+                                    <motion.button
+                                      whileHover={{ y:-2 }}
+                                      whileTap={{ scale:.95 }}
+                                      disabled={reqBusy === req.patientId}
+                                      onClick={() => handleChatReq(req, false)}
+                                      style={{ flex:1, height:38, borderRadius:11, fontSize:12, fontWeight:700, color:'#ef4444', background:'rgba(239,68,68,0.07)', border:'1.5px solid rgba(239,68,68,0.25)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:6, transition:'all .2s' }}
+                                    >
+                                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                      Decline
+                                    </motion.button>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            ))}
+                          </AnimatePresence>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   <div style={{ display:'grid', gridTemplateColumns: selPatient ? '1fr' : '300px 1fr', gap:18, height:'calc(100vh - 260px)' }}>
 
@@ -1068,7 +1600,7 @@ export default function DoctorDashboard() {
                       </div>
                       <div style={{ position:'relative',zIndex:1,flex:1,display:'flex',flexDirection:'column',minHeight:0 }}>
                         {selPatient ? (
-                          <DoctorChat doctor={user} patient={selPatient} onBack={()=>setSelPatient(null)} />
+                          <DoctorChat doctor={user} patient={selPatient} onBack={()=>setSelPatient(null)} onScanDone={() => { recordAiScan(user.id); refreshSysStats(); }} />
                         ) : (
                           <div style={{ flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:16,padding:'40px' }}>
                             <motion.div initial={{ scale:.85,opacity:0 }} animate={{ scale:1,opacity:1 }} transition={{ type:'spring',stiffness:200,delay:.2 }}
@@ -1271,7 +1803,7 @@ export default function DoctorDashboard() {
           )}
 
           {/* ══════════════ Brain Scan ══════════════ */}
-          {tab==='Brain Scan' && <BrainScanTab />}
+          {tab==='Brain Scan' && <BrainScanTab onScanDone={() => { recordAiScan(user.id); refreshSysStats(); }} />}
 
           {/* ══════════════ Profile ══════════════ */}
           {tab==='Profile' && (
