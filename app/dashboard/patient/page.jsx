@@ -10,6 +10,7 @@ import {
 } from '@/lib/auth';
 import Particles from '@/components/Particles';
 import NeuralChatbot from '@/components/NeuralChatbot';
+import BrainRegionAnalysis from '@/components/BrainRegionAnalysis';
 
 const TABS = ['Overview', 'Appointments', 'Messages', 'Reviews', 'Reports', 'AI Insights'];
 const TIME_SLOTS = ['09:00','09:30','10:00','10:30','11:00','11:30','14:00','14:30','15:00','15:30','16:00','16:30'];
@@ -2065,6 +2066,16 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
                                       </div>
                                     )}
 
+                                    {/* Neural Region Impact Analysis */}
+                                    <BrainRegionAnalysis
+                                      tumorClass={rd.tumorClass}
+                                      hasTumor={rd.hasTumor}
+                                      maskB64={rd.maskB64}
+                                      overlayB64={rd.overlayB64}
+                                      strokeDetected={rd.strokeDetected}
+                                      strokeConfidence={rd.strokeConfidence}
+                                    />
+
                                   </div>
                                 </motion.div>
                               )}
@@ -2280,7 +2291,7 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
         {newChatOpen && <NewChatPanel approvedDocs={approvedDocs} onClose={() => setNewChatOpen(false)} onStart={(doc) => { setSelDoctor(doc); setTab('Messages'); }} />}
       </AnimatePresence>
 
-      <NeuralChatbot />
+      <NeuralChatbot activeTab={tab} />
     </div>
   );
 }

@@ -25,7 +25,7 @@ function renderContent(text) {
   );
 }
 
-export default function NeuralChatbot() {
+export default function NeuralChatbot({ activeTab } = {}) {
   const [open, setOpen]         = useState(false);
   const [messages, setMessages] = useState([WELCOME_MSG]);
   const [input, setInput]       = useState('');
@@ -82,8 +82,8 @@ export default function NeuralChatbot() {
 
   return (
     <>
-      {/* ── Floating trigger ── */}
-      <div style={{ position:'fixed', bottom:28, right:28, zIndex:1000, display:'flex', flexDirection:'column', alignItems:'center', gap:8 }}>
+      {/* ── Floating trigger — hidden while Messages tab is open to avoid covering send button ── */}
+      <div style={{ position:'fixed', bottom:28, right:28, zIndex:1000, display:'flex', flexDirection:'column', alignItems:'center', gap:8, pointerEvents: activeTab === 'Messages' && !open ? 'none' : 'auto', opacity: activeTab === 'Messages' && !open ? 0 : 1, transition:'opacity 0.2s' }}>
 
         {/* Tooltip label */}
         <AnimatePresence>

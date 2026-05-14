@@ -1,6 +1,7 @@
 'use client';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import BrainRegionAnalysis from '@/components/BrainRegionAnalysis';
 
 // ── Tumor palette ──────────────────────────────────────────────────
 const TC = {
@@ -776,6 +777,16 @@ function ScanResults({ data, onReset }) {
 
       {/* ── Stroke panel (always rendered — handles missing/failed/unavailable states) ── */}
       <StrokePanel data={strokeData} />
+
+      {/* ── Neural Region Impact Analysis ── */}
+      <BrainRegionAnalysis
+        tumorClass={data.prediction}
+        hasTumor={data.has_tumor}
+        maskB64={data.mask_b64}
+        overlayB64={data.overlay_b64}
+        strokeDetected={strokeData?.has_stroke}
+        strokeConfidence={strokeData?.confidence ? Math.round(strokeData.confidence) : undefined}
+      />
 
       {/* Disclaimer */}
       <div style={{
