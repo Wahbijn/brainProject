@@ -1,8 +1,8 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Neural — Smarter Medical AI Brain',
-  description: 'Smarter Medical AI Brain, Brighter Human Life.',
+  title: 'MedVision — AI-Powered Medical Diagnostics',
+  description: 'Advanced medical AI that sees beyond human vision. Diagnose smarter, heal precisely.',
 };
 
 export default function RootLayout({ children }) {

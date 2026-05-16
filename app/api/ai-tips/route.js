@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 function buildPrompt(seed) {
-  return `You are Neural AI inside a medical dashboard. Generate exactly 5 unique, evidence-based, slightly fun and warm health tips to help a patient reduce their risk of brain tumors and stroke.
+  return `You are MedVision AI inside a medical dashboard. Generate exactly 5 unique, evidence-based, slightly fun and warm health tips to help a patient reduce their risk of brain tumors and stroke.
 
 Randomization seed (always produce different tips each call): ${seed}
 

@@ -25,8 +25,8 @@ export default function Hero() {
             style={{ color: 'var(--ink)' }}
           >
             Smarter Medical{' '}
-            <em className="not-italic font-normal bg-gradient-to-r from-[var(--neon-1,#ff6a8d)] to-[#7a4dff] bg-clip-text text-transparent italic">
-              AI&nbsp;Brain,
+            <em className="not-italic font-normal bg-gradient-to-r from-[#06b6d4] to-[#7c3aed] bg-clip-text text-transparent italic">
+              AI&nbsp;Vision,
             </em>
             <br />
             Brighter Human Life.

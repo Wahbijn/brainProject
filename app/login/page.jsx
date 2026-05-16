@@ -63,13 +63,22 @@ export default function LoginPage() {
       <motion.header initial={{ opacity:0, y:-16 }} animate={{ opacity:1, y:0 }} transition={{ duration:.7, ease:[.2,.8,.2,1] }}
         style={{ position:'relative', zIndex:30, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'20px 32px' }}>
         <Link href="/" style={{ display:'flex', alignItems:'center', gap:10, textDecoration:'none' }}>
-          <div style={{ width:34, height:34, borderRadius:9, display:'grid', placeItems:'center', color:'white', fontFamily:'Instrument Serif,serif', fontStyle:'italic', fontSize:18, background:'radial-gradient(circle at 30% 30%,#ffb8c4,#ff5a7d 60%,#7a4dff)', boxShadow:'0 4px 12px -4px rgba(255,90,125,0.5)', position:'relative', overflow:'hidden' }}>
-            N
-            <span style={{ position:'absolute', inset:0, borderRadius:'inherit', background:'linear-gradient(135deg,rgba(255,255,255,0.4),transparent 50%)' }} />
+          <div style={{ width:34, height:34, borderRadius:10, background:'linear-gradient(135deg,#030d18 0%,#060f1e 55%,#0c0520 100%)', border:'1px solid rgba(6,182,212,0.22)', display:'grid', placeItems:'center', overflow:'hidden', boxShadow:'0 0 14px rgba(6,182,212,0.25), 0 2px 8px rgba(0,0,0,0.18)', flexShrink:0 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M2 12C2 12 6.5 5 12 5C17.5 5 22 12 22 12C22 12 17.5 19 12 19C6.5 19 2 12 2 12Z" stroke="url(#mv-login-g)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="12" cy="12" r="3.2" stroke="url(#mv-login-g)" strokeWidth="1.6"/>
+              <circle cx="12" cy="12" r="1.3" fill="url(#mv-login-g)"/>
+              <defs><linearGradient id="mv-login-g" x1="2" y1="5" x2="22" y2="19" gradientUnits="userSpaceOnUse"><stop offset="0%" stopColor="#06b6d4"/><stop offset="100%" stopColor="#9061f9"/></linearGradient></defs>
+            </svg>
           </div>
-          <span style={{ fontSize:11, fontWeight:600, letterSpacing:'0.18em', color:'var(--ink)' }}>
-            NEURAL <span style={{ fontWeight:400, color:'var(--ink-3)', marginLeft:4 }}>/ AI BRAIN</span>
-          </span>
+          <div style={{ lineHeight:1 }}>
+            <div style={{ fontSize:13, fontWeight:800, letterSpacing:'-0.025em', display:'flex', alignItems:'baseline' }}>
+              <span style={{ color:'var(--ink)' }}>Med</span>
+              <span style={{ backgroundImage:'linear-gradient(90deg,#06b6d4 0%,#7c3aed 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Vision</span>
+              <span style={{ fontSize:8, fontWeight:500, marginLeft:1.5, color:'var(--ink-3)', WebkitTextFillColor:'var(--ink-3)' }}>™</span>
+            </div>
+            <div style={{ fontSize:7, fontWeight:700, letterSpacing:'0.26em', color:'var(--ink-3)', textTransform:'uppercase', marginTop:2, fontFamily:'JetBrains Mono, monospace' }}>DIAGNOSTIC AI</div>
+          </div>
         </Link>
         <div style={{ display:'flex', alignItems:'center', gap:16 }}>
           <Link href="/signup" style={{ fontSize:13, fontWeight:500, color:'var(--ink-2)', textDecoration:'none' }}>
@@ -91,13 +100,16 @@ export default function LoginPage() {
           {/* Header */}
           <div style={{ textAlign:'center', marginBottom:32 }}>
             <motion.div initial={{ scale:0 }} animate={{ scale:1 }} transition={{ type:'spring', stiffness:200, damping:18, delay:.15 }}
-              style={{ width:64, height:64, borderRadius:18, display:'flex', alignItems:'center', justifyContent:'center', color:'white', margin:'0 auto 16px', background:'linear-gradient(135deg,#ff7a9c,#ff3d6e 50%,#7a4dff)', boxShadow:'0 10px 28px -8px rgba(255,61,110,0.5)' }}>
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
+              style={{ width:64, height:64, borderRadius:18, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px', background:'linear-gradient(135deg,#030d18 0%,#060f1e 55%,#0c0520 100%)', border:'1px solid rgba(6,182,212,0.25)', boxShadow:'0 0 0 3px rgba(6,182,212,0.10), 0 0 28px rgba(6,182,212,0.30), 0 10px 28px -8px rgba(124,58,237,0.5)' }}>
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                <path d="M2 12C2 12 6.5 5 12 5C17.5 5 22 12 22 12C22 12 17.5 19 12 19C6.5 19 2 12 2 12Z" stroke="url(#mv-badge-g)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="12" cy="12" r="3.2" stroke="url(#mv-badge-g)" strokeWidth="1.6"/>
+                <circle cx="12" cy="12" r="1.3" fill="url(#mv-badge-g)"/>
+                <defs><linearGradient id="mv-badge-g" x1="2" y1="5" x2="22" y2="19" gradientUnits="userSpaceOnUse"><stop offset="0%" stopColor="#06b6d4"/><stop offset="100%" stopColor="#9061f9"/></linearGradient></defs>
               </svg>
             </motion.div>
             <h1 className="font-serif" style={{ fontSize:36, fontWeight:400, color:'var(--ink)', marginBottom:6 }}>Welcome Back</h1>
-            <p style={{ fontSize:14, color:'var(--ink-2)' }}>Sign in to your Neural AI account</p>
+            <p style={{ fontSize:14, color:'var(--ink-2)' }}>Sign in to your MedVision account</p>
           </div>
 
           {/* Form */}

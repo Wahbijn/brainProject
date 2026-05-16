@@ -16,7 +16,7 @@ import BrainScanTab from '@/components/BrainScanTab';
 
 const LOCKED_FEATURES = [
   { id:'patients',     title:'Patient Records',      description:'View and manage patient medical histories, diagnoses, and treatment plans.', color:'#06b6d4', preview:['P. Alex Morgan','P. Jordan Lee','P. Casey Kim','+ 24 more'], icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
-  { id:'diagnostics',  title:'AI Diagnostics',       description:'Leverage Neural AI for advanced diagnostic analysis and pattern recognition.', color:'#ff3d6e', preview:['MRI Analysis','ECG Interpretation','Lab Results AI','Risk Scoring'], icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12"/><path d="M12 6v6l4 2"/></svg> },
+  { id:'diagnostics',  title:'AI Diagnostics',       description:'Leverage MedVision AI for advanced diagnostic analysis and pattern recognition.', color:'#ff3d6e', preview:['MRI Analysis','ECG Interpretation','Lab Results AI','Risk Scoring'], icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12"/><path d="M12 6v6l4 2"/></svg> },
   { id:'prescriptions',title:'E-Prescriptions',      description:'Issue digital prescriptions with AI-assisted drug interaction checks.', color:'#22c55e', preview:['New Prescription','Drug Interactions','Patient History','Refill Requests'], icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12h8M12 8v8"/></svg> },
   { id:'analytics',   title:'Analytics & Reports',  description:'Review patient outcomes, treatment effectiveness, and performance metrics.', color:'#7a4dff', preview:['Patient Trends','Treatment Rates','Monthly Report','AI Insights'], icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> },
 ];
@@ -506,7 +506,7 @@ function DoctorChat({ doctor, patient, onBack, onScanDone }) {
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z" strokeLinejoin="round"/></svg>
               </div>
               <div style={{ flex:1 }}>
-                <div style={{ fontSize:13, fontWeight:700, color:'var(--ink)' }}>AI Brain Scan Analysis</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'var(--ink)' }}>MedVision Brain Scan</div>
                 <div style={{ fontSize:10, color:'var(--ink-3)' }}>Patient: {patient.name}</div>
               </div>
               <button onClick={() => { setScanTarget(null); setScanResult(null); setDoctorNote(''); }}
@@ -917,10 +917,22 @@ export default function DoctorDashboard() {
       <motion.header initial={{ opacity:0, y:-16 }} animate={{ opacity:1, y:0 }} transition={{ duration:.6 }}
         style={{ position:'relative', zIndex:30, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px 28px', borderBottom:'1px solid var(--line)' }}>
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-          <div style={{ width:32, height:32, borderRadius:9, display:'grid', placeItems:'center', color:'white', fontFamily:'Instrument Serif,serif', fontStyle:'italic', fontSize:16, background:'radial-gradient(circle at 30% 30%,#ffb8c4,#ff5a7d 60%,#7a4dff)', position:'relative', overflow:'hidden' }}>
-            N <span style={{ position:'absolute', inset:0, borderRadius:'inherit', background:'linear-gradient(135deg,rgba(255,255,255,0.35),transparent 50%)' }} />
+          <div style={{ width:32, height:32, borderRadius:9, background:'linear-gradient(135deg,#030d18 0%,#060f1e 55%,#0c0520 100%)', border:'1px solid rgba(6,182,212,0.22)', display:'grid', placeItems:'center', overflow:'hidden', boxShadow:'0 0 12px rgba(6,182,212,0.22), 0 2px 6px rgba(0,0,0,0.18)', flexShrink:0 }}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+              <path d="M2 12C2 12 6.5 5 12 5C17.5 5 22 12 22 12C22 12 17.5 19 12 19C6.5 19 2 12 2 12Z" stroke="url(#mv-doctor-g)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="12" cy="12" r="3.2" stroke="url(#mv-doctor-g)" strokeWidth="1.6"/>
+              <circle cx="12" cy="12" r="1.3" fill="url(#mv-doctor-g)"/>
+              <defs><linearGradient id="mv-doctor-g" x1="2" y1="5" x2="22" y2="19" gradientUnits="userSpaceOnUse"><stop offset="0%" stopColor="#06b6d4"/><stop offset="100%" stopColor="#9061f9"/></linearGradient></defs>
+            </svg>
           </div>
-          <span style={{ fontSize:10, fontWeight:600, letterSpacing:'0.18em', color:'var(--ink)' }}>NEURAL <span style={{ fontWeight:400, color:'var(--ink-3)' }}> / AI BRAIN</span></span>
+          <div style={{ lineHeight:1 }}>
+            <div style={{ fontSize:12, fontWeight:800, letterSpacing:'-0.025em', display:'flex', alignItems:'baseline' }}>
+              <span style={{ color:'var(--ink)' }}>Med</span>
+              <span style={{ backgroundImage:'linear-gradient(90deg,#06b6d4 0%,#7c3aed 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Vision</span>
+              <span style={{ fontSize:7, fontWeight:500, marginLeft:1.5, color:'var(--ink-3)', WebkitTextFillColor:'var(--ink-3)' }}>™</span>
+            </div>
+            <div style={{ fontSize:6.5, fontWeight:700, letterSpacing:'0.2em', color:'var(--ink-3)', textTransform:'uppercase', marginTop:2, fontFamily:'JetBrains Mono, monospace' }}>DIAGNOSTIC AI</div>
+          </div>
         </div>
 
         <nav style={{ display:'flex', alignItems:'center', gap:2, padding:4, borderRadius:100, background:'var(--frame)', border:'1px solid var(--line)' }}>
@@ -993,7 +1005,7 @@ export default function DoctorDashboard() {
                 <motion.div initial={{ opacity:0, y:-10 }} animate={{ opacity:1, y:0 }}
                   style={{ marginBottom:24, padding:'14px 20px', borderRadius:14, display:'flex', alignItems:'center', gap:12, background:'rgba(34,197,94,0.07)', border:'1px solid rgba(34,197,94,0.2)' }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
-                  <span style={{ fontSize:13, color:'#22c55e', fontWeight:600 }}>All features unlocked — welcome to Neural AI, Dr. {user.lastName}!</span>
+                  <span style={{ fontSize:13, color:'#22c55e', fontWeight:600 }}>All features unlocked — welcome to MedVision, Dr. {user.lastName}!</span>
                 </motion.div>
               )}
               {/* ── System Stats ── */}
@@ -1061,7 +1073,7 @@ export default function DoctorDashboard() {
 
               <div style={{ marginBottom:24 }}>
                 <h2 className="font-serif" style={{ fontSize:26, fontWeight:400, color:'var(--ink)', marginBottom:4 }}>Dr. <em className="text-gradient">{user.firstName} {user.lastName}</em></h2>
-                <p style={{ fontSize:13, color:'var(--ink-3)' }}>{user.specialty||'General Medicine'} · {user.hospital||'Neural Medical Center'}</p>
+                <p style={{ fontSize:13, color:'var(--ink-3)' }}>{user.specialty||'General Medicine'} · {user.hospital||'MedVision Medical Center'}</p>
               </div>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14, marginBottom:28 }}>
                 {[{label:'Specialty',value:user.specialty||'—',icon:'🩺'},{label:'Experience',value:user.experience?`${user.experience} yrs`:'—',icon:'⭐'},{label:'License',value:user.license||'—',icon:'📋'}].map((s,i)=>(

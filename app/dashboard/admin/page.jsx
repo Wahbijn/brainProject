@@ -372,10 +372,22 @@ export default function AdminDashboard() {
       <motion.header initial={{ opacity:0, y:-16 }} animate={{ opacity:1, y:0 }} transition={{ duration:.6 }}
         style={{ position:'relative', zIndex:30, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px 28px', borderBottom:'1px solid var(--line)' }}>
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-          <div style={{ width:32, height:32, borderRadius:9, display:'grid', placeItems:'center', color:'white', fontFamily:'Instrument Serif,serif', fontStyle:'italic', fontSize:16, background:'radial-gradient(circle at 30% 30%,#ffb8c4,#ff5a7d 60%,#7a4dff)', position:'relative', overflow:'hidden' }}>
-            N <span style={{ position:'absolute', inset:0, borderRadius:'inherit', background:'linear-gradient(135deg,rgba(255,255,255,0.35),transparent 50%)' }} />
+          <div style={{ width:32, height:32, borderRadius:9, background:'linear-gradient(135deg,#030d18 0%,#060f1e 55%,#0c0520 100%)', border:'1px solid rgba(6,182,212,0.22)', display:'grid', placeItems:'center', overflow:'hidden', boxShadow:'0 0 12px rgba(6,182,212,0.22), 0 2px 6px rgba(0,0,0,0.18)', flexShrink:0 }}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+              <path d="M2 12C2 12 6.5 5 12 5C17.5 5 22 12 22 12C22 12 17.5 19 12 19C6.5 19 2 12 2 12Z" stroke="url(#mv-admin-g)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="12" cy="12" r="3.2" stroke="url(#mv-admin-g)" strokeWidth="1.6"/>
+              <circle cx="12" cy="12" r="1.3" fill="url(#mv-admin-g)"/>
+              <defs><linearGradient id="mv-admin-g" x1="2" y1="5" x2="22" y2="19" gradientUnits="userSpaceOnUse"><stop offset="0%" stopColor="#06b6d4"/><stop offset="100%" stopColor="#9061f9"/></linearGradient></defs>
+            </svg>
           </div>
-          <span style={{ fontSize:10, fontWeight:600, letterSpacing:'0.18em', color:'var(--ink)' }}>NEURAL <span style={{ fontWeight:400, color:'var(--ink-3)' }}> / AI BRAIN</span></span>
+          <div style={{ lineHeight:1 }}>
+            <div style={{ fontSize:12, fontWeight:800, letterSpacing:'-0.025em', display:'flex', alignItems:'baseline' }}>
+              <span style={{ color:'var(--ink)' }}>Med</span>
+              <span style={{ backgroundImage:'linear-gradient(90deg,#06b6d4 0%,#7c3aed 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Vision</span>
+              <span style={{ fontSize:7, fontWeight:500, marginLeft:1.5, color:'var(--ink-3)', WebkitTextFillColor:'var(--ink-3)' }}>™</span>
+            </div>
+            <div style={{ fontSize:6.5, fontWeight:700, letterSpacing:'0.2em', color:'var(--ink-3)', textTransform:'uppercase', marginTop:2, fontFamily:'JetBrains Mono, monospace' }}>DIAGNOSTIC AI</div>
+          </div>
         </div>
 
         <nav style={{ display:'flex', alignItems:'center', gap:2, padding:4, borderRadius:100, background:'var(--frame)', border:'1px solid var(--line)' }}>
@@ -899,7 +911,7 @@ export default function AdminDashboard() {
               <h2 className="font-serif" style={{ fontSize:26, fontWeight:400, color:'var(--ink)', marginBottom:24 }}>System Status</h2>
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
                 {[
-                  { name:'Neural AI Engine', status:'Operational', uptime:'99.98%', color:'#22c55e' },
+                  { name:'MedVision AI Engine', status:'Operational', uptime:'99.98%', color:'#22c55e' },
                   { name:'Medical Records DB', status:'Operational', uptime:'100%', color:'#22c55e' },
                   { name:'Diagnostic API', status:'Operational', uptime:'99.95%', color:'#22c55e' },
                   { name:'Authentication Service', status:'Operational', uptime:'100%', color:'#22c55e' },

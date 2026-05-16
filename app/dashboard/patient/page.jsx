@@ -840,7 +840,7 @@ export default function PatientDashboard() {
       setTipsHeadline(data.headline || 'Your Daily Health Briefing');
       setTipsGenAt(new Date());
     } catch (e) {
-      setTipsError(e.message || 'Could not reach Neural AI.');
+      setTipsError(e.message || 'Could not reach MedVision AI.');
     } finally {
       setTipsLoading(false);
     }
@@ -928,10 +928,22 @@ export default function PatientDashboard() {
       <motion.header initial={{ opacity:0, y:-16 }} animate={{ opacity:1, y:0 }} transition={{ duration:.6 }}
         style={{ position:'relative', zIndex:30, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'14px 24px', borderBottom:'1px solid var(--line)' }}>
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-          <div style={{ width:32, height:32, borderRadius:9, display:'grid', placeItems:'center', color:'white', fontFamily:'Instrument Serif,serif', fontStyle:'italic', fontSize:16, background:'radial-gradient(circle at 30% 30%,#ffb8c4,#ff5a7d 60%,#7a4dff)', position:'relative', overflow:'hidden' }}>
-            N <span style={{ position:'absolute', inset:0, borderRadius:'inherit', background:'linear-gradient(135deg,rgba(255,255,255,0.35),transparent 50%)' }} />
+          <div style={{ width:32, height:32, borderRadius:9, background:'linear-gradient(135deg,#030d18 0%,#060f1e 55%,#0c0520 100%)', border:'1px solid rgba(6,182,212,0.22)', display:'grid', placeItems:'center', overflow:'hidden', boxShadow:'0 0 12px rgba(6,182,212,0.22), 0 2px 6px rgba(0,0,0,0.18)', flexShrink:0 }}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+              <path d="M2 12C2 12 6.5 5 12 5C17.5 5 22 12 22 12C22 12 17.5 19 12 19C6.5 19 2 12 2 12Z" stroke="url(#mv-patient-g)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="12" cy="12" r="3.2" stroke="url(#mv-patient-g)" strokeWidth="1.6"/>
+              <circle cx="12" cy="12" r="1.3" fill="url(#mv-patient-g)"/>
+              <defs><linearGradient id="mv-patient-g" x1="2" y1="5" x2="22" y2="19" gradientUnits="userSpaceOnUse"><stop offset="0%" stopColor="#06b6d4"/><stop offset="100%" stopColor="#9061f9"/></linearGradient></defs>
+            </svg>
           </div>
-          <span style={{ fontSize:10, fontWeight:600, letterSpacing:'0.18em', color:'var(--ink)' }}>NEURAL <span style={{ fontWeight:400, color:'var(--ink-3)' }}> / AI BRAIN</span></span>
+          <div style={{ lineHeight:1 }}>
+            <div style={{ fontSize:12, fontWeight:800, letterSpacing:'-0.025em', display:'flex', alignItems:'baseline' }}>
+              <span style={{ color:'var(--ink)' }}>Med</span>
+              <span style={{ backgroundImage:'linear-gradient(90deg,#06b6d4 0%,#7c3aed 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Vision</span>
+              <span style={{ fontSize:7, fontWeight:500, marginLeft:1.5, color:'var(--ink-3)', WebkitTextFillColor:'var(--ink-3)' }}>™</span>
+            </div>
+            <div style={{ fontSize:6.5, fontWeight:700, letterSpacing:'0.2em', color:'var(--ink-3)', textTransform:'uppercase', marginTop:2, fontFamily:'JetBrains Mono, monospace' }}>DIAGNOSTIC AI</div>
+          </div>
         </div>
 
         <nav style={{ display:'flex', alignItems:'center', gap:2, padding:4, borderRadius:100, background:'var(--frame)', border:'1px solid var(--line)' }}>
@@ -1001,7 +1013,7 @@ export default function PatientDashboard() {
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12"/><path d="M12 6v6l4 2"/></svg>
                     </div>
                     <div>
-                      <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)' }}>Neural AI Health Analysis</div>
+                      <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)' }}>MedVision AI Health Analysis</div>
                       <div style={{ fontSize:11, color:'var(--ink-3)' }}>{tips.length > 0 ? `${tips.length} tips ready · Groq AI` : 'Personalized tips · Powered by Groq'}</div>
                     </div>
                     <div className="badge badge-approved" style={{ marginLeft:'auto' }}>Live AI</div>
@@ -1720,7 +1732,7 @@ export default function PatientDashboard() {
               const rd = rep.reportData || {};
               const dt = new Date(rep.timestamp).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
               const html = `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><title>Neural Medical AI — Brain Scan Report</title>
+<html><head><meta charset="UTF-8"><title>MedVision — Brain Scan Report</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:#f4f6fb;color:#1a1a2e;padding:40px 20px}
@@ -1752,7 +1764,7 @@ td:first-child{font-weight:600;color:#666;width:45%;padding-right:16px}
 <body><div class="wrap">
 <div class="hdr">
   <div class="hdr-logo">🧠</div>
-  <div><h1>Neural Medical AI — Brain Scan Report</h1><p>Confidential Medical Document &nbsp;·&nbsp; ${dt}</p></div>
+  <div><h1>MedVision — Brain Scan Report</h1><p>Confidential Medical Document &nbsp;·&nbsp; ${dt}</p></div>
 </div>
 <div class="card info">
   <div class="card-title">Patient Information</div>
@@ -1786,12 +1798,12 @@ ${rd.strokeDetected !== undefined ? `<div class="card stroke">
   ${(rd.strokeOverlayB64||rd.strokeHeatmapB64) ? `<div class="imgs"><figure><img src="data:image/png;base64,${rd.strokeOverlayB64||rd.strokeHeatmapB64}"/><figcaption>Grad-CAM Overlay</figcaption></figure></div>` : ''}
 </div>` : ''}
 ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4dff">Physician Note</div><div class="note-box">"${rd.doctorNote}"</div></div>` : ''}
-<div class="footer">Generated by Neural Medical AI Platform &nbsp;·&nbsp; This report is intended for medical use only<br/>Neural Medical AI &copy; 2026</div>
+<div class="footer">Generated by MedVision Platform &nbsp;·&nbsp; This report is intended for medical use only<br/>MedVision &copy; 2026</div>
 </div></body></html>`;
               const blob = new Blob([html], { type:'text/html' });
               const url  = URL.createObjectURL(blob);
               const a    = document.createElement('a');
-              a.href = url; a.download = `NeuralAI_Report_${dt.replace(/\s/g,'_')}.html`;
+              a.href = url; a.download = `MedVision_Report_${dt.replace(/\s/g,'_')}.html`;
               a.click(); URL.revokeObjectURL(url);
             };
 
@@ -2163,7 +2175,7 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
                     </motion.div>
                   </div>
                   <div style={{ textAlign:'center' }}>
-                    <div style={{ fontSize:16, fontWeight:700, color:'var(--ink)', marginBottom:6 }}>Neural AI is thinking…</div>
+                    <div style={{ fontSize:16, fontWeight:700, color:'var(--ink)', marginBottom:6 }}>MedVision AI is thinking…</div>
                     <div style={{ fontSize:13, color:'var(--ink-3)' }}>Crafting your personalized health briefing</div>
                   </div>
                   {/* Skeleton cards */}
@@ -2186,7 +2198,7 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
                 <motion.div initial={{ opacity:0, scale:.95 }} animate={{ opacity:1, scale:1 }}
                   style={{ padding:32, borderRadius:20, textAlign:'center', background:'rgba(239,68,68,0.06)', border:'1px solid rgba(239,68,68,0.2)' }}>
                   <div style={{ fontSize:48, marginBottom:12 }}>⚠️</div>
-                  <div style={{ fontSize:15, fontWeight:700, color:'#ef4444', marginBottom:6 }}>Could not reach Neural AI</div>
+                  <div style={{ fontSize:15, fontWeight:700, color:'#ef4444', marginBottom:6 }}>Could not reach MedVision AI</div>
                   <div style={{ fontSize:13, color:'var(--ink-3)', marginBottom:20 }}>{tipsError}</div>
                   <button onClick={fetchTips} style={{ padding:'10px 24px', borderRadius:12, border:'1px solid rgba(239,68,68,0.3)', background:'rgba(239,68,68,0.08)', color:'#ef4444', fontSize:13, fontWeight:600, cursor:'pointer' }}>
                     Try again

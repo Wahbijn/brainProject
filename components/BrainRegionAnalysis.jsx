@@ -9,8 +9,8 @@ const REGION_INFO = {
   frontal: {
     label: 'Frontal Lobe', color: '#7a4dff',
     cx: 95, cy: 95,                    // SVG centroid (lateral view)
-    axialCenter: [0.50, 0.22],         // normalized position in axial MRI
-    axialSigma:  [0.22, 0.13],
+    axialCenter: [0.30, 0.22],         // normalized position in axial MRI (bilateral)
+    axialSigma:  [0.20, 0.13],
     functions: [
       { name: 'Executive Function',      desc: "Planning, reasoning, and complex decision-making governed by the prefrontal cortex" },
       { name: 'Speech Production',       desc: "Broca's area (left hemisphere) — expressive language generation and articulation" },
@@ -36,8 +36,8 @@ const REGION_INFO = {
   temporal: {
     label: 'Temporal Lobe', color: '#ff3d6e',
     cx: 115, cy: 192,
-    axialCenter: [0.25, 0.53],          // bilateral — scored from both hemispheres
-    axialSigma:  [0.16, 0.16],
+    axialCenter: [0.15, 0.55],          // bilateral — scored from both hemispheres
+    axialSigma:  [0.10, 0.11],
     functions: [
       { name: 'Memory Consolidation',   desc: 'Hippocampus — encoding, consolidation, and retrieval of long-term memories' },
       { name: 'Language Comprehension', desc: "Wernicke's area (left) — understanding spoken and written language" },
@@ -197,8 +197,8 @@ function scoreRegionsFromCentroid(cx, cy) {
     const dx = (cx - mx) / sx;
     const dy = (cy - my) / sy;
     let s = Math.exp(-(dx * dx + dy * dy) / 2);
-    // Temporal lobe is bilateral — also evaluate right-hemisphere mirror
-    if (id === 'temporal') {
+    // Frontal and temporal are bilateral — also evaluate right-hemisphere mirror
+    if (id === 'temporal' || id === 'frontal') {
       const dxR = (cx - (1 - mx)) / sx;
       const dyR = (cy - my) / sy;
       s = Math.max(s, Math.exp(-(dxR * dxR + dyR * dyR) / 2));
@@ -385,14 +385,18 @@ export default function BrainRegionAnalysis({
   const isAnalyzing = phase === 'analyzing';
   const isReady     = phase === 'ready';
 
-  /* ── Project axial centroid → SVG lateral coordinates (approximate) ── */
+  /* ── Project centroid to lateral SVG via score-weighted region positions ── */
   const svgMarker = centroid ? (() => {
-    // axial cy (0=frontal, 1=occipital) maps to lateral SVG x
-    const svgX = Math.round(55 + centroid.cy * 200);
-    // axial cx distance from midline maps to lateral SVG y (0.5=superior, edges=inferior)
-    const laterality = Math.abs(centroid.cx - 0.5) * 2;  // 0=midline, 1=peripheral
-    const svgY = Math.round(60 + laterality * 130);
-    return { x: svgX, y: svgY };
+    const entries = Object.entries(regionScores);
+    if (entries.length === 0) return null;
+    let totalW = 0, sumX = 0, sumY = 0;
+    entries.forEach(([id, score]) => {
+      const w = score * score; // square so the top-scoring region dominates
+      const e = LOBE_ELLIPSES[id];
+      if (e && w > 1e-4) { sumX += e.cx * w; sumY += e.cy * w; totalW += w; }
+    });
+    if (totalW === 0) return null;
+    return { x: Math.round(sumX / totalW), y: Math.round(sumY / totalW) };
   })() : null;
 
   return (

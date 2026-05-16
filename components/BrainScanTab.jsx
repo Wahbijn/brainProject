@@ -1007,7 +1007,7 @@ export default function BrainScanTab({ onScanDone } = {}) {
                     fontFamily:'monospace', fontSize:10.5, color:'#1D9E75', lineHeight:1.85,
                   }}>
                     <span style={{ opacity:0.6 }}>Expected output after step 2:</span><br/>
-                    🧠 Neural Brain Analysis API<br/>
+                    🧠 MedVision Brain Analysis API<br/>
                     &nbsp;&nbsp;&nbsp;Tumor Clf&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : ✅ ResNet-50 loaded (cpu)<br/>
                     &nbsp;&nbsp;&nbsp;Tumor Seg&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : ✅ MONAI UNet loaded (cpu)<br/>
                     &nbsp;&nbsp;&nbsp;Stroke&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : ✅ MedVision loaded (TF 2.x)<br/>

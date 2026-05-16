@@ -676,7 +676,7 @@ export default function BrainScanPage() {
                 </svg>
               </div>
               <div>
-                <p style={{ fontSize:15, fontWeight:800, color:'var(--ink)', lineHeight:1.2 }}>Neural Brain Scan</p>
+                <p style={{ fontSize:15, fontWeight:800, color:'var(--ink)', lineHeight:1.2 }}>MedVision Brain Scan</p>
                 <p style={{ fontSize:10, color:'var(--ink-3)', lineHeight:1.2 }}>AI-powered tumor detection</p>
               </div>
             </div>

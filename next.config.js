@@ -9,7 +9,7 @@ const nextConfig = {
 
   // Public env vars (exposed to browser via NEXT_PUBLIC_ prefix)
   publicRuntimeConfig: {
-    appName: process.env.NEXT_PUBLIC_APP_NAME || 'Neural Medical AI',
+    appName: process.env.NEXT_PUBLIC_APP_NAME || 'MedVision',
     appUrl:  process.env.NEXT_PUBLIC_APP_URL  || 'http://localhost:3000',
   },
 };

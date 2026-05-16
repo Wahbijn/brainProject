@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const WELCOME_MSG = {
   id: 'welcome',
   role: 'assistant',
-  content: "Hey there! 👋 I'm **Neural AI** — your personal health companion. Ask me anything about brain health, stroke prevention, what this platform does, or just pick a question below to get started!",
+  content: "Hey there! 👋 I'm **MedVision AI** — your personal health companion. Ask me anything about brain health, stroke prevention, what this platform does, or just pick a question below to get started!",
 };
 
 const QUICK = [
@@ -90,7 +90,7 @@ export default function NeuralChatbot({ activeTab } = {}) {
           {!open && (
             <motion.div initial={{ opacity:0, y:6, scale:.9 }} animate={{ opacity:1, y:0, scale:1 }} exit={{ opacity:0, y:4, scale:.9 }}
               style={{ background:'var(--frame)', border:'1px solid var(--line)', borderRadius:12, padding:'6px 12px', fontSize:11, fontWeight:700, color:'var(--ink-2)', whiteSpace:'nowrap', boxShadow:'0 4px 16px rgba(0,0,0,0.2)', pointerEvents:'none' }}>
-              Chat with Neural AI
+              Chat with MedVision AI
             </motion.div>
           )}
         </AnimatePresence>
@@ -162,7 +162,7 @@ export default function NeuralChatbot({ activeTab } = {}) {
                 </motion.div>
 
                 <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontSize:15, fontWeight:900, color:'white', letterSpacing:'.02em' }}>Neural AI</div>
+                  <div style={{ fontSize:15, fontWeight:900, color:'white', letterSpacing:'.02em' }}>MedVision AI</div>
                   <div style={{ display:'flex', alignItems:'center', gap:5, marginTop:2 }}>
                     <motion.div animate={{ opacity:[1,.3,1] }} transition={{ repeat:Infinity, duration:2 }}
                       style={{ width:7, height:7, borderRadius:'50%', background:'#4ade80', flexShrink:0 }} />
@@ -271,7 +271,7 @@ export default function NeuralChatbot({ activeTab } = {}) {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
-                placeholder={loading ? 'Neural AI is thinking…' : 'Ask anything about your health…'}
+                placeholder={loading ? 'MedVision AI is thinking…' : 'Ask anything about your health…'}
                 disabled={loading}
                 style={{ flex:1, padding:'11px 15px', borderRadius:14, border:'1.5px solid var(--line)',
                   background:'var(--bg)', color:'var(--ink)', fontSize:13, outline:'none',
@@ -303,7 +303,7 @@ export default function NeuralChatbot({ activeTab } = {}) {
 
             {/* ── Footer disclaimer ── */}
             <div style={{ flexShrink:0, padding:'8px 16px', textAlign:'center', fontSize:10, color:'var(--ink-3)', background:'var(--frame)', borderTop:'1px solid var(--line)' }}>
-              Neural AI can make mistakes · Always consult a real doctor for medical decisions
+              MedVision AI can make mistakes · Always consult a real doctor for medical decisions
             </div>
 
           </motion.div>
