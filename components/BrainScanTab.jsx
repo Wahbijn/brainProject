@@ -194,9 +194,9 @@ function DropZone({ onFile }) {
       style={{
         cursor:'pointer', width:'100%', maxWidth:480, margin:'0 auto',
         padding:'52px 36px', borderRadius:26, textAlign:'center',
-        border:`2px dashed ${drag ? '#ff3d6e' : 'var(--line)'}`,
-        background: drag ? 'rgba(255,61,110,0.04)' : 'var(--frame)',
-        boxShadow: drag ? '0 0 0 5px rgba(255,61,110,0.08)' : 'none',
+        border:`2px dashed ${drag ? '#06b6d4' : 'var(--line)'}`,
+        background: drag ? 'rgba(6,182,212,0.04)' : 'var(--frame)',
+        boxShadow: drag ? '0 0 0 5px rgba(6,182,212,0.08)' : 'none',
         transition:'all 0.22s',
         display:'flex', flexDirection:'column', alignItems:'center', gap:16,
       }}
@@ -206,22 +206,22 @@ function DropZone({ onFile }) {
           <motion.div key={i}
             animate={{ scale:[1, 1.45, 1], opacity:[0.4, 0, 0.4] }}
             transition={{ repeat:Infinity, duration:2.8, delay:i * 1.1 }}
-            style={{ position:'absolute', inset:-(i + 1) * 14, borderRadius:'50%', border:'1px solid rgba(255,61,110,0.22)' }}
+            style={{ position:'absolute', inset:-(i + 1) * 14, borderRadius:'50%', border:'1px solid rgba(6,182,212,0.20)' }}
           />
         ))}
         <motion.div animate={{ rotate: drag ? 15 : 0 }} transition={{ type:'spring', stiffness:200 }}
           style={{
             width:80, height:80, borderRadius:22,
-            background:'linear-gradient(135deg,rgba(255,61,110,0.13),rgba(124,58,237,0.13))',
-            border:'1px solid rgba(255,61,110,0.22)',
+            background:'linear-gradient(135deg,rgba(6,182,212,0.10),rgba(124,58,237,0.10))',
+            border:'1px solid rgba(6,182,212,0.20)',
             display:'flex', alignItems:'center', justifyContent:'center',
           }}
         >
           <svg width="38" height="38" viewBox="0 0 24 24" fill="none">
-            <path d="M9 3C6.24 3 4 5.24 4 8C4 9.68 4.83 11.17 6.1 12C4.83 12.83 4 14.32 4 16C4 18.76 6.24 21 9 21H15C17.76 21 20 18.76 20 16C20 14.32 19.17 12.83 17.9 12C19.17 11.17 20 9.68 20 8C20 5.24 17.76 3 15 3H9Z" stroke="#ff6a8d" strokeWidth="1.5" strokeLinejoin="round"/>
+            <path d="M9 3C6.24 3 4 5.24 4 8C4 9.68 4.83 11.17 6.1 12C4.83 12.83 4 14.32 4 16C4 18.76 6.24 21 9 21H15C17.76 21 20 18.76 20 16C20 14.32 19.17 12.83 17.9 12C19.17 11.17 20 9.68 20 8C20 5.24 17.76 3 15 3H9Z" stroke="#06b6d4" strokeWidth="1.5" strokeLinejoin="round"/>
             <path d="M9 9.5C9 9.5 10.2 10.5 12 10.5C13.8 10.5 15 9.5 15 9.5" stroke="#7C3AED" strokeWidth="1.4" strokeLinecap="round"/>
             <path d="M9 14C9 14 10.2 15 12 15C13.8 15 15 14 15 14" stroke="#7C3AED" strokeWidth="1.4" strokeLinecap="round"/>
-            <line x1="12" y1="5.5" x2="12" y2="18.5" stroke="#ff6a8d" strokeWidth="1.4" strokeLinecap="round"/>
+            <line x1="12" y1="5.5" x2="12" y2="18.5" stroke="#06b6d4" strokeWidth="1.4" strokeLinecap="round"/>
           </svg>
         </motion.div>
       </div>
@@ -235,7 +235,7 @@ function DropZone({ onFile }) {
 
       <div style={{
         padding:'9px 26px', borderRadius:11,
-        background:'linear-gradient(135deg,#ff3d6e,#7C3AED)',
+        background:'linear-gradient(135deg,#06b6d4,#7c3aed)',
         color:'#fff', fontSize:12, fontWeight:700, pointerEvents:'none',
       }}>
         Choose MRI File
@@ -249,9 +249,9 @@ function DropZone({ onFile }) {
 // ── Scanning animation ─────────────────────────────────────────────
 function Scanning({ url }) {
   const steps = [
-    { label:'Preprocessing', color:'#ff3d6e' },
+    { label:'Preprocessing', color:'#0ea5e9' },
     { label:'Tumor Class.',  color:'#E24B4A' },
-    { label:'Segmentation',  color:'#7a4dff' },
+    { label:'Segmentation',  color:'#7c3aed' },
     { label:'Stroke Class.', color:'#7C3AED' },
     { label:'Grad-CAM',      color:'#f98e09' },
   ];
@@ -265,7 +265,7 @@ function Scanning({ url }) {
         {/* Grid overlay */}
         <div style={{
           position:'absolute', inset:0, opacity:0.09,
-          backgroundImage:'linear-gradient(rgba(255,61,110,0.8) 1px,transparent 1px),linear-gradient(90deg,rgba(255,61,110,0.8) 1px,transparent 1px)',
+          backgroundImage:'linear-gradient(rgba(6,182,212,0.7) 1px,transparent 1px),linear-gradient(90deg,rgba(6,182,212,0.7) 1px,transparent 1px)',
           backgroundSize:'28px 28px',
         }} />
         {/* Sweep line */}
@@ -274,7 +274,7 @@ function Scanning({ url }) {
           transition={{ repeat:Infinity, duration:1.7, ease:'linear' }}
           style={{
             position:'absolute', left:0, right:0, height:2,
-            background:'linear-gradient(90deg,transparent,#ff3d6e 35%,#7C3AED 65%,transparent)',
+            background:'linear-gradient(90deg,transparent,#06b6d4 35%,#7c3aed 65%,transparent)',
             boxShadow:'0 0 20px rgba(124,58,237,0.8)',
           }}
         />
@@ -972,7 +972,7 @@ export default function BrainScanTab({ onScanDone } = {}) {
                         <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
                           <div style={{
                             width:22, height:22, borderRadius:'50%', flexShrink:0,
-                            background:'linear-gradient(135deg,#ff3d6e,#7C3AED)',
+                            background:'linear-gradient(135deg,#06b6d4,#7c3aed)',
                             display:'flex', alignItems:'center', justifyContent:'center',
                             fontSize:11, fontWeight:800, color:'#fff',
                           }}>{s.n}</div>
@@ -1040,7 +1040,7 @@ export default function BrainScanTab({ onScanDone } = {}) {
           <motion.div key="upload" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))', gap:12, marginBottom:28 }}>
               {[
-                { icon:'🧠', title:'4 Tumor Classes',   sub:'Glioma · Meningioma · Pituitary · None',   color:'#ff3d6e' },
+                { icon:'🧠', title:'4 Tumor Classes',   sub:'Glioma · Meningioma · Pituitary · None',   color:'#0ea5e9' },
                 { icon:'🩸', title:'Stroke Detection',  sub:'MedVision dual-output ResNet-50',           color:'#7C3AED' },
                 { icon:'🎯', title:'Grad-CAM Heatmap',  sub:'Magma colormap localization overlay',       color:'#f98e09' },
                 { icon:'⚡', title:'Dual AI Scan',      sub:'Tumor + stroke analyzed simultaneously',    color:'#06B6D4' },
@@ -1102,7 +1102,7 @@ export default function BrainScanTab({ onScanDone } = {}) {
               <button onClick={analyze} disabled={serverOk !== true} style={{
                 padding:'9px 28px', borderRadius:11, border:'none',
                 cursor: serverOk !== true ? 'not-allowed' : 'pointer',
-                background: serverOk !== true ? 'var(--line)' : 'linear-gradient(135deg,#ff3d6e,#7C3AED)',
+                background: serverOk !== true ? 'var(--line)' : 'linear-gradient(135deg,#06b6d4,#7c3aed)',
                 color: serverOk !== true ? 'var(--ink-3)' : '#fff',
                 fontSize:12, fontWeight:700, transition:'all 0.2s',
               }}>
@@ -1144,7 +1144,7 @@ export default function BrainScanTab({ onScanDone } = {}) {
               <button onClick={analyze} disabled={serverOk !== true} style={{
                 padding:'9px 24px', borderRadius:11, border:'none',
                 cursor: serverOk !== true ? 'not-allowed' : 'pointer',
-                background: serverOk !== true ? 'var(--line)' : 'linear-gradient(135deg,#ff3d6e,#7C3AED)',
+                background: serverOk !== true ? 'var(--line)' : 'linear-gradient(135deg,#06b6d4,#7c3aed)',
                 color: serverOk !== true ? 'var(--ink-3)' : '#fff',
                 fontSize:12, fontWeight:700,
               }}>

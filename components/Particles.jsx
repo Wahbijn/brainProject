@@ -38,8 +38,8 @@ export default function Particles() {
         if (p.y < 0 || p.y > canvas.offsetHeight) p.vy *= -1;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = dark ? `rgba(255,138,168,${p.o})` : `rgba(255,90,125,${p.o * 0.55})`;
-        ctx.shadowColor = dark ? '#ff5a7d' : '#ff6a8d';
+        ctx.fillStyle = dark ? `rgba(6,182,212,${p.o * 0.85})` : `rgba(6,182,212,${p.o * 0.38})`;
+        ctx.shadowColor = dark ? '#06b6d4' : '#0891b2';
         ctx.shadowBlur = 8;
         ctx.fill();
       });

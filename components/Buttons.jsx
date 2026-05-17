@@ -40,8 +40,8 @@ export default function Buttons() {
             transition={{ type: 'spring', stiffness: 300, damping: 18 }}
             className="btn-signup relative h-[58px] px-8 rounded-2xl font-semibold text-[14px] tracking-[0.04em] uppercase text-white inline-flex items-center gap-3 cursor-pointer border-0"
             style={{
-              background: 'linear-gradient(135deg,#ff7a9c 0%,#ff3d6e 50%,#7a4dff 100%)',
-              boxShadow: '0 0 0 1px rgba(255,255,255,0.25) inset, 0 18px 40px -12px rgba(255,61,110,0.55), 0 0 70px -10px rgba(122,77,255,0.45)',
+              background: 'linear-gradient(135deg,#06b6d4 0%,#0891b2 42%,#7c3aed 100%)',
+              boxShadow: '0 0 0 1px rgba(255,255,255,0.25) inset, 0 18px 40px -12px rgba(6,182,212,0.55), 0 0 70px -10px rgba(124,58,237,0.42)',
             }}
           >
             <span className="shimmer-track" />
@@ -70,7 +70,7 @@ export default function Buttons() {
           >
             <span className="relative z-[3] inline-flex items-center gap-3 whitespace-nowrap">
               Login
-              <span className="w-[26px] h-[26px] rounded-full grid place-items-center" style={{ background: 'rgba(255,61,110,0.12)', color: '#ff3d6e' }}>
+              <span className="w-[26px] h-[26px] rounded-full grid place-items-center" style={{ background: 'rgba(6,182,212,0.14)', color: '#06b6d4' }}>
                 <Arrow />
               </span>
             </span>

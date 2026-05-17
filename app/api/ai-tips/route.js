@@ -23,15 +23,15 @@ Return ONLY this JSON structure (no markdown, no extra text):
       "title": "Catchy short title (4-6 words)",
       "tip": "2-3 sentences of warm, specific, actionable advice.",
       "category": "Brain Health",
-      "color": "#7a4dff",
+      "color": "#7c3aed",
       "urgency": "Daily Habit"
     }
   ]
 }
 
 Assign EXACTLY these category → color → urgency combos (one per tip, no repeats):
-1. category:"Brain Health"     color:"#7a4dff"  urgency:"Daily Habit"
-2. category:"Heart & Stroke"   color:"#ff3d6e"  urgency:"Weekly Goal"
+1. category:"Brain Health"     color:"#7c3aed"  urgency:"Daily Habit"
+2. category:"Heart & Stroke"   color:"#06b6d4"  urgency:"Weekly Goal"
 3. category:"Nutrition"        color:"#22c55e"  urgency:"Every Meal"
 4. category:"Sleep & Recovery" color:"#3b82f6"  urgency:"Tonight"
 5. category:"Move More"        color:"#f59e0b"  urgency:"Daily Goal"

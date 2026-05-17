@@ -46,7 +46,7 @@ export default function LoginPage() {
   const inputStyle = (hasErr) => ({
     width: '100%', height: 44, borderRadius: 12, padding: '0 14px',
     fontSize: 14, outline: 'none', background: 'var(--frame)', color: 'var(--ink)',
-    border: `1px solid ${hasErr ? '#ff3d6e' : 'var(--line)'}`, transition: 'border-color .2s',
+    border: `1px solid ${hasErr ? '#06b6d4' : 'var(--line)'}`, transition: 'border-color .2s',
   });
 
   return (
@@ -55,8 +55,8 @@ export default function LoginPage() {
 
       {/* Ambient glows */}
       <div style={{ position:'absolute', inset:0, pointerEvents:'none', zIndex:0 }}>
-        <div style={{ position:'absolute', top:'20%', right:'12%', width:360, height:360, borderRadius:'50%', background:'radial-gradient(circle,rgba(122,77,255,0.14),transparent 70%)', filter:'blur(60px)' }} />
-        <div style={{ position:'absolute', bottom:'15%', left:'10%', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle,rgba(255,61,110,0.12),transparent 70%)', filter:'blur(60px)' }} />
+        <div style={{ position:'absolute', top:'20%', right:'12%', width:360, height:360, borderRadius:'50%', background:'radial-gradient(circle,rgba(124,58,237,0.14),transparent 70%)', filter:'blur(60px)' }} />
+        <div style={{ position:'absolute', bottom:'15%', left:'10%', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle,rgba(6,182,212,0.12),transparent 70%)', filter:'blur(60px)' }} />
       </div>
 
       {/* Top bar */}
@@ -82,7 +82,7 @@ export default function LoginPage() {
         </Link>
         <div style={{ display:'flex', alignItems:'center', gap:16 }}>
           <Link href="/signup" style={{ fontSize:13, fontWeight:500, color:'var(--ink-2)', textDecoration:'none' }}>
-            New here? <span style={{ color:'#ff3d6e' }}>Create account →</span>
+            New here? <span style={{ color:'#06b6d4' }}>Create account →</span>
           </Link>
           <button onClick={toggleDark} style={{ width:48, height:26, borderRadius:100, border:'none', cursor:'pointer', background: dark ? '#2a2c33' : '#dfe3eb', position:'relative', transition:'background .4s' }}>
             <motion.span animate={{ left: dark ? 25 : 3 }} transition={{ type:'spring', stiffness:380, damping:24 }}
@@ -139,14 +139,14 @@ export default function LoginPage() {
 
               {error && (
                 <motion.div initial={{ opacity:0, y:-6 }} animate={{ opacity:1, y:0 }}
-                  style={{ padding:'9px 14px', borderRadius:10, fontSize:13, color:'#ff3d6e', background:'rgba(255,61,110,0.08)', border:'1px solid rgba(255,61,110,0.2)', marginBottom:14 }}>
+                  style={{ padding:'9px 14px', borderRadius:10, fontSize:13, color:'#06b6d4', background:'rgba(6,182,212,0.08)', border:'1px solid rgba(6,182,212,0.2)', marginBottom:14 }}>
                   {error}
                 </motion.div>
               )}
 
               <motion.button type="submit" disabled={loading} whileHover={{ y:-2 }} whileTap={{ scale:.98 }}
                 className="btn-signup"
-                style={{ width:'100%', height:52, borderRadius:14, marginTop:8, border:'none', cursor:'pointer', fontSize:14, fontWeight:600, letterSpacing:'0.05em', textTransform:'uppercase', color:'white', background:'linear-gradient(135deg,#ff7a9c 0%,#ff3d6e 50%,#7a4dff 100%)', boxShadow:'0 0 0 1px rgba(255,255,255,0.2) inset, 0 16px 32px -10px rgba(255,61,110,0.5)', opacity: loading ? .7 : 1, position:'relative' }}>
+                style={{ width:'100%', height:52, borderRadius:14, marginTop:8, border:'none', cursor:'pointer', fontSize:14, fontWeight:600, letterSpacing:'0.05em', textTransform:'uppercase', color:'white', background:'linear-gradient(135deg,#0ea5e9 0%,#06b6d4 50%,#7c3aed 100%)', boxShadow:'0 0 0 1px rgba(255,255,255,0.2) inset, 0 16px 32px -10px rgba(6,182,212,0.5)', opacity: loading ? .7 : 1, position:'relative' }}>
                 <span className="shimmer-track" />
                 <span style={{ position:'relative', zIndex:3 }}>
                   {loading ? 'Signing in…' : 'Sign In'}
@@ -157,8 +157,8 @@ export default function LoginPage() {
 
           {/* Demo credentials */}
           <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:.5 }}
-            style={{ marginTop:20, padding:16, borderRadius:16, background:'rgba(122,77,255,0.07)', border:'1px solid rgba(122,77,255,0.15)' }}>
-            <p style={{ fontSize:11, fontWeight:600, letterSpacing:'0.12em', textTransform:'uppercase', color:'#7a4dff', marginBottom:10 }}>Demo Credentials</p>
+            style={{ marginTop:20, padding:16, borderRadius:16, background:'rgba(124,58,237,0.07)', border:'1px solid rgba(124,58,237,0.15)' }}>
+            <p style={{ fontSize:11, fontWeight:600, letterSpacing:'0.12em', textTransform:'uppercase', color:'#7c3aed', marginBottom:10 }}>Demo Credentials</p>
             <div style={{ display:'flex', flexDirection:'column', gap:7, fontFamily:'JetBrains Mono, monospace', fontSize:12 }}>
               {[
                 { label: 'Head of Dept', email: 'admin@neural.ai',          pass: 'Admin@2024'  },

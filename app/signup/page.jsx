@@ -23,8 +23,8 @@ const ROLES = [
     id: 'doctor',
     title: 'Doctor',
     subtitle: 'Manage patients, use AI diagnostics, and collaborate with your medical team.',
-    gradient: 'linear-gradient(135deg,#ff7a9c,#7a4dff)',
-    glow: 'rgba(255,61,110,0.35)',
+    gradient: 'linear-gradient(135deg,#0ea5e9,#7c3aed)',
+    glow: 'rgba(6,182,212,0.35)',
     icon: (
       <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
@@ -68,7 +68,7 @@ function Field({ field, value, onChange, error }) {
     width: '100%', height: '44px', borderRadius: '12px', padding: '0 14px',
     fontSize: '14px', outline: 'none', transition: 'border-color .2s',
     background: 'var(--frame)', color: 'var(--ink)',
-    border: `1px solid ${error ? '#ff3d6e' : 'var(--line)'}`,
+    border: `1px solid ${error ? '#ef4444' : 'var(--line)'}`,
   };
 
   return (
@@ -89,7 +89,7 @@ function Field({ field, value, onChange, error }) {
           style={base}
         />
       )}
-      {error && <p style={{ fontSize: 11, color: '#ff3d6e', marginTop: 4 }}>{error}</p>}
+      {error && <p style={{ fontSize: 11, color: '#ef4444', marginTop: 4 }}>{error}</p>}
     </div>
   );
 }
@@ -169,8 +169,8 @@ export default function SignupPage() {
 
       {/* Ambient glows */}
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
-        <div style={{ position: 'absolute', top: '15%', left: '10%', width: 380, height: 380, borderRadius: '50%', background: 'radial-gradient(circle,rgba(255,61,110,0.15),transparent 70%)', filter: 'blur(60px)' }} />
-        <div style={{ position: 'absolute', bottom: '10%', right: '8%', width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle,rgba(122,77,255,0.12),transparent 70%)', filter: 'blur(60px)' }} />
+        <div style={{ position: 'absolute', top: '15%', left: '10%', width: 380, height: 380, borderRadius: '50%', background: 'radial-gradient(circle,rgba(6,182,212,0.15),transparent 70%)', filter: 'blur(60px)' }} />
+        <div style={{ position: 'absolute', bottom: '10%', right: '8%', width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle,rgba(124,58,237,0.12),transparent 70%)', filter: 'blur(60px)' }} />
       </div>
 
       {/* Top bar */}
@@ -196,7 +196,7 @@ export default function SignupPage() {
         </Link>
         <div style={{ display:'flex', alignItems:'center', gap:16 }}>
           <Link href="/login" style={{ fontSize:13, fontWeight:500, color:'var(--ink-2)', textDecoration:'none' }}>
-            Already registered? <span style={{ color:'#ff3d6e' }}>Login →</span>
+            Already registered? <span style={{ color:'#06b6d4' }}>Login →</span>
           </Link>
           <button onClick={toggleDark} style={{ width:48, height:26, borderRadius:100, border:'none', cursor:'pointer', background: dark ? '#2a2c33' : '#dfe3eb', position:'relative', transition:'background .4s' }}>
             <motion.span animate={{ left: dark ? 25 : 3 }} transition={{ type:'spring', stiffness:380, damping:24 }}
@@ -211,9 +211,9 @@ export default function SignupPage() {
       <div style={{ display:'flex', justifyContent:'center', gap:8, marginBottom:8, position:'relative', zIndex:10 }}>
         {['Role','Details','Done'].map((label, i) => (
           <div key={i} style={{ display:'flex', alignItems:'center', gap:6 }}>
-            <div style={{ width:24, height:24, borderRadius:'50%', display:'grid', placeItems:'center', fontSize:11, fontWeight:700, background: i <= step ? 'linear-gradient(135deg,#ff3d6e,#7a4dff)' : 'var(--line)', color: i <= step ? 'white' : 'var(--ink-3)', transition:'all .4s' }}>{i + 1}</div>
+            <div style={{ width:24, height:24, borderRadius:'50%', display:'grid', placeItems:'center', fontSize:11, fontWeight:700, background: i <= step ? 'linear-gradient(135deg,#06b6d4,#7c3aed)' : 'var(--line)', color: i <= step ? 'white' : 'var(--ink-3)', transition:'all .4s' }}>{i + 1}</div>
             <span style={{ fontSize:11, fontWeight:500, color: i <= step ? 'var(--ink-2)' : 'var(--ink-3)', letterSpacing:'0.05em' }}>{label}</span>
-            {i < 2 && <div style={{ width:24, height:1, background: i < step ? 'linear-gradient(90deg,#ff3d6e,#7a4dff)' : 'var(--line)', marginLeft:4 }} />}
+            {i < 2 && <div style={{ width:24, height:1, background: i < step ? 'linear-gradient(90deg,#06b6d4,#7c3aed)' : 'var(--line)', marginLeft:4 }} />}
           </div>
         ))}
       </div>
@@ -227,11 +227,11 @@ export default function SignupPage() {
             <motion.div key="role" initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-20 }} transition={{ duration:.6, ease:[.2,.8,.2,1] }} style={{ width:'100%', maxWidth:600 }}>
               <div style={{ textAlign:'center', marginBottom:36 }}>
                 <motion.div initial={{ opacity:0, scale:.9 }} animate={{ opacity:1, scale:1 }} transition={{ delay:.15 }}
-                  style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'5px 14px', borderRadius:100, fontSize:11, fontWeight:600, letterSpacing:'0.15em', textTransform:'uppercase', background:'rgba(255,61,110,0.08)', border:'1px solid rgba(255,61,110,0.18)', color:'#ff6a8d', marginBottom:16 }}>
-                  <span className="pulse-dot" style={{ width:6, height:6, borderRadius:'50%', background:'#ff3d6e' }} /> Create Account
+                  style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'5px 14px', borderRadius:100, fontSize:11, fontWeight:600, letterSpacing:'0.15em', textTransform:'uppercase', background:'rgba(6,182,212,0.08)', border:'1px solid rgba(6,182,212,0.18)', color:'#22d3ee', marginBottom:16 }}>
+                  <span className="pulse-dot" style={{ width:6, height:6, borderRadius:'50%', background:'#06b6d4' }} /> Create Account
                 </motion.div>
                 <h1 className="font-serif" style={{ fontSize:'clamp(30px,4vw,50px)', fontWeight:400, lineHeight:1.1, color:'var(--ink)' }}>
-                  Choose your <em style={{ fontStyle:'italic', background:'linear-gradient(135deg,#ff6a8d,#7a4dff)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>role</em>
+                  Choose your <em style={{ fontStyle:'italic', background:'linear-gradient(135deg,#22d3ee,#7c3aed)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>role</em>
                 </h1>
                 <p style={{ marginTop:10, fontSize:14, color:'var(--ink-2)' }}>Select how you'll access the MedVision platform</p>
               </div>
@@ -247,7 +247,7 @@ export default function SignupPage() {
                     </div>
                     <div style={{ fontSize:18, fontWeight:600, color:'var(--ink)', marginBottom:8 }}>{r.title}</div>
                     <p style={{ fontSize:13, color:'var(--ink-2)', lineHeight:1.55, marginBottom:16 }}>{r.subtitle}</p>
-                    <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, fontWeight:600, letterSpacing:'0.06em', color:'#ff6a8d' }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, fontWeight:600, letterSpacing:'0.06em', color:'#22d3ee' }}>
                       Continue as {r.title}
                       <svg width="13" height="13" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     </div>
@@ -267,7 +267,7 @@ export default function SignupPage() {
                 Back to role selection
               </button>
               <div style={{ textAlign:'center', marginBottom:28 }}>
-                <div style={{ width:60, height:60, borderRadius:16, display:'flex', alignItems:'center', justifyContent:'center', color:'white', margin:'0 auto 14px', background: role === 'patient' ? 'linear-gradient(135deg,#0ea5e9,#06b6d4)' : 'linear-gradient(135deg,#ff7a9c,#7a4dff)', boxShadow:`0 8px 20px -6px ${role==='patient'?'rgba(6,182,212,.4)':'rgba(255,61,110,.4)'}` }}>
+                <div style={{ width:60, height:60, borderRadius:16, display:'flex', alignItems:'center', justifyContent:'center', color:'white', margin:'0 auto 14px', background: role === 'patient' ? 'linear-gradient(135deg,#0ea5e9,#06b6d4)' : 'linear-gradient(135deg,#0ea5e9,#7c3aed)', boxShadow:`0 8px 20px -6px ${role==='patient'?'rgba(6,182,212,.4)':'rgba(6,182,212,.4)'}` }}>
                   {ROLES.find(r => r.id === role)?.icon}
                 </div>
                 <h2 className="font-serif" style={{ fontSize:28, fontWeight:400, color:'var(--ink)' }}>
@@ -286,13 +286,13 @@ export default function SignupPage() {
                   ))}
                 </div>
                 {errors.submit && (
-                  <div style={{ marginTop:14, padding:'10px 14px', borderRadius:10, fontSize:13, color:'#ff3d6e', background:'rgba(255,61,110,0.08)', border:'1px solid rgba(255,61,110,0.2)' }}>
+                  <div style={{ marginTop:14, padding:'10px 14px', borderRadius:10, fontSize:13, color:'#06b6d4', background:'rgba(6,182,212,0.08)', border:'1px solid rgba(6,182,212,0.2)' }}>
                     {errors.submit}
                   </div>
                 )}
                 <motion.button type="submit" disabled={loading} whileHover={{ y:-2 }} whileTap={{ scale:.98 }}
                   className="btn-signup"
-                  style={{ width:'100%', height:52, borderRadius:14, marginTop:20, border:'none', cursor:'pointer', fontSize:14, fontWeight:600, letterSpacing:'0.05em', textTransform:'uppercase', color:'white', background:'linear-gradient(135deg,#ff7a9c 0%,#ff3d6e 50%,#7a4dff 100%)', boxShadow:'0 0 0 1px rgba(255,255,255,0.2) inset, 0 16px 32px -10px rgba(255,61,110,0.5)', opacity: loading ? .7 : 1, position:'relative' }}>
+                  style={{ width:'100%', height:52, borderRadius:14, marginTop:20, border:'none', cursor:'pointer', fontSize:14, fontWeight:600, letterSpacing:'0.05em', textTransform:'uppercase', color:'white', background:'linear-gradient(135deg,#0ea5e9 0%,#06b6d4 50%,#7c3aed 100%)', boxShadow:'0 0 0 1px rgba(255,255,255,0.2) inset, 0 16px 32px -10px rgba(6,182,212,0.5)', opacity: loading ? .7 : 1, position:'relative' }}>
                   <span className="shimmer-track" />
                   <span style={{ position:'relative', zIndex:3 }}>
                     {loading ? 'Creating Account…' : `Create ${role === 'patient' ? 'Patient' : 'Doctor'} Account`}
@@ -329,7 +329,7 @@ export default function SignupPage() {
                 Redirecting to login in {countdown}s…
               </motion.p>
               <motion.div initial={{ scaleX:0 }} animate={{ scaleX:1 }} transition={{ duration:3, ease:'linear' }}
-                style={{ height:3, borderRadius:100, marginTop:12, maxWidth:180, marginLeft:'auto', marginRight:'auto', background:'linear-gradient(90deg,#ff3d6e,#7a4dff)', transformOrigin:'left' }} />
+                style={{ height:3, borderRadius:100, marginTop:12, maxWidth:180, marginLeft:'auto', marginRight:'auto', background:'linear-gradient(90deg,#06b6d4,#7c3aed)', transformOrigin:'left' }} />
             </motion.div>
           )}
 

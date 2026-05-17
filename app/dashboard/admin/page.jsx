@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -58,7 +58,7 @@ function NotificationCard({ notif, onApprove, onReject, onDismiss, processing, i
       exit={{ opacity:0, x:80, scale:.88, transition:{ duration:.25 } }}
       transition={{ type:'spring', stiffness:280, damping:26 }}
       style={{ width:'100%', borderRadius:20, background:'var(--glass)', backdropFilter:'blur(28px) saturate(160%)', WebkitBackdropFilter:'blur(28px) saturate(160%)', border:'1px solid var(--glass-stroke)', boxShadow:'0 20px 48px -10px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.06) inset', overflow:'hidden', pointerEvents:'all' }}>
-      <div style={{ height:3, background:'linear-gradient(90deg,#ff3d6e,#ff7a9c 45%,#7a4dff)', position:'relative', overflow:'hidden' }}>
+      <div style={{ height:3, background:'linear-gradient(90deg,#06b6d4,#0ea5e9 45%,#7c3aed)', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', inset:0, background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent)', animation:'sweep 2s ease-in-out infinite' }} />
       </div>
       <div style={{ padding:'16px 18px 18px' }}>
@@ -76,8 +76,8 @@ function NotificationCard({ notif, onApprove, onReject, onDismiss, processing, i
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:13, marginBottom:13 }}>
           <div style={{ position:'relative', flexShrink:0 }}>
-            <div style={{ width:52, height:52, borderRadius:14, background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:17, fontWeight:700, color:'white', boxShadow:'0 6px 18px -4px rgba(255,61,110,0.5)' }}>{notif.doctorAvatar}</div>
-            <div style={{ position:'absolute', inset:-4, borderRadius:18, border:'2px solid rgba(255,61,110,0.4)', animation:'borderGlow 2s ease-in-out infinite', pointerEvents:'none' }} />
+            <div style={{ width:52, height:52, borderRadius:14, background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'grid', placeItems:'center', fontSize:17, fontWeight:700, color:'white', boxShadow:'0 6px 18px -4px rgba(6,182,212,0.5)' }}>{notif.doctorAvatar}</div>
+            <div style={{ position:'absolute', inset:-4, borderRadius:18, border:'2px solid rgba(6,182,212,0.4)', animation:'borderGlow 2s ease-in-out infinite', pointerEvents:'none' }} />
           </div>
           <div style={{ flex:1, minWidth:0 }}>
             <div style={{ fontSize:15, fontWeight:700, color:'var(--ink)', marginBottom:2, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{notif.doctorName}</div>
@@ -124,11 +124,11 @@ function DoctorPatientsPanel({ doctor, patients, onClose }) {
 
         {/* Doctor header */}
         <div style={{ padding:'0 0 0 0', position:'relative', overflow:'hidden' }}>
-          <div style={{ height:4, background:'linear-gradient(90deg,#ff3d6e,#ff7a9c 45%,#7a4dff)' }} />
-          <div style={{ padding:'20px 24px 20px', background:'linear-gradient(135deg,rgba(255,61,110,0.06),rgba(122,77,255,0.06))', borderBottom:'1px solid var(--line)' }}>
+          <div style={{ height:4, background:'linear-gradient(90deg,#06b6d4,#0ea5e9 45%,#7c3aed)' }} />
+          <div style={{ padding:'20px 24px 20px', background:'linear-gradient(135deg,rgba(6,182,212,0.06),rgba(124,58,237,0.06))', borderBottom:'1px solid var(--line)' }}>
             <div style={{ display:'flex', alignItems:'flex-start', gap:14 }}>
               <div style={{ position:'relative' }}>
-                <Avatar initials={doctor.avatar} size={52} gradient="linear-gradient(135deg,#ff7a9c,#7a4dff)" />
+                <Avatar initials={doctor.avatar} size={52} gradient="linear-gradient(135deg,#0ea5e9,#7c3aed)" />
                 {doctor.approved && <div style={{ position:'absolute', bottom:-2, right:-2, width:14, height:14, borderRadius:'50%', background:'#22c55e', border:'2px solid var(--frame)', display:'grid', placeItems:'center' }}><svg width="7" height="7" viewBox="0 0 10 10" fill="white"><polyline points="1 5 4 8 9 2" stroke="white" strokeWidth="1.5" strokeLinecap="round" fill="none"/></svg></div>}
               </div>
               <div style={{ flex:1, minWidth:0 }}>
@@ -354,10 +354,10 @@ export default function AdminDashboard() {
   );
 
   const statCards = [
-    { label:'Total Doctors',    value: stats.totalDoctors,    icon:'👨‍⚕️', color:'#ff3d6e', bg:'rgba(255,61,110,0.1)',  border:'rgba(255,61,110,0.2)'  },
+    { label:'Total Doctors',    value: stats.totalDoctors,    icon:'👨‍⚕️', color:'#06b6d4', bg:'rgba(6,182,212,0.1)',  border:'rgba(6,182,212,0.2)'  },
     { label:'Approved',         value: stats.approvedDoctors, icon:'✅',   color:'#22c55e', bg:'rgba(34,197,94,0.1)',   border:'rgba(34,197,94,0.2)'   },
     { label:'Pending Approval', value: stats.pendingDoctors,  icon:'⏳',   color:'#f59e0b', bg:'rgba(245,158,11,0.1)', border:'rgba(245,158,11,0.2)', pulse: stats.pendingDoctors > 0 },
-    { label:'Patients',         value: stats.totalPatients,   icon:'🩺',   color:'#7a4dff', bg:'rgba(122,77,255,0.1)', border:'rgba(122,77,255,0.2)'  },
+    { label:'Patients',         value: stats.totalPatients,   icon:'🩺',   color:'#7c3aed', bg:'rgba(124,58,237,0.1)', border:'rgba(124,58,237,0.2)'  },
   ];
 
   return (
@@ -365,7 +365,7 @@ export default function AdminDashboard() {
       <Particles />
       <div style={{ position:'absolute', inset:0, pointerEvents:'none', zIndex:0 }}>
         <div style={{ position:'absolute', top:'5%', right:'5%', width:400, height:400, borderRadius:'50%', background:'radial-gradient(circle,rgba(245,158,11,0.07),transparent 70%)', filter:'blur(70px)' }} />
-        <div style={{ position:'absolute', bottom:'8%', left:'5%', width:320, height:320, borderRadius:'50%', background:'radial-gradient(circle,rgba(122,77,255,0.09),transparent 70%)', filter:'blur(60px)' }} />
+        <div style={{ position:'absolute', bottom:'8%', left:'5%', width:320, height:320, borderRadius:'50%', background:'radial-gradient(circle,rgba(124,58,237,0.09),transparent 70%)', filter:'blur(60px)' }} />
       </div>
 
       {/* Top bar */}
@@ -408,7 +408,7 @@ export default function AdminDashboard() {
               <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
             {docNotifs.length > 0 && (
-              <span style={{ position:'absolute', top:-5, right:-5, minWidth:18, height:18, borderRadius:'50%', background:'linear-gradient(135deg,#ff3d6e,#ff7a9c)', color:'white', fontSize:9, fontWeight:800, display:'grid', placeItems:'center', border:'2px solid var(--frame)', padding:'0 3px', lineHeight:1 }}>
+              <span style={{ position:'absolute', top:-5, right:-5, minWidth:18, height:18, borderRadius:'50%', background:'linear-gradient(135deg,#06b6d4,#0ea5e9)', color:'white', fontSize:9, fontWeight:800, display:'grid', placeItems:'center', border:'2px solid var(--frame)', padding:'0 3px', lineHeight:1 }}>
                 {docNotifs.length}
               </span>
             )}
@@ -448,7 +448,7 @@ export default function AdminDashboard() {
 
           {/* ── Overview ── */}
           {tab === 'Overview' && (
-            <motion.div key="overview" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }} transition={{ duration:.45 }}>
+            <motion.div key="overview" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }} transition={{ duration:.45 }} style={{ paddingRight:72 }}>
               {/* Welcome */}
               <div style={{ marginBottom:26 }}>
                 <h2 className="font-serif" style={{ fontSize:28, fontWeight:400, color:'var(--ink)', marginBottom:4 }}>
@@ -500,9 +500,9 @@ export default function AdminDashboard() {
                           initial={{ opacity:0, x:-10 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:30, height:0, marginBottom:0, overflow:'hidden' }}
                           transition={{ delay: i * .06, exit: { duration:.35 } }}
                           style={{ padding:'18px 20px', borderRadius:16, background:'var(--bg)', border:'1px solid var(--line)', position:'relative', overflow:'hidden' }}>
-                          <div style={{ position:'absolute', top:0, left:0, bottom:0, width:3, background:'linear-gradient(180deg,#f59e0b,#ff3d6e)', borderRadius:'3px 0 0 3px' }} />
+                          <div style={{ position:'absolute', top:0, left:0, bottom:0, width:3, background:'linear-gradient(180deg,#f59e0b,#06b6d4)', borderRadius:'3px 0 0 3px' }} />
                           <div style={{ display:'flex', alignItems:'flex-start', gap:14 }}>
-                            <Avatar initials={doc.avatar} size={46} gradient="linear-gradient(135deg,#ff7a9c,#7a4dff)" />
+                            <Avatar initials={doc.avatar} size={46} gradient="linear-gradient(135deg,#0ea5e9,#7c3aed)" />
                             <div style={{ flex:1 }}>
                               <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:5 }}>
                                 <span style={{ fontSize:15, fontWeight:700, color:'var(--ink)' }}>{doc.name}</span>
@@ -558,12 +558,12 @@ export default function AdminDashboard() {
               {topDoctors.length > 0 && (
                 <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:.3 }}
                   className="glass-card" style={{ padding:26, marginBottom:20, position:'relative', overflow:'hidden' }}>
-                  <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:'linear-gradient(90deg,#f59e0b,#ff7a9c 40%,#7a4dff)' }} />
+                  <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:'linear-gradient(90deg,#f59e0b,#0ea5e9 40%,#7c3aed)' }} />
                   <div style={{ position:'absolute', top:'20%', right:'-5%', width:280, height:280, borderRadius:'50%', background:'radial-gradient(circle,rgba(245,158,11,0.06),transparent 70%)', filter:'blur(40px)', pointerEvents:'none' }} />
 
                   <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:24 }}>
                     <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                      <div style={{ width:36, height:36, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', background:'linear-gradient(135deg,rgba(245,158,11,0.2),rgba(255,61,110,0.15))', border:'1px solid rgba(245,158,11,0.3)' }}>
+                      <div style={{ width:36, height:36, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', background:'linear-gradient(135deg,rgba(245,158,11,0.2),rgba(6,182,212,0.15))', border:'1px solid rgba(245,158,11,0.3)' }}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
                       </div>
                       <div>
@@ -596,7 +596,7 @@ export default function AdminDashboard() {
                             )}
                             <div style={{
                               width:rank===1?56:46, height:rank===1?56:46, borderRadius:rank===1?16:13,
-                              background:'linear-gradient(135deg,#ff7a9c,#7a4dff)',
+                              background:'linear-gradient(135deg,#0ea5e9,#7c3aed)',
                               display:'grid', placeItems:'center',
                               fontSize:rank===1?18:14, fontWeight:700, color:'white',
                               boxShadow:`0 4px 16px -4px ${m.glow}`, flexShrink:0,
@@ -627,7 +627,7 @@ export default function AdminDashboard() {
                     <motion.div key={doc.id} initial={{ opacity:0, x:-10 }} animate={{ opacity:1, x:0 }} transition={{ delay:.55+i*.05 }}
                       style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 14px', borderRadius:12, background:'var(--bg)', border:'1px solid var(--line)', marginBottom:6 }}>
                       <div style={{ width:24, height:24, borderRadius:8, background:'var(--line)', display:'grid', placeItems:'center', fontSize:11, fontWeight:700, color:'var(--ink-3)', flexShrink:0 }}>{i+4}</div>
-                      <div style={{ width:36, height:36, borderRadius:10, background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:11, fontWeight:700, color:'white', flexShrink:0 }}>{doc.avatar}</div>
+                      <div style={{ width:36, height:36, borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'grid', placeItems:'center', fontSize:11, fontWeight:700, color:'white', flexShrink:0 }}>{doc.avatar}</div>
                       <div style={{ flex:1 }}>
                         <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)' }}>{doc.name}</div>
                         <div style={{ fontSize:11, color:'var(--ink-3)' }}>{doc.specialty}</div>
@@ -651,7 +651,7 @@ export default function AdminDashboard() {
                   {doctors.map((doc, i) => (
                     <motion.div key={doc.id} initial={{ opacity:0, x:-10 }} animate={{ opacity:1, x:0 }} transition={{ delay:.4 + i * .05 }}
                       style={{ display:'flex', alignItems:'center', gap:14, padding:'11px 6px', borderBottom: i < doctors.length-1 ? '1px solid var(--line)' : 'none' }}>
-                      <Avatar initials={doc.avatar} size={36} gradient="linear-gradient(135deg,#ff7a9c,#7a4dff)" />
+                      <Avatar initials={doc.avatar} size={36} gradient="linear-gradient(135deg,#0ea5e9,#7c3aed)" />
                       <div style={{ flex:1 }}>
                         <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)' }}>{doc.name}</div>
                         <div style={{ fontSize:11, color:'var(--ink-3)' }}>{doc.specialty} · {doc.hospital}</div>
@@ -679,7 +679,7 @@ export default function AdminDashboard() {
 
           {/* ── Doctors tab ── */}
           {tab === 'Doctors' && (
-            <motion.div key="doctors" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }}>
+            <motion.div key="doctors" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }} style={{ paddingRight:72 }}>
               <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:22 }}>
                 <h2 className="font-serif" style={{ fontSize:26, fontWeight:400, color:'var(--ink)' }}>Doctor Management</h2>
                 <div style={{ display:'flex', alignItems:'center', gap:10 }}>
@@ -696,7 +696,7 @@ export default function AdminDashboard() {
                         className="glass-card" style={{ padding:20, display:'flex', alignItems:'center', gap:16 }}>
                         {/* Avatar */}
                         <div style={{ position:'relative', flexShrink:0 }}>
-                          <Avatar initials={doc.avatar} size={52} gradient="linear-gradient(135deg,#ff7a9c,#7a4dff)" />
+                          <Avatar initials={doc.avatar} size={52} gradient="linear-gradient(135deg,#0ea5e9,#7c3aed)" />
                           {doc.approved && <div style={{ position:'absolute', bottom:-2, right:-2, width:14, height:14, borderRadius:'50%', background:'#22c55e', border:'2px solid var(--frame)', display:'grid', placeItems:'center' }}><svg width="7" height="7" viewBox="0 0 10 10" fill="none"><polyline points="1 5 4 8 9 2" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none"/></svg></div>}
                         </div>
                         {/* Info */}
@@ -774,7 +774,7 @@ export default function AdminDashboard() {
 
           {/* ── Patients tab ── */}
           {tab === 'Patients' && (
-            <motion.div key="patients" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }}>
+            <motion.div key="patients" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }} style={{ paddingRight:72 }}>
               <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:22 }}>
                 <h2 className="font-serif" style={{ fontSize:26, fontWeight:400, color:'var(--ink)' }}>Registered Patients</h2>
                 <div className="badge badge-patient">{stats.totalPatients} total</div>
@@ -800,7 +800,7 @@ export default function AdminDashboard() {
 
           {/* ── Reviews tab ── */}
           {tab === 'Reviews' && (
-            <motion.div key="reviews" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }}>
+            <motion.div key="reviews" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }} style={{ paddingRight:72 }}>
               <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:24 }}>
                 <div>
                   <h2 className="font-serif" style={{ fontSize:26, fontWeight:400, color:'var(--ink)', marginBottom:2 }}>Patient Reviews</h2>
@@ -830,7 +830,7 @@ export default function AdminDashboard() {
                           <div style={{ width:28, height:28, borderRadius:9, background:`${rankColors[i]}22`, border:`1px solid ${rankColors[i]}44`, display:'grid', placeItems:'center', flexShrink:0 }}>
                             <span style={{ fontSize:12, fontWeight:800, color:rankColors[i] }}>{i+1}</span>
                           </div>
-                          <div style={{ width:38, height:38, borderRadius:10, background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:12, fontWeight:700, color:'white', flexShrink:0 }}>{doc.avatar}</div>
+                          <div style={{ width:38, height:38, borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'grid', placeItems:'center', fontSize:12, fontWeight:700, color:'white', flexShrink:0 }}>{doc.avatar}</div>
                           <div style={{ flex:1, minWidth:0 }}>
                             <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)', marginBottom:4 }}>{doc.name}</div>
                             <div style={{ height:5, borderRadius:100, background:'var(--line)', overflow:'hidden' }}>
@@ -874,14 +874,14 @@ export default function AdminDashboard() {
                       return (
                         <motion.div key={r.id} initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:i*.04 }}
                           className="glass-card" style={{ padding:20, position:'relative', overflow:'hidden' }}>
-                          <div style={{ position:'absolute', top:0, left:0, bottom:0, width:3, background:`linear-gradient(180deg,#f59e0b,#ff7a9c)`, borderRadius:'3px 0 0 3px' }} />
+                          <div style={{ position:'absolute', top:0, left:0, bottom:0, width:3, background:`linear-gradient(180deg,#f59e0b,#0ea5e9)`, borderRadius:'3px 0 0 3px' }} />
                           <div style={{ display:'flex', alignItems:'flex-start', gap:14 }}>
                             <div style={{ width:42, height:42, borderRadius:12, background:'linear-gradient(135deg,#0ea5e9,#06b6d4)', display:'grid', placeItems:'center', fontSize:13, fontWeight:700, color:'white', flexShrink:0 }}>{r.patientAvatar}</div>
                             <div style={{ flex:1, minWidth:0 }}>
                               <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:3, flexWrap:'wrap' }}>
                                 <span style={{ fontSize:14, fontWeight:700, color:'var(--ink)' }}>{r.patientName}</span>
                                 <span style={{ fontSize:10, color:'var(--ink-3)' }}>reviewed</span>
-                                <span style={{ fontSize:13, fontWeight:600, color:'#ff7a9c' }}>{r.doctorName}</span>
+                                <span style={{ fontSize:13, fontWeight:600, color:'#0ea5e9' }}>{r.doctorName}</span>
                               </div>
                               <div style={{ fontSize:11, color:'var(--ink-3)', marginBottom:8 }}>{r.specialty} · {timeAgoFn(r.created)}</div>
                               <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:r.comment?10:0 }}>
@@ -907,7 +907,7 @@ export default function AdminDashboard() {
 
           {/* ── System tab ── */}
           {tab === 'System' && (
-            <motion.div key="system" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }}>
+            <motion.div key="system" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }} style={{ paddingRight:72 }}>
               <h2 className="font-serif" style={{ fontSize:26, fontWeight:400, color:'var(--ink)', marginBottom:24 }}>System Status</h2>
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
                 {[

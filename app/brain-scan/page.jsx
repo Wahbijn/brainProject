@@ -203,9 +203,9 @@ function UploadZone({ onFile }) {
         style={{
           width:'100%', maxWidth:500, cursor:'pointer',
           padding:'56px 40px', borderRadius:28, textAlign:'center',
-          border:`2px dashed ${drag ? '#ff3d6e' : 'var(--line)'}`,
-          background: drag ? 'rgba(255,61,110,0.04)' : 'var(--frame)',
-          boxShadow: drag ? '0 0 0 5px rgba(255,61,110,0.08)' : 'none',
+          border:`2px dashed ${drag ? '#06b6d4' : 'var(--line)'}`,
+          background: drag ? 'rgba(6,182,212,0.04)' : 'var(--frame)',
+          boxShadow: drag ? '0 0 0 5px rgba(6,182,212,0.08)' : 'none',
           transition:'all 0.25s',
           display:'flex', flexDirection:'column', alignItems:'center', gap:18,
         }}
@@ -220,21 +220,21 @@ function UploadZone({ onFile }) {
                 position:'absolute',
                 inset: -(i+1)*14,
                 borderRadius:'50%',
-                border:'1px solid rgba(255,61,110,0.25)',
+                border:'1px solid rgba(6,182,212,0.25)',
               }}
             />
           ))}
           <div style={{
             width:80, height:80, borderRadius:22,
-            background:'linear-gradient(135deg,rgba(255,61,110,0.12),rgba(122,77,255,0.12))',
-            border:'1px solid rgba(255,61,110,0.2)',
+            background:'linear-gradient(135deg,rgba(6,182,212,0.12),rgba(124,58,237,0.12))',
+            border:'1px solid rgba(6,182,212,0.2)',
             display:'flex', alignItems:'center', justifyContent:'center',
           }}>
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
-              <path d="M9 3C6.24 3 4 5.24 4 8C4 9.68 4.83 11.17 6.1 12C4.83 12.83 4 14.32 4 16C4 18.76 6.24 21 9 21H15C17.76 21 20 18.76 20 16C20 14.32 19.17 12.83 17.9 12C19.17 11.17 20 9.68 20 8C20 5.24 17.76 3 15 3H9Z" stroke="#ff6a8d" strokeWidth="1.5" strokeLinejoin="round" />
-              <path d="M9 9C9 9 10.2 10 12 10C13.8 10 15 9 15 9" stroke="#7a4dff" strokeWidth="1.5" strokeLinecap="round" />
-              <path d="M9 14C9 14 10.2 15 12 15C13.8 15 15 14 15 14" stroke="#7a4dff" strokeWidth="1.5" strokeLinecap="round" />
-              <line x1="12" y1="6" x2="12" y2="18" stroke="#ff6a8d" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M9 3C6.24 3 4 5.24 4 8C4 9.68 4.83 11.17 6.1 12C4.83 12.83 4 14.32 4 16C4 18.76 6.24 21 9 21H15C17.76 21 20 18.76 20 16C20 14.32 19.17 12.83 17.9 12C19.17 11.17 20 9.68 20 8C20 5.24 17.76 3 15 3H9Z" stroke="#22d3ee" strokeWidth="1.5" strokeLinejoin="round" />
+              <path d="M9 9C9 9 10.2 10 12 10C13.8 10 15 9 15 9" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M9 14C9 14 10.2 15 12 15C13.8 15 15 14 15 14" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round" />
+              <line x1="12" y1="6" x2="12" y2="18" stroke="#22d3ee" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           </div>
         </div>
@@ -250,7 +250,7 @@ function UploadZone({ onFile }) {
 
         <div style={{
           padding:'10px 28px', borderRadius:12,
-          background:'linear-gradient(135deg,#ff3d6e,#7a4dff)',
+          background:'linear-gradient(135deg,#06b6d4,#7c3aed)',
           color:'#fff', fontSize:13, fontWeight:700,
           pointerEvents:'none',
         }}>
@@ -280,7 +280,7 @@ function PreviewPanel({ file, previewUrl, onAnalyze, onCancel, canAnalyze }) {
         {[{t:10,l:10,bt:'top',bl:'left'},{t:10,r:10,bt:'top',br:'right'},{b:10,l:10,bb:'bottom',bl:'left'},{b:10,r:10,bb:'bottom',br:'right'}].map((s, i) => {
           const style = {
             position:'absolute', width:22, height:22,
-            borderColor:'rgba(255,61,110,0.8)', borderStyle:'solid', borderWidth:0,
+            borderColor:'rgba(6,182,212,0.8)', borderStyle:'solid', borderWidth:0,
             ...( i===0 ? {top:s.t,left:s.l,borderTopWidth:2,borderLeftWidth:2}
                : i===1 ? {top:s.t,right:s.r,borderTopWidth:2,borderRightWidth:2}
                : i===2 ? {bottom:s.b,left:s.l,borderBottomWidth:2,borderLeftWidth:2}
@@ -295,7 +295,7 @@ function PreviewPanel({ file, previewUrl, onAnalyze, onCancel, canAnalyze }) {
           <motion.div
             animate={{ scale:[1,1.25,1], opacity:[0.4,0.9,0.4] }}
             transition={{ repeat:Infinity, duration:2 }}
-            style={{ width:36, height:36, border:'1.5px solid rgba(255,61,110,0.7)', borderRadius:'50%' }}
+            style={{ width:36, height:36, border:'1.5px solid rgba(6,182,212,0.7)', borderRadius:'50%' }}
           />
         </div>
       </div>
@@ -315,7 +315,7 @@ function PreviewPanel({ file, previewUrl, onAnalyze, onCancel, canAnalyze }) {
           disabled={!canAnalyze}
           style={{
             padding:'10px 32px', borderRadius:12, border:'none', cursor: canAnalyze ? 'pointer' : 'not-allowed',
-            background: canAnalyze ? 'linear-gradient(135deg,#ff3d6e,#7a4dff)' : 'var(--line)',
+            background: canAnalyze ? 'linear-gradient(135deg,#06b6d4,#7c3aed)' : 'var(--line)',
             color: canAnalyze ? '#fff' : 'var(--ink-3)',
             fontSize:13, fontWeight:700,
           }}
@@ -346,7 +346,7 @@ function ScanAnimation({ previewUrl }) {
         {/* Grid overlay */}
         <div style={{
           position:'absolute', inset:0, opacity:0.12,
-          backgroundImage:'linear-gradient(rgba(255,61,110,0.7) 1px,transparent 1px),linear-gradient(90deg,rgba(255,61,110,0.7) 1px,transparent 1px)',
+          backgroundImage:'linear-gradient(rgba(6,182,212,0.7) 1px,transparent 1px),linear-gradient(90deg,rgba(6,182,212,0.7) 1px,transparent 1px)',
           backgroundSize:'32px 32px',
         }} />
 
@@ -356,8 +356,8 @@ function ScanAnimation({ previewUrl }) {
           transition={{ repeat:Infinity, duration:1.8, ease:'linear' }}
           style={{
             position:'absolute', left:0, right:0, height:2,
-            background:'linear-gradient(90deg,transparent,#ff3d6e 40%,#7a4dff 60%,transparent)',
-            boxShadow:'0 0 18px rgba(255,61,110,0.9)',
+            background:'linear-gradient(90deg,transparent,#06b6d4 40%,#7c3aed 60%,transparent)',
+            boxShadow:'0 0 18px rgba(6,182,212,0.9)',
           }}
         />
 
@@ -369,7 +369,7 @@ function ScanAnimation({ previewUrl }) {
               transition={{ repeat:Infinity, duration:2.2, delay:i*0.7 }}
               style={{
                 position:'absolute', width:40, height:40, borderRadius:'50%',
-                border:`1.5px solid rgba(255,61,110,${0.7 - i*0.2})`,
+                border:`1.5px solid rgba(6,182,212,${0.7 - i*0.2})`,
               }}
             />
           ))}
@@ -379,7 +379,7 @@ function ScanAnimation({ previewUrl }) {
         {[0,1,2,3].map(i => (
           <div key={i} style={{
             position:'absolute', width:20, height:20,
-            borderColor:'#ff3d6e', borderStyle:'solid', borderWidth:0,
+            borderColor:'#06b6d4', borderStyle:'solid', borderWidth:0,
             ...(i===0?{top:8,left:8,borderTopWidth:2,borderLeftWidth:2}
               :i===1?{top:8,right:8,borderTopWidth:2,borderRightWidth:2}
               :i===2?{bottom:8,left:8,borderBottomWidth:2,borderLeftWidth:2}
@@ -411,7 +411,7 @@ function ScanAnimation({ previewUrl }) {
             style={{ textAlign:'center', fontSize:11, color:'var(--ink-3)', maxWidth:80 }}
           >
             <motion.div
-              animate={{ background:['rgba(255,61,110,0.15)','rgba(122,77,255,0.45)','rgba(255,61,110,0.15)'] }}
+              animate={{ background:['rgba(6,182,212,0.15)','rgba(124,58,237,0.45)','rgba(6,182,212,0.15)'] }}
               transition={{ repeat:Infinity, duration:2, delay:i*0.35 }}
               style={{ width:8, height:8, borderRadius:'50%', margin:'0 auto 5px' }}
             />
@@ -666,13 +666,13 @@ export default function BrainScanPage() {
             <div style={{ display:'flex', alignItems:'center', gap:10 }}>
               <div style={{
                 width:34, height:34, borderRadius:10,
-                background:'linear-gradient(135deg,rgba(255,61,110,0.15),rgba(122,77,255,0.15))',
-                border:'1px solid rgba(255,61,110,0.2)',
+                background:'linear-gradient(135deg,rgba(6,182,212,0.15),rgba(124,58,237,0.15))',
+                border:'1px solid rgba(6,182,212,0.2)',
                 display:'flex', alignItems:'center', justifyContent:'center',
               }}>
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 3C6.24 3 4 5.24 4 8C4 9.68 4.83 11.17 6.1 12C4.83 12.83 4 14.32 4 16C4 18.76 6.24 21 9 21H15C17.76 21 20 18.76 20 16C20 14.32 19.17 12.83 17.9 12C19.17 11.17 20 9.68 20 8C20 5.24 17.76 3 15 3H9Z" stroke="#ff6a8d" strokeWidth="1.5" strokeLinejoin="round"/>
-                  <line x1="12" y1="6" x2="12" y2="18" stroke="#7a4dff" strokeWidth="1.5" strokeLinecap="round"/>
+                  <path d="M9 3C6.24 3 4 5.24 4 8C4 9.68 4.83 11.17 6.1 12C4.83 12.83 4 14.32 4 16C4 18.76 6.24 21 9 21H15C17.76 21 20 18.76 20 16C20 14.32 19.17 12.83 17.9 12C19.17 11.17 20 9.68 20 8C20 5.24 17.76 3 15 3H9Z" stroke="#22d3ee" strokeWidth="1.5" strokeLinejoin="round"/>
+                  <line x1="12" y1="6" x2="12" y2="18" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
               </div>
               <div>
@@ -802,7 +802,7 @@ export default function BrainScanPage() {
                   </button>
                   <button onClick={handleAnalyze} style={{
                     padding:'10px 28px', borderRadius:12, border:'none', cursor:'pointer',
-                    background:'linear-gradient(135deg,#ff3d6e,#7a4dff)',
+                    background:'linear-gradient(135deg,#06b6d4,#7c3aed)',
                     color:'#fff', fontSize:13, fontWeight:700,
                   }}>
                     Retry

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -16,7 +16,7 @@ const TABS = ['Overview', 'Appointments', 'Messages', 'Reviews', 'Reports', 'AI 
 const TIME_SLOTS = ['09:00','09:30','10:00','10:30','11:00','11:30','14:00','14:30','15:00','15:30','16:00','16:30'];
 
 const METRICS = [
-  { label:'Heart Rate', value:'72', unit:'BPM', status:'Normal', color:'#ff3d6e', bg:'rgba(255,61,110,0.1)', border:'rgba(255,61,110,0.2)',
+  { label:'Heart Rate', value:'72', unit:'BPM', status:'Normal', color:'#06b6d4', bg:'rgba(6,182,212,0.1)', border:'rgba(6,182,212,0.2)',
     icon:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
     live:true, waveform:[40,55,42,38,58,45,60,48,40,55,42] },
   { label:'Blood Pressure', value:'120/80', unit:'mmHg', status:'Optimal', color:'#22c55e', bg:'rgba(34,197,94,0.1)', border:'rgba(34,197,94,0.2)',
@@ -27,11 +27,6 @@ const METRICS = [
     icon:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> },
 ];
 
-const REPORTS = [
-  { title:'Complete Blood Count', date:'Apr 28, 2026', status:'Normal', icon:'🩸' },
-  { title:'Brain MRI Scan',       date:'Apr 15, 2026', status:'Clear',  icon:'🧠' },
-  { title:'ECG Screening',        date:'Apr 2, 2026',  status:'Normal', icon:'📊' },
-];
 
 const STATUS_CFG = {
   confirmed:       { color:'#22c55e', bg:'rgba(34,197,94,0.1)',   border:'rgba(34,197,94,0.2)',   label:'Confirmed'    },
@@ -56,7 +51,7 @@ function timeAgo(iso) {
   return `${months}mo ago`;
 }
 
-function Avt({ initials, gradient = 'linear-gradient(135deg,#ff7a9c,#7a4dff)', size = 36 }) {
+function Avt({ initials, gradient = 'linear-gradient(135deg,#0ea5e9,#7c3aed)', size = 36 }) {
   return (
     <div style={{ width:size, height:size, borderRadius:'50%', display:'grid', placeItems:'center', fontSize:size*0.32, fontWeight:700, color:'white', background:gradient, flexShrink:0 }}>
       {initials}
@@ -181,13 +176,13 @@ function PatientChat({ user, doctor }) {
     <div style={{ display:'flex', flexDirection:'column', height:'calc(100vh - 220px)', borderRadius:20, overflow:'hidden', border:'1px solid var(--line)', boxShadow:'0 8px 40px -12px rgba(0,0,0,0.3)', position:'relative' }}>
       <div style={{ position:'absolute', inset:0, pointerEvents:'none', zIndex:0, background:'var(--bg)', overflow:'hidden' }}>
         <div style={{ position:'absolute', top:'10%', right:'5%', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle,rgba(6,182,212,0.05),transparent 70%)', filter:'blur(50px)' }} />
-        <div style={{ position:'absolute', bottom:'15%', left:'5%', width:250, height:250, borderRadius:'50%', background:'radial-gradient(circle,rgba(122,77,255,0.05),transparent 70%)', filter:'blur(40px)' }} />
+        <div style={{ position:'absolute', bottom:'15%', left:'5%', width:250, height:250, borderRadius:'50%', background:'radial-gradient(circle,rgba(124,58,237,0.05),transparent 70%)', filter:'blur(40px)' }} />
       </div>
 
       {/* ── Header ── */}
       <div style={{ position:'relative', zIndex:2, padding:'14px 20px', borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', gap:12, background:'var(--frame)', flexShrink:0 }}>
         <div style={{ position:'relative', flexShrink:0 }}>
-          <div style={{ width:44, height:44, borderRadius:13, background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:14, fontWeight:700, color:'white', boxShadow:'0 4px 14px -4px rgba(122,77,255,0.5)' }}>{doctor.avatar}</div>
+          <div style={{ width:44, height:44, borderRadius:13, background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'grid', placeItems:'center', fontSize:14, fontWeight:700, color:'white', boxShadow:'0 4px 14px -4px rgba(124,58,237,0.5)' }}>{doctor.avatar}</div>
           <div style={{ position:'absolute', bottom:-1, right:-1, width:13, height:13, borderRadius:'50%', background:'#22c55e', border:'2px solid var(--frame)' }} />
         </div>
         <div style={{ flex:1 }}>
@@ -207,7 +202,7 @@ function PatientChat({ user, doctor }) {
       <div style={{ flex:1, overflowY:'auto', padding:'20px', display:'flex', flexDirection:'column', gap:4, position:'relative', zIndex:1 }}>
         {groups.length === 0 && (
           <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:14, padding:'40px 0' }}>
-            <div style={{ width:64, height:64, borderRadius:20, background:'linear-gradient(135deg,rgba(6,182,212,0.12),rgba(122,77,255,0.12))', border:'1px solid rgba(6,182,212,0.2)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <div style={{ width:64, height:64, borderRadius:20, background:'linear-gradient(135deg,rgba(6,182,212,0.12),rgba(124,58,237,0.12))', border:'1px solid rgba(6,182,212,0.2)', display:'flex', alignItems:'center', justifyContent:'center' }}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             </div>
             <div style={{ textAlign:'center' }}>
@@ -238,18 +233,18 @@ function PatientChat({ user, doctor }) {
             return (
               <motion.div key={g.id} initial={{ opacity:0, y:12, scale:.96 }} animate={{ opacity:1, y:0, scale:1 }} transition={{ duration:.25 }}
                 style={{ display:'flex', flexDirection:'row', alignItems:'flex-end', gap:8, marginBottom:12 }}>
-                <div style={{ width:32, height:32, borderRadius:'50%', background:'linear-gradient(135deg,#7a4dff,#7C3AED)', display:'grid', placeItems:'center', fontSize:10, fontWeight:700, color:'white', flexShrink:0 }}>{g.fromAvatar}</div>
-                <div style={{ maxWidth:'82%', borderRadius:18, overflow:'hidden', border:'1px solid rgba(122,77,255,0.25)', boxShadow:'0 8px 32px -8px rgba(122,77,255,0.2)' }}>
+                <div style={{ width:32, height:32, borderRadius:'50%', background:'linear-gradient(135deg,#7c3aed,#7C3AED)', display:'grid', placeItems:'center', fontSize:10, fontWeight:700, color:'white', flexShrink:0 }}>{g.fromAvatar}</div>
+                <div style={{ maxWidth:'82%', borderRadius:18, overflow:'hidden', border:'1px solid rgba(124,58,237,0.25)', boxShadow:'0 8px 32px -8px rgba(124,58,237,0.2)' }}>
                   {/* Header */}
-                  <div style={{ padding:'12px 16px', background:'linear-gradient(135deg,rgba(122,77,255,0.12),rgba(124,58,237,0.08))', borderBottom:'1px solid rgba(122,77,255,0.15)', display:'flex', alignItems:'center', gap:10 }}>
-                    <div style={{ width:34, height:34, borderRadius:10, background:'linear-gradient(135deg,#7a4dff,#7C3AED)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <div style={{ padding:'12px 16px', background:'linear-gradient(135deg,rgba(124,58,237,0.12),rgba(124,58,237,0.08))', borderBottom:'1px solid rgba(124,58,237,0.15)', display:'flex', alignItems:'center', gap:10 }}>
+                    <div style={{ width:34, height:34, borderRadius:10, background:'linear-gradient(135deg,#7c3aed,#7C3AED)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z"/><circle cx="12" cy="8" r="2"/></svg>
                     </div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:13, fontWeight:700, color:'var(--ink)' }}>Brain Scan Report</div>
                       <div style={{ fontSize:10, color:'var(--ink-3)' }}>From {g.fromName} · {fmtMsgTime(g.timestamp)}</div>
                     </div>
-                    <div style={{ padding:'3px 9px', borderRadius:100, background:'rgba(122,77,255,0.12)', border:'1px solid rgba(122,77,255,0.25)', fontSize:9, fontWeight:800, color:'#7a4dff', letterSpacing:'0.08em' }}>OFFICIAL</div>
+                    <div style={{ padding:'3px 9px', borderRadius:100, background:'rgba(124,58,237,0.12)', border:'1px solid rgba(124,58,237,0.25)', fontSize:9, fontWeight:800, color:'#7c3aed', letterSpacing:'0.08em' }}>OFFICIAL</div>
                   </div>
                   {/* Results */}
                   <div style={{ padding:'14px 16px', background:'var(--frame)', display:'flex', flexDirection:'column', gap:8 }}>
@@ -278,8 +273,8 @@ function PatientChat({ user, doctor }) {
                       </div>
                     )}
                     {rd.doctorNote && (
-                      <div style={{ padding:'10px 12px', borderRadius:12, background:'linear-gradient(135deg,rgba(122,77,255,0.05),rgba(255,61,110,0.03))', border:'1px solid rgba(122,77,255,0.15)' }}>
-                        <div style={{ fontSize:10, fontWeight:700, color:'#7a4dff', marginBottom:4, display:'flex', alignItems:'center', gap:5 }}>
+                      <div style={{ padding:'10px 12px', borderRadius:12, background:'linear-gradient(135deg,rgba(124,58,237,0.05),rgba(6,182,212,0.03))', border:'1px solid rgba(124,58,237,0.15)' }}>
+                        <div style={{ fontSize:10, fontWeight:700, color:'#7c3aed', marginBottom:4, display:'flex', alignItems:'center', gap:5 }}>
                           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                           Doctor's Note
                         </div>
@@ -297,7 +292,7 @@ function PatientChat({ user, doctor }) {
               style={{ display:'flex', flexDirection: isMe ? 'row-reverse' : 'row', alignItems:'flex-end', gap:8, marginBottom: isLast ? 6 : 2 }}>
 
               {!isMe && (
-                <div style={{ width:30, height:30, borderRadius:'50%', background: isLast ? 'linear-gradient(135deg,#ff7a9c,#7a4dff)' : 'transparent', display:'grid', placeItems:'center', fontSize:10, fontWeight:700, color:'white', flexShrink:0, visibility: isLast ? 'visible' : 'hidden' }}>
+                <div style={{ width:30, height:30, borderRadius:'50%', background: isLast ? 'linear-gradient(135deg,#0ea5e9,#7c3aed)' : 'transparent', display:'grid', placeItems:'center', fontSize:10, fontWeight:700, color:'white', flexShrink:0, visibility: isLast ? 'visible' : 'hidden' }}>
                   {g.fromAvatar}
                 </div>
               )}
@@ -306,13 +301,13 @@ function PatientChat({ user, doctor }) {
                 {g.type === 'image' && g.imageData ? (
                   <div style={{ borderRadius: isMe?`16px 16px ${isLast?'4px':'16px'} 16px`:`16px 16px 16px ${isLast?'4px':'16px'}`, overflow:'hidden', border:'1px solid var(--line)', maxWidth:220, boxShadow: isMe?'0 4px 16px -4px rgba(14,165,233,0.4)':'0 2px 8px -4px rgba(0,0,0,0.15)' }}>
                     <img src={g.imageData} alt="scan" style={{ width:'100%', display:'block', objectFit:'cover', maxHeight:180 }} />
-                    <div style={{ padding:'6px 10px', background: isMe?'linear-gradient(135deg,#0ea5e9,#7a4dff)':'var(--frame)', display:'flex', alignItems:'center', gap:5, fontSize:10, color: isMe?'rgba(255,255,255,0.8)':'var(--ink-3)', fontWeight:500 }}>
+                    <div style={{ padding:'6px 10px', background: isMe?'linear-gradient(135deg,#0ea5e9,#7c3aed)':'var(--frame)', display:'flex', alignItems:'center', gap:5, fontSize:10, color: isMe?'rgba(255,255,255,0.8)':'var(--ink-3)', fontWeight:500 }}>
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z" strokeLinejoin="round"/></svg>
                       Brain scan image sent to doctor
                     </div>
                   </div>
                 ) : (
-                  <div style={{ padding:'10px 14px', borderRadius: isMe?`16px 16px ${isLast?'4px':'16px'} 16px`:`16px 16px 16px ${isLast?'4px':'16px'}`, background: isMe?'linear-gradient(135deg,#0ea5e9,#7a4dff)':'var(--frame)', border: isMe?'none':'1px solid var(--line)', color: isMe?'white':'var(--ink-2)', fontSize:14, lineHeight:1.55, boxShadow: isMe?'0 4px 16px -4px rgba(14,165,233,0.4)':'0 2px 8px -4px rgba(0,0,0,0.15)', wordBreak:'break-word' }}>
+                  <div style={{ padding:'10px 14px', borderRadius: isMe?`16px 16px ${isLast?'4px':'16px'} 16px`:`16px 16px 16px ${isLast?'4px':'16px'}`, background: isMe?'linear-gradient(135deg,#0ea5e9,#7c3aed)':'var(--frame)', border: isMe?'none':'1px solid var(--line)', color: isMe?'white':'var(--ink-2)', fontSize:14, lineHeight:1.55, boxShadow: isMe?'0 4px 16px -4px rgba(14,165,233,0.4)':'0 2px 8px -4px rgba(0,0,0,0.15)', wordBreak:'break-word' }}>
                     {g.text}
                   </div>
                 )}
@@ -339,7 +334,7 @@ function PatientChat({ user, doctor }) {
           <motion.div initial={{ height:0, opacity:0 }} animate={{ height:'auto', opacity:1 }} exit={{ height:0, opacity:0 }}
             style={{ position:'relative', zIndex:2, borderTop:'1px solid var(--line)', padding:'10px 16px', background:'var(--frame)', display:'flex', alignItems:'center', gap:12, flexShrink:0, overflow:'hidden' }}>
             <div style={{ position:'relative', flexShrink:0 }}>
-              <img src={imgPreview.dataUrl} alt="preview" style={{ width:72, height:52, borderRadius:10, objectFit:'cover', border:'2px solid rgba(122,77,255,0.4)' }} />
+              <img src={imgPreview.dataUrl} alt="preview" style={{ width:72, height:52, borderRadius:10, objectFit:'cover', border:'2px solid rgba(124,58,237,0.4)' }} />
               <button onClick={() => setImgPreview(null)} style={{ position:'absolute', top:-6, right:-6, width:18, height:18, borderRadius:'50%', background:'#ef4444', border:'none', cursor:'pointer', display:'grid', placeItems:'center', color:'white' }}>
                 <svg width="8" height="8" viewBox="0 0 12 12" fill="none"><path d="M9 3L3 9M3 3l6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
               </button>
@@ -348,7 +343,7 @@ function PatientChat({ user, doctor }) {
               <div style={{ fontSize:12, fontWeight:600, color:'var(--ink)', marginBottom:2 }}>Brain scan image ready to send</div>
               <div style={{ fontSize:10, color:'var(--ink-3)' }}>Your doctor will receive this and can run an AI analysis</div>
             </div>
-            <div style={{ display:'flex', alignItems:'center', gap:5, padding:'4px 10px', borderRadius:100, background:'rgba(122,77,255,0.08)', border:'1px solid rgba(122,77,255,0.2)', fontSize:10, fontWeight:600, color:'#7a4dff' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:5, padding:'4px 10px', borderRadius:100, background:'rgba(124,58,237,0.08)', border:'1px solid rgba(124,58,237,0.2)', fontSize:10, fontWeight:600, color:'#7c3aed' }}>
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z" strokeLinejoin="round"/></svg>
               MRI ready
             </div>
@@ -361,7 +356,7 @@ function PatientChat({ user, doctor }) {
         <input ref={fileRef} type="file" accept="image/*" style={{ display:'none' }} onChange={onFileChange} />
         <motion.button whileHover={{ scale:1.07 }} whileTap={{ scale:.92 }} onClick={() => fileRef.current?.click()}
           title="Send brain scan image"
-          style={{ width:40, height:40, borderRadius:12, border:'1px solid var(--line)', background:'var(--bg)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color:'#7a4dff', transition:'all .2s' }}>
+          style={{ width:40, height:40, borderRadius:12, border:'1px solid var(--line)', background:'var(--bg)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color:'#7c3aed', transition:'all .2s' }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/><polyline points="21 15 16 10 5 21"/></svg>
         </motion.button>
         <div style={{ flex:1, borderRadius:16, border:'1px solid var(--line)', background:'var(--bg)', display:'flex', alignItems:'flex-end', padding:'6px 12px', transition:'border-color .2s', gap:8 }}
@@ -375,7 +370,7 @@ function PatientChat({ user, doctor }) {
         </div>
         <motion.button whileHover={{ scale:1.06 }} whileTap={{ scale:.93 }} onClick={send}
           disabled={(!input.trim() && !imgPreview) || sending}
-          style={{ width:44, height:44, borderRadius:14, border:'none', cursor:(!input.trim()&&!imgPreview)?'not-allowed':'pointer', background: imgPreview?'linear-gradient(135deg,#7a4dff,#7C3AED)':'linear-gradient(135deg,#0ea5e9,#7a4dff)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, boxShadow: imgPreview?'0 4px 16px -4px rgba(122,77,255,0.5)':'0 4px 16px -4px rgba(14,165,233,0.5)', opacity:(!input.trim()&&!imgPreview)?.4:1, transition:'all .2s' }}>
+          style={{ width:44, height:44, borderRadius:14, border:'none', cursor:(!input.trim()&&!imgPreview)?'not-allowed':'pointer', background: imgPreview?'linear-gradient(135deg,#7c3aed,#7C3AED)':'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, boxShadow: imgPreview?'0 4px 16px -4px rgba(124,58,237,0.5)':'0 4px 16px -4px rgba(14,165,233,0.5)', opacity:(!input.trim()&&!imgPreview)?.4:1, transition:'all .2s' }}>
           {imgPreview
             ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z"/></svg>
             : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>}
@@ -400,8 +395,8 @@ function NewChatPanel({ approvedDocs, onClose, onStart }) {
       <motion.div initial={{ x:'100%' }} animate={{ x:0 }} exit={{ x:'100%' }}
         transition={{ type:'spring', stiffness:320, damping:32 }}
         style={{ position:'fixed', right:0, top:0, bottom:0, width:460, zIndex:801, background:'var(--frame)', borderLeft:'1px solid var(--line)', display:'flex', flexDirection:'column', overflow:'hidden' }}>
-        <div style={{ height:3, background:'linear-gradient(90deg,#0ea5e9,#06b6d4 40%,#7a4dff)' }} />
-        <div style={{ padding:'20px 24px 16px', borderBottom:'1px solid var(--line)', background:'linear-gradient(135deg,rgba(6,182,212,0.04),rgba(122,77,255,0.03))' }}>
+        <div style={{ height:3, background:'linear-gradient(90deg,#0ea5e9,#06b6d4 40%,#7c3aed)' }} />
+        <div style={{ padding:'20px 24px 16px', borderBottom:'1px solid var(--line)', background:'linear-gradient(135deg,rgba(6,182,212,0.04),rgba(124,58,237,0.03))' }}>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
             <div>
               <h3 className="font-serif" style={{ fontSize:20, fontWeight:400, color:'var(--ink)', marginBottom:2 }}>Choose a Doctor</h3>
@@ -432,7 +427,7 @@ function NewChatPanel({ approvedDocs, onClose, onStart }) {
                 onMouseEnter={e=>{e.currentTarget.style.background='rgba(6,182,212,0.05)';e.currentTarget.style.borderColor='rgba(6,182,212,0.3)';}}
                 onMouseLeave={e=>{e.currentTarget.style.background='var(--bg)';e.currentTarget.style.borderColor='var(--line)';}}>
                 <div style={{ position:'relative', flexShrink:0 }}>
-                  <div style={{ width:52,height:52,borderRadius:14,background:'linear-gradient(135deg,#ff7a9c,#7a4dff)',display:'grid',placeItems:'center',fontSize:16,fontWeight:700,color:'white',boxShadow:'0 4px 14px -4px rgba(122,77,255,0.4)' }}>{d.avatar}</div>
+                  <div style={{ width:52,height:52,borderRadius:14,background:'linear-gradient(135deg,#0ea5e9,#7c3aed)',display:'grid',placeItems:'center',fontSize:16,fontWeight:700,color:'white',boxShadow:'0 4px 14px -4px rgba(124,58,237,0.4)' }}>{d.avatar}</div>
                   <div style={{ position:'absolute',bottom:-2,right:-2,width:14,height:14,borderRadius:'50%',background:'#22c55e',border:'2.5px solid var(--frame)' }}/>
                 </div>
                 <div style={{ flex:1, minWidth:0 }}>
@@ -444,7 +439,7 @@ function NewChatPanel({ approvedDocs, onClose, onStart }) {
                     {d.experience && <span style={{ fontSize:10,padding:'1px 7px',borderRadius:100,background:'rgba(6,182,212,0.08)',color:'#06b6d4',border:'1px solid rgba(6,182,212,0.18)' }}>{d.experience}y exp</span>}
                   </div>
                 </div>
-                <div style={{ width:36,height:36,borderRadius:10,background:'linear-gradient(135deg,#0ea5e9,#7a4dff)',display:'grid',placeItems:'center',flexShrink:0,boxShadow:'0 3px 10px -3px rgba(14,165,233,0.5)' }}>
+                <div style={{ width:36,height:36,borderRadius:10,background:'linear-gradient(135deg,#0ea5e9,#7c3aed)',display:'grid',placeItems:'center',flexShrink:0,boxShadow:'0 3px 10px -3px rgba(14,165,233,0.5)' }}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 </div>
               </motion.button>
@@ -483,8 +478,8 @@ function BookingPanel({ user, doctors, onClose, onDone }) {
       <motion.div initial={{ x:'100%' }} animate={{ x:0 }} exit={{ x:'100%' }}
         transition={{ type:'spring', stiffness:320, damping:32 }}
         style={{ position:'fixed', right:0, top:0, bottom:0, width:460, zIndex:601, background:'var(--frame)', borderLeft:'1px solid var(--line)', display:'flex', flexDirection:'column', overflow:'hidden' }}>
-        <div style={{ height:3, background:'linear-gradient(90deg,#0ea5e9,#06b6d4 45%,#7a4dff)' }} />
-        <div style={{ padding:'20px 24px 16px', borderBottom:'1px solid var(--line)', background:'linear-gradient(135deg,rgba(6,182,212,0.05),rgba(122,77,255,0.04))' }}>
+        <div style={{ height:3, background:'linear-gradient(90deg,#0ea5e9,#06b6d4 45%,#7c3aed)' }} />
+        <div style={{ padding:'20px 24px 16px', borderBottom:'1px solid var(--line)', background:'linear-gradient(135deg,rgba(6,182,212,0.05),rgba(124,58,237,0.04))' }}>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
             <div>
               <h3 className="font-serif" style={{ fontSize:20, fontWeight:400, color:'var(--ink)', marginBottom:2 }}>Book Appointment</h3>
@@ -498,10 +493,10 @@ function BookingPanel({ user, doctors, onClose, onDone }) {
             {['Doctor','Schedule','Confirm'].map((label, i) => (
               <div key={i} style={{ display:'flex', alignItems:'center', flex: i < 2 ? 1 : 'none' }}>
                 <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                  <div style={{ width:22, height:22, borderRadius:'50%', display:'grid', placeItems:'center', fontSize:10, fontWeight:700, background:i<=step?'linear-gradient(135deg,#0ea5e9,#7a4dff)':'var(--line)', color:i<=step?'white':'var(--ink-3)', transition:'all .3s' }}>{i+1}</div>
+                  <div style={{ width:22, height:22, borderRadius:'50%', display:'grid', placeItems:'center', fontSize:10, fontWeight:700, background:i<=step?'linear-gradient(135deg,#0ea5e9,#7c3aed)':'var(--line)', color:i<=step?'white':'var(--ink-3)', transition:'all .3s' }}>{i+1}</div>
                   <span style={{ fontSize:11, fontWeight:i===step?600:400, color:i<=step?'var(--ink-2)':'var(--ink-3)' }}>{label}</span>
                 </div>
-                {i < 2 && <div style={{ flex:1, height:1, background:i<step?'linear-gradient(90deg,#0ea5e9,#7a4dff)':'var(--line)', margin:'0 8px', transition:'all .3s' }} />}
+                {i < 2 && <div style={{ flex:1, height:1, background:i<step?'linear-gradient(90deg,#0ea5e9,#7c3aed)':'var(--line)', margin:'0 8px', transition:'all .3s' }} />}
               </div>
             ))}
           </div>
@@ -521,7 +516,7 @@ function BookingPanel({ user, doctors, onClose, onDone }) {
                       <motion.button key={d.id} whileHover={{ y:-1 }} whileTap={{ scale:.98 }} onClick={() => setSelDoc(d)}
                         style={{ padding:'15px', borderRadius:16, border:sel?'2px solid #06b6d4':'1px solid var(--line)', background:sel?'rgba(6,182,212,0.07)':'var(--bg)', cursor:'pointer', display:'flex', alignItems:'center', gap:13, textAlign:'left', transition:'all .2s' }}>
                         <div style={{ position:'relative', flexShrink:0 }}>
-                          <div style={{ width:48, height:48, borderRadius:13, background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:15, fontWeight:700, color:'white' }}>{d.avatar}</div>
+                          <div style={{ width:48, height:48, borderRadius:13, background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'grid', placeItems:'center', fontSize:15, fontWeight:700, color:'white' }}>{d.avatar}</div>
                           <div style={{ position:'absolute', bottom:-2, right:-2, width:14, height:14, borderRadius:'50%', background:'#22c55e', border:'2px solid var(--bg)', display:'grid', placeItems:'center' }}>
                             <svg width="7" height="7" viewBox="0 0 10 10" fill="none"><polyline points="1 5 4 8 9 2" stroke="white" strokeWidth="1.8" fill="none" strokeLinecap="round"/></svg>
                           </div>
@@ -549,7 +544,7 @@ function BookingPanel({ user, doctors, onClose, onDone }) {
               <motion.div key="s1" initial={{ opacity:0, x:30 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-30 }} transition={{ duration:.25 }}>
                 {selDoc && (
                   <div style={{ display:'flex', alignItems:'center', gap:10, padding:'11px 13px', borderRadius:12, background:'rgba(6,182,212,0.06)', border:'1px solid rgba(6,182,212,0.15)', marginBottom:20 }}>
-                    <div style={{ width:34, height:34, borderRadius:9, background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:11, fontWeight:700, color:'white', flexShrink:0 }}>{selDoc.avatar}</div>
+                    <div style={{ width:34, height:34, borderRadius:9, background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'grid', placeItems:'center', fontSize:11, fontWeight:700, color:'white', flexShrink:0 }}>{selDoc.avatar}</div>
                     <div><div style={{ fontSize:13, fontWeight:600, color:'var(--ink)' }}>{selDoc.name}</div><div style={{ fontSize:11, color:'var(--ink-3)' }}>{selDoc.specialty}</div></div>
                   </div>
                 )}
@@ -574,7 +569,7 @@ function BookingPanel({ user, doctors, onClose, onDone }) {
 
             {step === 2 && (
               <motion.div key="s2" initial={{ opacity:0, x:30 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-30 }} transition={{ duration:.25 }}>
-                <div style={{ padding:'16px', borderRadius:16, background:'linear-gradient(135deg,rgba(6,182,212,0.06),rgba(122,77,255,0.06))', border:'1px solid rgba(6,182,212,0.15)', marginBottom:20 }}>
+                <div style={{ padding:'16px', borderRadius:16, background:'linear-gradient(135deg,rgba(6,182,212,0.06),rgba(124,58,237,0.06))', border:'1px solid rgba(6,182,212,0.15)', marginBottom:20 }}>
                   <div style={{ fontSize:11, fontWeight:700, letterSpacing:'0.1em', textTransform:'uppercase', color:'var(--ink-3)', marginBottom:12 }}>Appointment Summary</div>
                   {[
                     { k:'Doctor', v:selDoc?.name },
@@ -609,13 +604,13 @@ function BookingPanel({ user, doctors, onClose, onDone }) {
             <motion.button whileHover={{ y:-1 }} whileTap={{ scale:.97 }}
               disabled={(step===0&&!canNext0)||(step===1&&!canNext1)}
               onClick={() => setStep(s => s+1)}
-              style={{ flex:2, height:44, borderRadius:12, fontSize:13, fontWeight:600, color:'white', background:'linear-gradient(135deg,#0ea5e9,#7a4dff)', border:'none', cursor:(step===0&&!canNext0)||(step===1&&!canNext1)?'not-allowed':'pointer', opacity:(step===0&&!canNext0)||(step===1&&!canNext1)?0.45:1, transition:'all .2s' }}>
+              style={{ flex:2, height:44, borderRadius:12, fontSize:13, fontWeight:600, color:'white', background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', border:'none', cursor:(step===0&&!canNext0)||(step===1&&!canNext1)?'not-allowed':'pointer', opacity:(step===0&&!canNext0)||(step===1&&!canNext1)?0.45:1, transition:'all .2s' }}>
               Continue →
             </motion.button>
           )}
           {step === 2 && (
             <motion.button whileHover={{ y:-1 }} whileTap={{ scale:.97 }} disabled={busy} onClick={submit}
-              style={{ flex:2, height:44, borderRadius:12, fontSize:13, fontWeight:600, color:'white', background:'linear-gradient(135deg,#0ea5e9,#06b6d4 50%,#7a4dff)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8, opacity:busy?.7:1 }}>
+              style={{ flex:2, height:44, borderRadius:12, fontSize:13, fontWeight:600, color:'white', background:'linear-gradient(135deg,#0ea5e9,#06b6d4 50%,#7c3aed)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8, opacity:busy?.7:1 }}>
               {busy ? <span style={{ width:14, height:14, borderRadius:'50%', border:'2px solid rgba(255,255,255,0.3)', borderTopColor:'white', animation:'spin360 0.8s linear infinite', display:'inline-block' }} />
                     : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>}
               Confirm Booking
@@ -662,10 +657,10 @@ function ReviewModal({ user, doctors, onClose, onDone }) {
         }}>
 
         {/* Gradient accent bar */}
-        <div style={{ height:3, background:'linear-gradient(90deg,#f59e0b,#ff7a9c,#7a4dff)', flexShrink:0 }} />
+        <div style={{ height:3, background:'linear-gradient(90deg,#f59e0b,#0ea5e9,#7c3aed)', flexShrink:0 }} />
 
         {/* Fixed header */}
-        <div style={{ padding:'20px 24px 16px', borderBottom:'1px solid var(--line)', flexShrink:0, background:'linear-gradient(135deg,rgba(245,158,11,0.04),rgba(122,77,255,0.03))' }}>
+        <div style={{ padding:'20px 24px 16px', borderBottom:'1px solid var(--line)', flexShrink:0, background:'linear-gradient(135deg,rgba(245,158,11,0.04),rgba(124,58,237,0.03))' }}>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
             <div>
               <h3 className="font-serif" style={{ fontSize:20, fontWeight:400, color:'var(--ink)', marginBottom:2 }}>Write a Review</h3>
@@ -687,7 +682,7 @@ function ReviewModal({ user, doctors, onClose, onDone }) {
               {doctors.map(d => (
                 <button key={d.id} onClick={() => setSelDoc(d)}
                   style={{ padding:'11px 13px', borderRadius:12, border:selDoc?.id===d.id?'2px solid #f59e0b':'1px solid var(--line)', background:selDoc?.id===d.id?'rgba(245,158,11,0.07)':'var(--bg)', cursor:'pointer', display:'flex', alignItems:'center', gap:11, textAlign:'left', transition:'all .2s', boxShadow:selDoc?.id===d.id?'0 0 0 3px rgba(245,158,11,0.12)':'none' }}>
-                  <div style={{ width:38, height:38, borderRadius:10, background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:12, fontWeight:700, color:'white', flexShrink:0 }}>{d.avatar}</div>
+                  <div style={{ width:38, height:38, borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'grid', placeItems:'center', fontSize:12, fontWeight:700, color:'white', flexShrink:0 }}>{d.avatar}</div>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)' }}>{d.name}</div>
                     <div style={{ fontSize:11, color:'var(--ink-3)' }}>{d.specialty}</div>
@@ -751,7 +746,7 @@ function ReviewModal({ user, doctors, onClose, onDone }) {
           )}
           <motion.button whileHover={{ y:-1 }} whileTap={{ scale:.97 }}
             disabled={!selDoc || !rating || busy} onClick={submit}
-            style={{ width:'100%', height:48, borderRadius:14, fontSize:14, fontWeight:600, color:'white', background:'linear-gradient(135deg,#f59e0b,#ff7a9c 50%,#7a4dff)', border:'none', cursor:(!selDoc||!rating||busy)?'not-allowed':'pointer', opacity:(!selDoc||!rating)?0.45:1, display:'flex', alignItems:'center', justifyContent:'center', gap:8, transition:'opacity .2s', position:'relative', overflow:'hidden' }}>
+            style={{ width:'100%', height:48, borderRadius:14, fontSize:14, fontWeight:600, color:'white', background:'linear-gradient(135deg,#f59e0b,#0ea5e9 50%,#7c3aed)', border:'none', cursor:(!selDoc||!rating||busy)?'not-allowed':'pointer', opacity:(!selDoc||!rating)?0.45:1, display:'flex', alignItems:'center', justifyContent:'center', gap:8, transition:'opacity .2s', position:'relative', overflow:'hidden' }}>
             <span style={{ position:'relative', zIndex:2, display:'flex', alignItems:'center', gap:8 }}>
               {busy
                 ? <span style={{ width:14, height:14, borderRadius:'50%', border:'2px solid rgba(255,255,255,0.3)', borderTopColor:'white', animation:'spin360 0.8s linear infinite', display:'inline-block' }} />
@@ -903,7 +898,7 @@ export default function PatientDashboard() {
   if (!ready || !user) return (
     <div className="frame" style={{ minHeight:'calc(100vh - 28px)', display:'grid', placeItems:'center' }}>
       <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:16 }}>
-        <div style={{ width:40, height:40, borderRadius:'50%', border:'3px solid var(--line)', borderTopColor:'#ff3d6e', animation:'spin360 0.8s linear infinite' }} />
+        <div style={{ width:40, height:40, borderRadius:'50%', border:'3px solid var(--line)', borderTopColor:'#06b6d4', animation:'spin360 0.8s linear infinite' }} />
         <p style={{ fontSize:13, color:'var(--ink-3)' }}>Loading dashboard…</p>
       </div>
     </div>
@@ -921,7 +916,7 @@ export default function PatientDashboard() {
       <Particles />
       <div style={{ position:'absolute', inset:0, pointerEvents:'none', zIndex:0 }}>
         <div style={{ position:'absolute', top:'5%', right:'5%', width:400, height:400, borderRadius:'50%', background:'radial-gradient(circle,rgba(6,182,212,0.07),transparent 70%)', filter:'blur(70px)' }} />
-        <div style={{ position:'absolute', bottom:'10%', left:'5%', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle,rgba(255,61,110,0.07),transparent 70%)', filter:'blur(60px)' }} />
+        <div style={{ position:'absolute', bottom:'10%', left:'5%', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle,rgba(6,182,212,0.07),transparent 70%)', filter:'blur(60px)' }} />
       </div>
 
       {/* Top bar */}
@@ -949,7 +944,7 @@ export default function PatientDashboard() {
         <nav style={{ display:'flex', alignItems:'center', gap:2, padding:4, borderRadius:100, background:'var(--frame)', border:'1px solid var(--line)' }}>
           {TABS.map(t => (
             <button key={t} onClick={() => setTab(t)}
-              style={{ padding:'7px 14px', borderRadius:100, fontSize:12, fontWeight:500, border:'none', cursor:'pointer', transition:'all .25s', background:tab===t?'linear-gradient(135deg,#ff3d6e,#7a4dff)':'transparent', color:tab===t?'white':'var(--ink-2)', position:'relative', whiteSpace:'nowrap' }}>
+              style={{ padding:'7px 14px', borderRadius:100, fontSize:12, fontWeight:500, border:'none', cursor:'pointer', transition:'all .25s', background:tab===t?'linear-gradient(135deg,#06b6d4,#7c3aed)':'transparent', color:tab===t?'white':'var(--ink-2)', position:'relative', whiteSpace:'nowrap' }}>
               {t}
               {t === 'Appointments' && appointments.some(a => a.status === 'counter_proposed') && (
                 <span style={{ position:'absolute', top:3, right:3, width:7, height:7, borderRadius:'50%', background:'#f97316', border:'1.5px solid var(--frame)', animation:'pulseDot 1.2s infinite' }} />
@@ -958,7 +953,7 @@ export default function PatientDashboard() {
                 <span style={{ position:'absolute', top:3, right:3, width:7, height:7, borderRadius:'50%', background:'#06b6d4', border:'1.5px solid var(--frame)' }} />
               )}
               {t === 'Messages' && msgUnread > 0 && tab !== 'Messages' && (
-                <span style={{ position:'absolute', top:2, right:2, minWidth:16, height:16, borderRadius:100, background:'#ff3d6e', color:'white', fontSize:9, fontWeight:800, display:'grid', placeItems:'center', border:'1.5px solid var(--frame)', padding:'0 3px', lineHeight:1 }}>{msgUnread}</span>
+                <span style={{ position:'absolute', top:2, right:2, minWidth:16, height:16, borderRadius:100, background:'#06b6d4', color:'white', fontSize:9, fontWeight:800, display:'grid', placeItems:'center', border:'1.5px solid var(--frame)', padding:'0 3px', lineHeight:1 }}>{msgUnread}</span>
               )}
             </button>
           ))}
@@ -982,7 +977,7 @@ export default function PatientDashboard() {
 
           {/* ── Overview ── */}
           {tab === 'Overview' && (
-            <motion.div key="overview" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }} transition={{ duration:.45 }}>
+            <motion.div key="overview" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }} transition={{ duration:.45 }} style={{ paddingRight:72 }}>
               <div style={{ marginBottom:28 }}>
                 <h2 className="font-serif" style={{ fontSize:28, fontWeight:400, color:'var(--ink)', marginBottom:4 }}>
                   {greeting}, <em className="text-gradient">{user.firstName||user.name}</em>
@@ -1009,7 +1004,7 @@ export default function PatientDashboard() {
               <div style={{ display:'grid', gridTemplateColumns:'1fr 380px', gap:18, marginBottom:22 }}>
                 <motion.div initial={{ opacity:0, x:-16 }} animate={{ opacity:1, x:0 }} transition={{ delay:.3 }} className="glass-card ai-scan" style={{ padding:24, cursor:'pointer' }} onClick={() => setTab('AI Insights')}>
                   <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:18 }}>
-                    <div style={{ width:36, height:36, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', background:'linear-gradient(135deg,#ff3d6e,#7a4dff)', boxShadow:'0 4px 12px -4px rgba(255,61,110,0.4)' }}>
+                    <div style={{ width:36, height:36, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', background:'linear-gradient(135deg,#06b6d4,#7c3aed)', boxShadow:'0 4px 12px -4px rgba(6,182,212,0.4)' }}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12"/><path d="M12 6v6l4 2"/></svg>
                     </div>
                     <div>
@@ -1039,7 +1034,7 @@ export default function PatientDashboard() {
                       <p style={{ fontSize:14, color:'var(--ink-2)', lineHeight:1.7, marginBottom:16 }}>
                         Get <strong style={{ color:'var(--ink)' }}>personalized AI tips</strong> to protect your brain and heart — different every session, powered by Groq.
                       </p>
-                      <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:10, background:'linear-gradient(135deg,rgba(255,61,110,0.1),rgba(122,77,255,0.12))', border:'1px solid rgba(122,77,255,0.2)', fontSize:12, fontWeight:700, color:'#7a4dff' }}>
+                      <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:10, background:'linear-gradient(135deg,rgba(6,182,212,0.1),rgba(124,58,237,0.12))', border:'1px solid rgba(124,58,237,0.2)', fontSize:12, fontWeight:700, color:'#7c3aed' }}>
                         ✨ Open AI Insights
                       </div>
                     </>
@@ -1063,7 +1058,7 @@ export default function PatientDashboard() {
                         return (
                           <motion.div key={a.id} initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ delay:.4+i*.08 }}
                             style={{ display:'flex', alignItems:'center', gap:12, padding:'11px 12px', borderRadius:12, background:'var(--bg)', border:'1px solid var(--line)' }}>
-                            <div style={{ width:36, height:36, borderRadius:10, background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:11, fontWeight:700, color:'white', flexShrink:0 }}>{a.doctorAvatar}</div>
+                            <div style={{ width:36, height:36, borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'grid', placeItems:'center', fontSize:11, fontWeight:700, color:'white', flexShrink:0 }}>{a.doctorAvatar}</div>
                             <div style={{ flex:1, minWidth:0 }}>
                               <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)', marginBottom:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{a.doctorName}</div>
                               <div style={{ fontSize:11, color:'var(--ink-3)' }}>{a.specialty}</div>
@@ -1084,7 +1079,7 @@ export default function PatientDashboard() {
                 {/* Header */}
                 <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
                   <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                    <div style={{ width:34, height:34, borderRadius:10, background:'linear-gradient(135deg,rgba(122,77,255,0.18),rgba(6,182,212,0.1))', border:'1px solid rgba(122,77,255,0.2)', display:'grid', placeItems:'center', fontSize:17, flexShrink:0 }}>🧠</div>
+                    <div style={{ width:34, height:34, borderRadius:10, background:'linear-gradient(135deg,rgba(124,58,237,0.18),rgba(6,182,212,0.1))', border:'1px solid rgba(124,58,237,0.2)', display:'grid', placeItems:'center', fontSize:17, flexShrink:0 }}>🧠</div>
                     <div>
                       <div style={{ fontSize:14, fontWeight:700, color:'var(--ink)', lineHeight:1.2 }}>Brain Scan History</div>
                       <div style={{ fontSize:11, color:'var(--ink-3)' }}>{scanReports.length === 0 ? 'No scans received yet' : `${scanReports.length} AI scan${scanReports.length!==1?'s':''} on file`}</div>
@@ -1092,7 +1087,7 @@ export default function PatientDashboard() {
                   </div>
                   {scanReports.length > 0 && (
                     <motion.button whileHover={{ x:2 }} whileTap={{ scale:.96 }} onClick={() => setTab('Reports')}
-                      style={{ fontSize:11, fontWeight:700, color:'#7a4dff', background:'rgba(122,77,255,0.08)', border:'1px solid rgba(122,77,255,0.22)', padding:'5px 13px', borderRadius:20, cursor:'pointer', letterSpacing:'0.02em' }}>
+                      style={{ fontSize:11, fontWeight:700, color:'#7c3aed', background:'rgba(124,58,237,0.08)', border:'1px solid rgba(124,58,237,0.22)', padding:'5px 13px', borderRadius:20, cursor:'pointer', letterSpacing:'0.02em' }}>
                       View All →
                     </motion.button>
                   )}
@@ -1100,13 +1095,13 @@ export default function PatientDashboard() {
 
                 {scanReports.length === 0 ? (
                   <div style={{ textAlign:'center', padding:'18px 0 6px' }}>
-                    <div style={{ width:54, height:54, borderRadius:16, background:'linear-gradient(135deg,rgba(122,77,255,0.1),rgba(6,182,212,0.06))', border:'1px solid rgba(122,77,255,0.15)', display:'grid', placeItems:'center', margin:'0 auto 12px', fontSize:26 }}>🔬</div>
+                    <div style={{ width:54, height:54, borderRadius:16, background:'linear-gradient(135deg,rgba(124,58,237,0.1),rgba(6,182,212,0.06))', border:'1px solid rgba(124,58,237,0.15)', display:'grid', placeItems:'center', margin:'0 auto 12px', fontSize:26 }}>🔬</div>
                     <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)', marginBottom:5 }}>No Brain Scans Yet</div>
                     <div style={{ fontSize:12, color:'var(--ink-3)', lineHeight:1.65, maxWidth:230, margin:'0 auto 14px' }}>
                       Once your doctor runs an AI scan on your MRI, the results will appear here.
                     </div>
                     <motion.button whileHover={{ y:-2 }} whileTap={{ scale:.97 }} onClick={() => setTab('Messages')}
-                      style={{ padding:'8px 20px', borderRadius:20, fontSize:12, fontWeight:600, color:'white', background:'linear-gradient(135deg,#7a4dff,#06b6d4)', border:'none', cursor:'pointer', boxShadow:'0 4px 14px -4px rgba(122,77,255,0.42)' }}>
+                      style={{ padding:'8px 20px', borderRadius:20, fontSize:12, fontWeight:600, color:'white', background:'linear-gradient(135deg,#7c3aed,#06b6d4)', border:'none', cursor:'pointer', boxShadow:'0 4px 14px -4px rgba(124,58,237,0.42)' }}>
                       Message Your Doctor
                     </motion.button>
                   </div>
@@ -1131,7 +1126,7 @@ export default function PatientDashboard() {
                       <div style={{ display:'flex', gap:14, alignItems:'center', padding:'12px 14px', borderRadius:14, background:'var(--bg)', border:'1px solid var(--line)', marginBottom:14 }}>
                         <div style={{ position:'relative', flexShrink:0 }}>
                           <svg width="68" height="68" viewBox="0 0 68 68">
-                            <circle cx="34" cy="34" r="26" fill="none" stroke="rgba(122,77,255,0.1)" strokeWidth="6" />
+                            <circle cx="34" cy="34" r="26" fill="none" stroke="rgba(124,58,237,0.1)" strokeWidth="6" />
                             <circle cx="34" cy="34" r="26" fill="none" stroke={scoreColor} strokeWidth="6"
                               strokeDasharray={`${(score/100)*C} ${C}`} strokeLinecap="round"
                               transform="rotate(-90 34 34)" style={{ transition:'stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1)' }} />
@@ -1202,14 +1197,14 @@ export default function PatientDashboard() {
 
           {/* ── Appointments ── */}
           {tab === 'Appointments' && (
-            <motion.div key="appts" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }}>
+            <motion.div key="appts" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }} style={{ paddingRight:72 }}>
               <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:24 }}>
                 <div>
                   <h2 className="font-serif" style={{ fontSize:26, fontWeight:400, color:'var(--ink)', marginBottom:2 }}>My Appointments</h2>
                   <p style={{ fontSize:13, color:'var(--ink-3)' }}>{activeAppts.length} upcoming · {cancelledAppts.length} cancelled</p>
                 </div>
                 <motion.button whileHover={{ y:-2 }} whileTap={{ scale:.97 }} onClick={() => setBookingOpen(true)}
-                  style={{ padding:'11px 20px', borderRadius:14, fontSize:13, fontWeight:600, color:'white', background:'linear-gradient(135deg,#0ea5e9,#06b6d4 50%,#7a4dff)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', gap:8, boxShadow:'0 6px 20px -6px rgba(6,182,212,0.5)' }}>
+                  style={{ padding:'11px 20px', borderRadius:14, fontSize:13, fontWeight:600, color:'white', background:'linear-gradient(135deg,#0ea5e9,#06b6d4 50%,#7c3aed)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', gap:8, boxShadow:'0 6px 20px -6px rgba(6,182,212,0.5)' }}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   Book New RDV
                 </motion.button>
@@ -1242,7 +1237,7 @@ export default function PatientDashboard() {
                   <div style={{ fontSize:15, fontWeight:600, color:'var(--ink)', marginBottom:6 }}>No appointments yet</div>
                   <div style={{ fontSize:13, color:'var(--ink-3)', marginBottom:20 }}>Book your first appointment with a doctor</div>
                   <motion.button whileHover={{ y:-1 }} onClick={() => setBookingOpen(true)}
-                    style={{ padding:'11px 24px', borderRadius:12, fontSize:13, fontWeight:600, color:'white', background:'linear-gradient(135deg,#0ea5e9,#7a4dff)', border:'none', cursor:'pointer' }}>
+                    style={{ padding:'11px 24px', borderRadius:12, fontSize:13, fontWeight:600, color:'white', background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', border:'none', cursor:'pointer' }}>
                     Book Now →
                   </motion.button>
                 </motion.div>
@@ -1262,7 +1257,7 @@ export default function PatientDashboard() {
                             <div style={{ position:'absolute', top:0, left:0, bottom:0, width:3, background:`linear-gradient(180deg,${cfg.color},${cfg.color}88)`, borderRadius:'3px 0 0 3px' }} />
                             <div style={{ display:'flex', alignItems:'center', gap:16 }}>
                               <div style={{ position:'relative', flexShrink:0 }}>
-                                <div style={{ width:52, height:52, borderRadius:14, background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:16, fontWeight:700, color:'white' }}>{a.doctorAvatar}</div>
+                                <div style={{ width:52, height:52, borderRadius:14, background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'grid', placeItems:'center', fontSize:16, fontWeight:700, color:'white' }}>{a.doctorAvatar}</div>
                                 {isProposal && (
                                   <div style={{ position:'absolute', top:-4, right:-4, width:18, height:18, borderRadius:'50%', background:'#f97316', border:'2px solid var(--frame)', display:'grid', placeItems:'center' }}>
                                     <svg width="9" height="9" viewBox="0 0 24 24" fill="white"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
@@ -1323,7 +1318,7 @@ export default function PatientDashboard() {
 
                               {a.altNote && (
                                 <div style={{ marginBottom:14, padding:'10px 13px', borderRadius:10, background:'var(--bg)', border:'1px solid var(--line)', display:'flex', gap:8, alignItems:'flex-start' }}>
-                                  <div style={{ width:24, height:24, borderRadius:'50%', background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:8, fontWeight:700, color:'white', flexShrink:0 }}>{a.doctorAvatar}</div>
+                                  <div style={{ width:24, height:24, borderRadius:'50%', background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'grid', placeItems:'center', fontSize:8, fontWeight:700, color:'white', flexShrink:0 }}>{a.doctorAvatar}</div>
                                   <p style={{ fontSize:12, color:'var(--ink-2)', margin:0, lineHeight:1.6, fontStyle:'italic' }}>"{a.altNote}"</p>
                                 </div>
                               )}
@@ -1369,7 +1364,7 @@ export default function PatientDashboard() {
 
           {/* ── Messages ── */}
           {tab === 'Messages' && (
-            <motion.div key="messages" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }}>
+            <motion.div key="messages" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }} style={{ paddingRight:72 }}>
               {/* Header */}
               <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20 }}>
                 <div>
@@ -1381,7 +1376,7 @@ export default function PatientDashboard() {
                   </p>
                 </div>
                 <motion.button whileHover={{ y:-2 }} whileTap={{ scale:.97 }} onClick={() => setNewChatOpen(true)}
-                  style={{ padding:'10px 18px', borderRadius:13, fontSize:13, fontWeight:600, color:'white', background:'linear-gradient(135deg,#0ea5e9,#06b6d4 50%,#7a4dff)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', gap:8, boxShadow:'0 6px 20px -6px rgba(6,182,212,0.5)' }}>
+                  style={{ padding:'10px 18px', borderRadius:13, fontSize:13, fontWeight:600, color:'white', background:'linear-gradient(135deg,#0ea5e9,#06b6d4 50%,#7c3aed)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', gap:8, boxShadow:'0 6px 20px -6px rgba(6,182,212,0.5)' }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   New Chat
                 </motion.button>
@@ -1441,7 +1436,7 @@ export default function PatientDashboard() {
                               style={{ width:'100%', padding:'13px 16px', border:'none', borderBottom:'1px solid var(--line)', cursor:'pointer', textAlign:'left', background:isSel?'rgba(6,182,212,0.07)':'transparent', transition:'background .2s', position:'relative', borderLeft: isSel?'3px solid #06b6d4':'3px solid transparent' }}>
                               <div style={{ display:'flex', alignItems:'center', gap:11 }}>
                                 <div style={{ position:'relative', flexShrink:0 }}>
-                                  <div style={{ width:44,height:44,borderRadius:13,background:'linear-gradient(135deg,#ff7a9c,#7a4dff)',display:'grid',placeItems:'center',fontSize:14,fontWeight:700,color:'white' }}>{doc.avatar}</div>
+                                  <div style={{ width:44,height:44,borderRadius:13,background:'linear-gradient(135deg,#0ea5e9,#7c3aed)',display:'grid',placeItems:'center',fontSize:14,fontWeight:700,color:'white' }}>{doc.avatar}</div>
                                   <div style={{ position:'absolute',bottom:-1,right:-1,width:12,height:12,borderRadius:'50%',background:'#22c55e',border:'2px solid var(--frame)' }}/>
                                 </div>
                                 <div style={{ flex:1, minWidth:0 }}>
@@ -1455,7 +1450,7 @@ export default function PatientDashboard() {
                                   </div>
                                 </div>
                                 {unread > 0 && (
-                                  <div style={{ minWidth:20,height:20,borderRadius:100,background:'#ff3d6e',color:'white',fontSize:10,fontWeight:800,display:'grid',placeItems:'center',flexShrink:0,padding:'0 5px' }}>{unread}</div>
+                                  <div style={{ minWidth:20,height:20,borderRadius:100,background:'#06b6d4',color:'white',fontSize:10,fontWeight:800,display:'grid',placeItems:'center',flexShrink:0,padding:'0 5px' }}>{unread}</div>
                                 )}
                               </div>
                               {rt.avg > 0 && (
@@ -1475,7 +1470,7 @@ export default function PatientDashboard() {
                       {/* decorative bg */}
                       <div style={{ position:'absolute',inset:0,pointerEvents:'none',zIndex:0,overflow:'hidden' }}>
                         <div style={{ position:'absolute',top:'8%',right:'6%',width:280,height:280,borderRadius:'50%',background:'radial-gradient(circle,rgba(6,182,212,0.05),transparent 70%)',filter:'blur(40px)' }}/>
-                        <div style={{ position:'absolute',bottom:'10%',left:'5%',width:220,height:220,borderRadius:'50%',background:'radial-gradient(circle,rgba(122,77,255,0.05),transparent 70%)',filter:'blur(35px)' }}/>
+                        <div style={{ position:'absolute',bottom:'10%',left:'5%',width:220,height:220,borderRadius:'50%',background:'radial-gradient(circle,rgba(124,58,237,0.05),transparent 70%)',filter:'blur(35px)' }}/>
                       </div>
                       <div style={{ position:'relative',zIndex:1,flex:1,display:'flex',flexDirection:'column',minHeight:0 }}>
                         {selDoctor ? (() => {
@@ -1514,7 +1509,7 @@ export default function PatientDashboard() {
                               {/* Doctor card */}
                               <div style={{ display:'flex', alignItems:'center', gap:14, padding:'16px 20px', borderRadius:18, background:'var(--frame)', border:'1px solid var(--line)', width:'100%', maxWidth:320 }}>
                                 <div style={{ position:'relative', flexShrink:0 }}>
-                                  <div style={{ width:52, height:52, borderRadius:15, background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:16, fontWeight:700, color:'white', boxShadow:'0 4px 16px -4px rgba(122,77,255,0.4)' }}>{selDoctor.avatar}</div>
+                                  <div style={{ width:52, height:52, borderRadius:15, background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'grid', placeItems:'center', fontSize:16, fontWeight:700, color:'white', boxShadow:'0 4px 16px -4px rgba(124,58,237,0.4)' }}>{selDoctor.avatar}</div>
                                   <div style={{ position:'absolute', bottom:-2, right:-2, width:14, height:14, borderRadius:'50%', background:'#22c55e', border:'2.5px solid var(--frame)' }} />
                                 </div>
                                 <div style={{ flex:1, textAlign:'left' }}>
@@ -1524,7 +1519,7 @@ export default function PatientDashboard() {
                               </div>
                               {/* Lock icon */}
                               <div style={{ position:'relative' }}>
-                                <div style={{ width:80, height:80, borderRadius:24, background: isDenied?'rgba(239,68,68,0.08)':'linear-gradient(135deg,rgba(6,182,212,0.1),rgba(122,77,255,0.08))', border: isDenied?'1px solid rgba(239,68,68,0.25)':'1px solid rgba(6,182,212,0.25)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                                <div style={{ width:80, height:80, borderRadius:24, background: isDenied?'rgba(239,68,68,0.08)':'linear-gradient(135deg,rgba(6,182,212,0.1),rgba(124,58,237,0.08))', border: isDenied?'1px solid rgba(239,68,68,0.25)':'1px solid rgba(6,182,212,0.25)', display:'flex', alignItems:'center', justifyContent:'center' }}>
                                   <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke={isDenied?'#ef4444':'#06b6d4'} strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                                 </div>
                               </div>
@@ -1540,7 +1535,7 @@ export default function PatientDashboard() {
                               </div>
                               <motion.button whileHover={{ y:-2, scale:1.02 }} whileTap={{ scale:.97 }}
                                 onClick={() => { requestChatPermission(user.id, user.name, user.avatar, selDoctor.id); setPermRefresh(r=>r+1); }}
-                                style={{ padding:'13px 28px', borderRadius:16, fontSize:14, fontWeight:700, color:'white', background: isDenied?'linear-gradient(135deg,#f97316,#ff3d6e)':'linear-gradient(135deg,#0ea5e9,#06b6d4 50%,#7a4dff)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', gap:10, boxShadow: isDenied?'0 8px 24px -6px rgba(249,115,22,0.5)':'0 8px 24px -6px rgba(6,182,212,0.5)' }}>
+                                style={{ padding:'13px 28px', borderRadius:16, fontSize:14, fontWeight:700, color:'white', background: isDenied?'linear-gradient(135deg,#f97316,#ef4444)':'linear-gradient(135deg,#0ea5e9,#06b6d4 50%,#7c3aed)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', gap:10, boxShadow: isDenied?'0 8px 24px -6px rgba(249,115,22,0.5)':'0 8px 24px -6px rgba(6,182,212,0.5)' }}>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                                 {isDenied ? 'Send New Request' : 'Request Chat Access'}
                               </motion.button>
@@ -1549,7 +1544,7 @@ export default function PatientDashboard() {
                         })() : (
                           <div style={{ flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:20,padding:'40px 32px',textAlign:'center' }}>
                             <motion.div initial={{ scale:.85,opacity:0 }} animate={{ scale:1,opacity:1 }} transition={{ type:'spring',stiffness:200,delay:.15 }}
-                              style={{ width:84,height:84,borderRadius:24,background:'linear-gradient(135deg,rgba(6,182,212,0.1),rgba(122,77,255,0.1))',border:'1px solid rgba(6,182,212,0.2)',display:'flex',alignItems:'center',justifyContent:'center' }}>
+                              style={{ width:84,height:84,borderRadius:24,background:'linear-gradient(135deg,rgba(6,182,212,0.1),rgba(124,58,237,0.1))',border:'1px solid rgba(6,182,212,0.2)',display:'flex',alignItems:'center',justifyContent:'center' }}>
                               <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                             </motion.div>
                             <div>
@@ -1567,10 +1562,10 @@ export default function PatientDashboard() {
                                   const unread = conv?.unreadCount || 0;
                                   return (
                                     <motion.button key={d.id} whileHover={{ y:-2 }} onClick={() => setSelDoctor(d)}
-                                      style={{ display:'flex',alignItems:'center',gap:9,padding:'10px 16px',borderRadius:14,border:`1px solid ${unread>0?'rgba(255,61,110,0.3)':'var(--line)'}`,background:unread>0?'rgba(255,61,110,0.05)':'var(--bg)',cursor:'pointer',fontSize:12,fontWeight:600,color:'var(--ink-2)',transition:'all .2s',position:'relative' }}>
-                                      <div style={{ width:28,height:28,borderRadius:8,background:'linear-gradient(135deg,#ff7a9c,#7a4dff)',display:'grid',placeItems:'center',fontSize:9,fontWeight:700,color:'white' }}>{d.avatar}</div>
+                                      style={{ display:'flex',alignItems:'center',gap:9,padding:'10px 16px',borderRadius:14,border:`1px solid ${unread>0?'rgba(6,182,212,0.3)':'var(--line)'}`,background:unread>0?'rgba(6,182,212,0.05)':'var(--bg)',cursor:'pointer',fontSize:12,fontWeight:600,color:'var(--ink-2)',transition:'all .2s',position:'relative' }}>
+                                      <div style={{ width:28,height:28,borderRadius:8,background:'linear-gradient(135deg,#0ea5e9,#7c3aed)',display:'grid',placeItems:'center',fontSize:9,fontWeight:700,color:'white' }}>{d.avatar}</div>
                                       <span>{d.name.replace('Dr. ','Dr.')}</span>
-                                      {unread > 0 && <span style={{ width:8,height:8,borderRadius:'50%',background:'#ff3d6e',display:'inline-block' }} />}
+                                      {unread > 0 && <span style={{ width:8,height:8,borderRadius:'50%',background:'#06b6d4',display:'inline-block' }} />}
                                     </motion.button>
                                   );
                                 })}
@@ -1578,7 +1573,7 @@ export default function PatientDashboard() {
                             ) : (
                               <div style={{ display:'flex',gap:10,flexWrap:'wrap',justifyContent:'center' }}>
                                 <motion.button whileHover={{ y:-1 }} onClick={() => setBookingOpen(true)}
-                                  style={{ padding:'10px 20px',borderRadius:12,fontSize:13,fontWeight:600,color:'white',background:'linear-gradient(135deg,#0ea5e9,#7a4dff)',border:'none',cursor:'pointer',boxShadow:'0 4px 16px -4px rgba(14,165,233,0.5)' }}>
+                                  style={{ padding:'10px 20px',borderRadius:12,fontSize:13,fontWeight:600,color:'white',background:'linear-gradient(135deg,#0ea5e9,#7c3aed)',border:'none',cursor:'pointer',boxShadow:'0 4px 16px -4px rgba(14,165,233,0.5)' }}>
                                   Book Appointment →
                                 </motion.button>
                                 <motion.button whileHover={{ y:-1 }} onClick={() => setNewChatOpen(true)}
@@ -1599,14 +1594,14 @@ export default function PatientDashboard() {
 
           {/* ── Reviews ── */}
           {tab === 'Reviews' && (
-            <motion.div key="reviews" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }}>
+            <motion.div key="reviews" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }} style={{ paddingRight:72 }}>
               <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:24 }}>
                 <div>
                   <h2 className="font-serif" style={{ fontSize:26, fontWeight:400, color:'var(--ink)', marginBottom:2 }}>Doctor Reviews</h2>
                   <p style={{ fontSize:13, color:'var(--ink-3)' }}>Ratings and feedback from our patients</p>
                 </div>
                 <motion.button whileHover={{ y:-2 }} whileTap={{ scale:.97 }} onClick={() => setReviewOpen(true)}
-                  style={{ padding:'11px 20px', borderRadius:14, fontSize:13, fontWeight:600, color:'white', background:'linear-gradient(135deg,#f59e0b,#ff7a9c 50%,#7a4dff)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', gap:8, boxShadow:'0 6px 20px -6px rgba(245,158,11,0.4)' }}>
+                  style={{ padding:'11px 20px', borderRadius:14, fontSize:13, fontWeight:600, color:'white', background:'linear-gradient(135deg,#f59e0b,#0ea5e9 50%,#7c3aed)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', gap:8, boxShadow:'0 6px 20px -6px rgba(245,158,11,0.4)' }}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                   Write a Review
                 </motion.button>
@@ -1628,7 +1623,7 @@ export default function PatientDashboard() {
                         <div style={{ padding:'20px 22px' }}>
                           <div style={{ display:'flex', alignItems:'center', gap:16 }}>
                             <div style={{ position:'relative', flexShrink:0 }}>
-                              <div style={{ width:54, height:54, borderRadius:15, background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:17, fontWeight:700, color:'white', boxShadow:'0 6px 16px -4px rgba(255,61,110,0.4)' }}>{doc.avatar}</div>
+                              <div style={{ width:54, height:54, borderRadius:15, background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'grid', placeItems:'center', fontSize:17, fontWeight:700, color:'white', boxShadow:'0 6px 16px -4px rgba(6,182,212,0.4)' }}>{doc.avatar}</div>
                               <div style={{ position:'absolute', bottom:-2, right:-2, width:16, height:16, borderRadius:'50%', background:'#22c55e', border:'2.5px solid var(--frame)', display:'grid', placeItems:'center' }}>
                                 <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><polyline points="1 5 4 8 9 2" stroke="white" strokeWidth="1.8" fill="none" strokeLinecap="round"/></svg>
                               </div>
@@ -1646,7 +1641,7 @@ export default function PatientDashboard() {
                             </div>
                             <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
                               <button onClick={() => { setReviewOpen(true); }}
-                                style={{ padding:'7px 13px', borderRadius:10, fontSize:12, fontWeight:600, color: myReview ? '#f59e0b' : '#7a4dff', background: myReview ? 'rgba(245,158,11,0.08)' : 'rgba(122,77,255,0.08)', border: myReview ? '1px solid rgba(245,158,11,0.2)' : '1px solid rgba(122,77,255,0.2)', cursor:'pointer' }}>
+                                style={{ padding:'7px 13px', borderRadius:10, fontSize:12, fontWeight:600, color: myReview ? '#f59e0b' : '#7c3aed', background: myReview ? 'rgba(245,158,11,0.08)' : 'rgba(124,58,237,0.08)', border: myReview ? '1px solid rgba(245,158,11,0.2)' : '1px solid rgba(124,58,237,0.2)', cursor:'pointer' }}>
                                 {myReview ? '✏ Edit Review' : '+ Review'}
                               </button>
                               {reviews.length > 0 && (
@@ -1671,7 +1666,7 @@ export default function PatientDashboard() {
                                   <motion.div key={r.id} initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ delay:ri*.05 }}
                                     style={{ padding:'14px 16px', borderRadius:14, background:'var(--bg)', border:'1px solid var(--line)', position:'relative' }}>
                                     {r.patientId === user.id && (
-                                      <div style={{ position:'absolute', top:10, right:12, fontSize:10, fontWeight:600, padding:'2px 7px', borderRadius:100, background:'rgba(122,77,255,0.1)', color:'#7a4dff', border:'1px solid rgba(122,77,255,0.2)' }}>Your review</div>
+                                      <div style={{ position:'absolute', top:10, right:12, fontSize:10, fontWeight:600, padding:'2px 7px', borderRadius:100, background:'rgba(124,58,237,0.1)', color:'#7c3aed', border:'1px solid rgba(124,58,237,0.2)' }}>Your review</div>
                                     )}
                                     <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
                                       <div style={{ width:32, height:32, borderRadius:'50%', background:'linear-gradient(135deg,#0ea5e9,#06b6d4)', display:'grid', placeItems:'center', fontSize:10, fontWeight:700, color:'white', flexShrink:0 }}>{r.patientAvatar}</div>
@@ -1687,13 +1682,13 @@ export default function PatientDashboard() {
                                     {r.doctorResponse && (
                                       <motion.div initial={{ opacity:0, y:4 }} animate={{ opacity:1, y:0 }} transition={{ delay:.1 }}
                                         style={{ marginTop:12, paddingTop:12, borderTop:'1px dashed var(--line)', display:'flex', gap:10 }}>
-                                        <div style={{ width:28, height:28, borderRadius:'50%', background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:9, fontWeight:700, color:'white', flexShrink:0 }}>
+                                        <div style={{ width:28, height:28, borderRadius:'50%', background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'grid', placeItems:'center', fontSize:9, fontWeight:700, color:'white', flexShrink:0 }}>
                                           {(r.doctorName||'').split(' ').filter(w=>/[A-Z]/.test(w[0])).map(w=>w[0]).join('').slice(0,2)||'DR'}
                                         </div>
                                         <div style={{ flex:1 }}>
                                           <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:5 }}>
                                             <span style={{ fontSize:11, fontWeight:700, color:'var(--ink)' }}>{r.doctorName}</span>
-                                            <span style={{ fontSize:9, fontWeight:700, padding:'2px 6px', borderRadius:100, background:'rgba(255,61,110,0.08)', border:'1px solid rgba(255,61,110,0.18)', color:'#ff6a8d', letterSpacing:'0.05em' }}>DOCTOR</span>
+                                            <span style={{ fontSize:9, fontWeight:700, padding:'2px 6px', borderRadius:100, background:'rgba(6,182,212,0.08)', border:'1px solid rgba(6,182,212,0.18)', color:'#22d3ee', letterSpacing:'0.05em' }}>DOCTOR</span>
                                             {r.responseDate && <span style={{ fontSize:10, color:'var(--ink-3)', marginLeft:'auto' }}>{timeAgo(r.responseDate)}</span>}
                                           </div>
                                           <p style={{ fontSize:12, color:'var(--ink-2)', lineHeight:1.6, margin:0 }}>{r.doctorResponse}</p>
@@ -1737,7 +1732,7 @@ export default function PatientDashboard() {
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:#f4f6fb;color:#1a1a2e;padding:40px 20px}
 .wrap{max-width:860px;margin:0 auto}
-.hdr{background:linear-gradient(135deg,#ff3d6e,#7a4dff);border-radius:20px;padding:36px 40px;color:#fff;margin-bottom:28px;display:flex;align-items:center;gap:20px}
+.hdr{background:linear-gradient(135deg,#06b6d4,#7c3aed);border-radius:20px;padding:36px 40px;color:#fff;margin-bottom:28px;display:flex;align-items:center;gap:20px}
 .hdr-logo{width:56px;height:56px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
 .hdr h1{font-size:22px;font-weight:700;margin-bottom:4px}
 .hdr p{font-size:13px;opacity:.8}
@@ -1758,7 +1753,7 @@ td:first-child{font-weight:600;color:#666;width:45%;padding-right:16px}
 .conf-bar-wrap{flex:1;height:6px;border-radius:100px;background:#f0f0f0;overflow:hidden}
 .conf-bar{height:100%;border-radius:100px}
 .conf-val{font-size:11px;width:36px;text-align:right;color:#888}
-.note-box{background:#f8f0ff;border-left:4px solid #7a4dff;padding:14px 18px;border-radius:10px;font-size:13px;font-style:italic;line-height:1.6;color:#3d2a6e}
+.note-box{background:#f8f0ff;border-left:4px solid #7c3aed;padding:14px 18px;border-radius:10px;font-size:13px;font-style:italic;line-height:1.6;color:#3d2a6e}
 .footer{text-align:center;font-size:11px;color:#aaa;margin-top:28px;padding-top:20px;border-top:1px solid #eee}
 </style></head>
 <body><div class="wrap">
@@ -1783,7 +1778,7 @@ ${rd.tumorClass ? `<div class="card tumor">
     ${rd.tumorPixels ? `<tr><td>Segmented Region</td><td>${rd.tumorPixels.toLocaleString()} pixels</td></tr>` : ''}
   </table>
   ${rd.allConfidences ? `<div style="margin-top:16px">${Object.entries(rd.allConfidences).map(([cls,val])=>{
-    const color = cls==='notumor'?'#22c55e':cls==='glioma'?'#E24B4A':cls==='meningioma'?'#f59e0b':'#7a4dff';
+    const color = cls==='notumor'?'#22c55e':cls==='glioma'?'#E24B4A':cls==='meningioma'?'#f59e0b':'#7c3aed';
     return `<div class="conf-row"><div class="conf-label">${TC[cls]||cls}</div><div class="conf-bar-wrap"><div class="conf-bar" style="width:${val}%;background:${color}"></div></div><div class="conf-val">${val}%</div></div>`;
   }).join('')}</div>` : ''}
   ${(rd.overlayB64||rd.maskB64) ? `<div class="imgs">${rd.overlayB64?`<figure><img src="data:image/png;base64,${rd.overlayB64}"/><figcaption>Segmentation Overlay</figcaption></figure>`:''}${rd.maskB64?`<figure><img src="data:image/png;base64,${rd.maskB64}"/><figcaption>Mask</figcaption></figure>`:''}</div>` : ''}
@@ -1797,7 +1792,7 @@ ${rd.strokeDetected !== undefined ? `<div class="card stroke">
   </table>
   ${(rd.strokeOverlayB64||rd.strokeHeatmapB64) ? `<div class="imgs"><figure><img src="data:image/png;base64,${rd.strokeOverlayB64||rd.strokeHeatmapB64}"/><figcaption>Grad-CAM Overlay</figcaption></figure></div>` : ''}
 </div>` : ''}
-${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4dff">Physician Note</div><div class="note-box">"${rd.doctorNote}"</div></div>` : ''}
+${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7c3aed">Physician Note</div><div class="note-box">"${rd.doctorNote}"</div></div>` : ''}
 <div class="footer">Generated by MedVision Platform &nbsp;·&nbsp; This report is intended for medical use only<br/>MedVision &copy; 2026</div>
 </div></body></html>`;
               const blob = new Blob([html], { type:'text/html' });
@@ -1808,7 +1803,7 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
             };
 
             return (
-              <motion.div key="reports" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }}>
+              <motion.div key="reports" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }} style={{ paddingRight:72 }}>
 
                 {/* Header */}
                 <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginBottom:24 }}>
@@ -1872,11 +1867,11 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
                   <motion.div initial={{ opacity:0, scale:.97 }} animate={{ opacity:1, scale:1 }} transition={{ delay:.1 }}
                     className="glass-card" style={{ padding:'72px 40px', textAlign:'center', position:'relative', overflow:'hidden' }}>
                     <div style={{ position:'absolute', inset:0, pointerEvents:'none' }}>
-                      <div style={{ position:'absolute', top:'20%', left:'50%', transform:'translateX(-50%)', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle,rgba(122,77,255,0.07),transparent 70%)', filter:'blur(40px)' }} />
+                      <div style={{ position:'absolute', top:'20%', left:'50%', transform:'translateX(-50%)', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle,rgba(124,58,237,0.07),transparent 70%)', filter:'blur(40px)' }} />
                     </div>
                     <div style={{ position:'relative' }}>
-                      <div style={{ width:80, height:80, borderRadius:24, background:'linear-gradient(135deg,rgba(122,77,255,0.12),rgba(6,182,212,0.08))', border:'1px solid rgba(122,77,255,0.2)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px' }}>
-                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7a4dff" strokeWidth="1.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                      <div style={{ width:80, height:80, borderRadius:24, background:'linear-gradient(135deg,rgba(124,58,237,0.12),rgba(6,182,212,0.08))', border:'1px solid rgba(124,58,237,0.2)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px' }}>
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="1.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                       </div>
                       <div style={{ fontSize:17, fontWeight:700, color:'var(--ink)', marginBottom:8 }}>No Reports Yet</div>
                       <div style={{ fontSize:13, color:'var(--ink-3)', lineHeight:1.7, maxWidth:320, margin:'0 auto' }}>
@@ -1918,7 +1913,7 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
                             <div style={{ padding:'18px 22px' }}>
                               <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:14 }}>
                                 {/* Doctor avatar */}
-                                <div style={{ width:46, height:46, borderRadius:13, background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:14, fontWeight:700, color:'white', flexShrink:0, boxShadow:'0 4px 12px -4px rgba(122,77,255,0.4)' }}>
+                                <div style={{ width:46, height:46, borderRadius:13, background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'grid', placeItems:'center', fontSize:14, fontWeight:700, color:'white', flexShrink:0, boxShadow:'0 4px 12px -4px rgba(124,58,237,0.4)' }}>
                                   {rep.fromAvatar || rep.fromName?.slice(0,2).toUpperCase() || 'Dr'}
                                 </div>
                                 <div style={{ flex:1, minWidth:0 }}>
@@ -1968,7 +1963,7 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
                                   </div>
                                 )}
                                 {rd.doctorNote && (
-                                  <div style={{ padding:'7px 12px', borderRadius:10, background:'rgba(122,77,255,0.04)', border:'1px solid rgba(122,77,255,0.15)', flex:'2 1 200px' }}>
+                                  <div style={{ padding:'7px 12px', borderRadius:10, background:'rgba(124,58,237,0.04)', border:'1px solid rgba(124,58,237,0.15)', flex:'2 1 200px' }}>
                                     <div style={{ fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'.08em', color:'var(--ink-3)', marginBottom:4 }}>Physician Note</div>
                                     <div style={{ fontSize:12, color:'var(--ink-2)', fontStyle:'italic', lineHeight:1.5, overflow:'hidden', display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical' }}>"{rd.doctorNote}"</div>
                                   </div>
@@ -1983,9 +1978,9 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
                                   <motion.svg animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration:.25 }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></motion.svg>
                                   {isExpanded ? 'Collapse' : 'View Full Report'}
                                 </motion.button>
-                                <motion.button whileHover={{ y:-1, boxShadow:'0 8px 20px -6px rgba(122,77,255,0.4)' }} whileTap={{ scale:.97 }}
+                                <motion.button whileHover={{ y:-1, boxShadow:'0 8px 20px -6px rgba(124,58,237,0.4)' }} whileTap={{ scale:.97 }}
                                   onClick={() => downloadReport(rep)}
-                                  style={{ padding:'0 18px', height:38, borderRadius:11, fontSize:12, fontWeight:700, border:'none', background:'linear-gradient(135deg,#7a4dff,#ff3d6e)', cursor:'pointer', display:'flex', alignItems:'center', gap:6, color:'white', flexShrink:0 }}>
+                                  style={{ padding:'0 18px', height:38, borderRadius:11, fontSize:12, fontWeight:700, border:'none', background:'linear-gradient(135deg,#7c3aed,#06b6d4)', cursor:'pointer', display:'flex', alignItems:'center', gap:6, color:'white', flexShrink:0 }}>
                                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                   Download
                                 </motion.button>
@@ -1996,7 +1991,7 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
                             <AnimatePresence>
                               {isExpanded && (
                                 <motion.div initial={{ height:0, opacity:0 }} animate={{ height:'auto', opacity:1 }} exit={{ height:0, opacity:0 }} transition={{ duration:.35 }}
-                                  style={{ overflow:'hidden', borderTop:'1px solid var(--line)', background:'linear-gradient(135deg,rgba(122,77,255,0.02),rgba(6,182,212,0.02))' }}>
+                                  style={{ overflow:'hidden', borderTop:'1px solid var(--line)', background:'linear-gradient(135deg,rgba(124,58,237,0.02),rgba(6,182,212,0.02))' }}>
                                   <div style={{ padding:'20px 22px', display:'flex', flexDirection:'column', gap:16 }}>
 
                                     {/* Scan images */}
@@ -2036,7 +2031,7 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
                                         <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
                                           {Object.entries(rd.allConfidences).map(([cls, val]) => {
                                             const isActive = cls === rd.tumorClass;
-                                            const barColor = cls==='notumor'?'#22c55e':cls==='glioma'?'#E24B4A':cls==='meningioma'?'#f59e0b':'#7a4dff';
+                                            const barColor = cls==='notumor'?'#22c55e':cls==='glioma'?'#E24B4A':cls==='meningioma'?'#f59e0b':'#7c3aed';
                                             return (
                                               <div key={cls} style={{ display:'flex', alignItems:'center', gap:10 }}>
                                                 <span style={{ fontSize:11, width:100, flexShrink:0, color: isActive?'var(--ink)':'var(--ink-3)', fontWeight: isActive?700:400 }}>
@@ -2058,8 +2053,8 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
                                     {rd.doctorNote && (
                                       <div>
                                         <div style={{ fontSize:10, fontWeight:700, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--ink-3)', marginBottom:10 }}>Physician Note</div>
-                                        <div style={{ padding:'14px 16px', borderRadius:12, background:'rgba(122,77,255,0.05)', border:'1px solid rgba(122,77,255,0.15)', display:'flex', gap:12, alignItems:'flex-start' }}>
-                                          <div style={{ width:32, height:32, borderRadius:9, background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', flexShrink:0 }}>
+                                        <div style={{ padding:'14px 16px', borderRadius:12, background:'rgba(124,58,237,0.05)', border:'1px solid rgba(124,58,237,0.15)', display:'flex', gap:12, alignItems:'flex-start' }}>
+                                          <div style={{ width:32, height:32, borderRadius:9, background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'grid', placeItems:'center', flexShrink:0 }}>
                                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                                           </div>
                                           <div>
@@ -2100,31 +2095,6 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
                 )}
 
                 {/* General reports section */}
-                {reportFilter === 'all' && (
-                  <div style={{ marginTop:30 }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:14 }}>
-                      <div style={{ height:1, flex:1, background:'var(--line)' }} />
-                      <span style={{ fontSize:11, fontWeight:700, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--ink-3)', padding:'0 10px' }}>General Records</span>
-                      <div style={{ height:1, flex:1, background:'var(--line)' }} />
-                    </div>
-                    <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-                      {REPORTS.map((r, i) => (
-                        <motion.div key={i} initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:i*.06 }}
-                          className="glass-card" style={{ padding:'16px 20px', display:'flex', alignItems:'center', gap:14 }}>
-                          <div style={{ width:42, height:42, borderRadius:12, background:'var(--frame)', border:'1px solid var(--line)', display:'grid', placeItems:'center', fontSize:20, flexShrink:0 }}>{r.icon}</div>
-                          <div style={{ flex:1 }}>
-                            <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)', marginBottom:2 }}>{r.title}</div>
-                            <div style={{ fontSize:11, color:'var(--ink-3)' }}>{r.date}</div>
-                          </div>
-                          <div style={{ padding:'3px 10px', borderRadius:100, background:'rgba(34,197,94,0.1)', border:'1px solid rgba(34,197,94,0.2)', fontSize:10, fontWeight:700, color:'#22c55e' }}>{r.status}</div>
-                          <button style={{ padding:'7px 14px', borderRadius:9, fontSize:11, fontWeight:600, color:'var(--ink-2)', background:'var(--frame)', border:'1px solid var(--line)', cursor:'pointer' }}>
-                            Download
-                          </button>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
               </motion.div>
             );
@@ -2132,7 +2102,7 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
 
           {/* ── AI Insights ── */}
           {tab === 'AI Insights' && (
-            <motion.div key="ai" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }}>
+            <motion.div key="ai" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }} style={{ paddingRight:72 }}>
 
               {/* Header row */}
               <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:28, gap:16 }}>
@@ -2150,7 +2120,7 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
                   whileHover={{ scale:1.04 }} whileTap={{ scale:.96 }}
                   onClick={fetchTips}
                   disabled={tipsLoading}
-                  style={{ display:'flex', alignItems:'center', gap:8, padding:'11px 22px', borderRadius:14, border:'none', cursor:tipsLoading?'not-allowed':'pointer', background:'linear-gradient(135deg,#ff3d6e,#7a4dff)', color:'white', fontSize:13, fontWeight:700, flexShrink:0, opacity:tipsLoading?.6:1, whiteSpace:'nowrap' }}>
+                  style={{ display:'flex', alignItems:'center', gap:8, padding:'11px 22px', borderRadius:14, border:'none', cursor:tipsLoading?'not-allowed':'pointer', background:'linear-gradient(135deg,#06b6d4,#7c3aed)', color:'white', fontSize:13, fontWeight:700, flexShrink:0, opacity:tipsLoading?.6:1, whiteSpace:'nowrap' }}>
                   <motion.span animate={{ rotate: tipsLoading ? 360 : 0 }} transition={{ duration:1, repeat: tipsLoading ? Infinity : 0, ease:'linear' }}>
                     ✨
                   </motion.span>
@@ -2167,10 +2137,10 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
                       <motion.div key={i}
                         animate={{ scale:[1, 2.2, 1], opacity:[0.5, 0, 0.5] }}
                         transition={{ repeat:Infinity, duration:2.4, delay:i * 0.7 }}
-                        style={{ position:'absolute', inset:-(i+1)*14, borderRadius:'50%', border:'1.5px solid rgba(122,77,255,0.25)' }} />
+                        style={{ position:'absolute', inset:-(i+1)*14, borderRadius:'50%', border:'1.5px solid rgba(124,58,237,0.25)' }} />
                     ))}
                     <motion.div animate={{ scale:[1, 1.06, 1], rotate:[0, 3, -3, 0] }} transition={{ repeat:Infinity, duration:3, ease:'easeInOut' }}
-                      style={{ width:100, height:100, borderRadius:28, background:'linear-gradient(135deg,rgba(255,61,110,0.12),rgba(122,77,255,0.15))', border:'1px solid rgba(122,77,255,0.25)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:48 }}>
+                      style={{ width:100, height:100, borderRadius:28, background:'linear-gradient(135deg,rgba(6,182,212,0.12),rgba(124,58,237,0.15))', border:'1px solid rgba(124,58,237,0.25)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:48 }}>
                       🧠
                     </motion.div>
                   </div>
@@ -2182,7 +2152,7 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, width:'100%', maxWidth:680 }}>
                     {[0,1,2,4].map(i => (
                       <motion.div key={i} animate={{ opacity:[0.4,0.8,0.4] }} transition={{ repeat:Infinity, duration:1.8, delay:i*0.2 }}
-                        className="glass-card" style={{ padding:22, borderTop:'4px solid rgba(122,77,255,0.2)' }}>
+                        className="glass-card" style={{ padding:22, borderTop:'4px solid rgba(124,58,237,0.2)' }}>
                         <div style={{ width:44, height:44, borderRadius:12, background:'var(--line)', marginBottom:14 }} />
                         <div style={{ height:12, width:'60%', borderRadius:6, background:'var(--line)', marginBottom:8 }} />
                         <div style={{ height:10, width:'90%', borderRadius:6, background:'var(--line)', marginBottom:6 }} />
@@ -2211,12 +2181,12 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
                 <div>
                   {/* Headline banner */}
                   <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:.05 }}
-                    style={{ padding:'18px 24px', borderRadius:18, marginBottom:20, background:'linear-gradient(135deg,rgba(255,61,110,0.07),rgba(122,77,255,0.1))', border:'1px solid rgba(122,77,255,0.18)', display:'flex', alignItems:'center', gap:14, position:'relative', overflow:'hidden' }}>
+                    style={{ padding:'18px 24px', borderRadius:18, marginBottom:20, background:'linear-gradient(135deg,rgba(6,182,212,0.07),rgba(124,58,237,0.1))', border:'1px solid rgba(124,58,237,0.18)', display:'flex', alignItems:'center', gap:14, position:'relative', overflow:'hidden' }}>
                     <div style={{ position:'absolute', right:-20, top:-20, fontSize:100, opacity:.06, userSelect:'none' }}>🧠</div>
                     <motion.div animate={{ rotate:[0, 8, -8, 0] }} transition={{ repeat:Infinity, duration:4, ease:'easeInOut' }}
                       style={{ fontSize:36, flexShrink:0 }}>🧠</motion.div>
                     <div>
-                      <div style={{ fontSize:11, fontWeight:700, letterSpacing:'.1em', textTransform:'uppercase', color:'#7a4dff', marginBottom:4 }}>Today's Briefing</div>
+                      <div style={{ fontSize:11, fontWeight:700, letterSpacing:'.1em', textTransform:'uppercase', color:'#7c3aed', marginBottom:4 }}>Today's Briefing</div>
                       <div style={{ fontSize:18, fontWeight:800, color:'var(--ink)', lineHeight:1.3 }}>{tipsHeadline}</div>
                     </div>
                     <div style={{ marginLeft:'auto', flexShrink:0, padding:'5px 12px', borderRadius:100, background:'rgba(34,197,94,0.1)', border:'1px solid rgba(34,197,94,0.25)', fontSize:11, fontWeight:700, color:'#22c55e', display:'flex', alignItems:'center', gap:5 }}>
@@ -2240,7 +2210,7 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
                             <span style={{ padding:'3px 10px', borderRadius:100, background:`${tips[0].color}18`, border:`1px solid ${tips[0].color}35`, fontSize:10, fontWeight:700, color:tips[0].color, letterSpacing:'.06em', textTransform:'uppercase' }}>
                               {tips[0].category}
                             </span>
-                            <span style={{ padding:'3px 10px', borderRadius:100, background:'rgba(122,77,255,0.08)', border:'1px solid rgba(122,77,255,0.18)', fontSize:10, fontWeight:600, color:'var(--ink-3)' }}>
+                            <span style={{ padding:'3px 10px', borderRadius:100, background:'rgba(124,58,237,0.08)', border:'1px solid rgba(124,58,237,0.18)', fontSize:10, fontWeight:600, color:'var(--ink-3)' }}>
                               🔄 {tips[0].urgency}
                             </span>
                             <span style={{ marginLeft:'auto', fontSize:10, color:'var(--ink-3)', fontWeight:500 }}>⭐ Featured</span>
@@ -2281,7 +2251,7 @@ ${rd.doctorNote ? `<div class="card"><div class="card-title" style="color:#7a4df
 
                   {/* Footer */}
                   <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:.6 }}
-                    style={{ marginTop:20, padding:'14px 20px', borderRadius:14, background:'var(--bg)', border:'1px solid var(--line)', display:'flex', alignItems:'center', gap:12, fontSize:12, color:'var(--ink-3)' }}>
+                    style={{ marginTop:20, marginBottom:24, padding:'14px 20px', borderRadius:14, background:'var(--bg)', border:'1px solid var(--line)', display:'flex', alignItems:'center', gap:12, fontSize:12, color:'var(--ink-3)' }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                     Tips are AI-generated for educational purposes. Always consult your doctor for medical advice.
                     <button onClick={fetchTips} style={{ marginLeft:'auto', padding:'5px 14px', borderRadius:10, border:'1px solid var(--line)', background:'var(--frame)', color:'var(--ink-2)', fontSize:11, fontWeight:600, cursor:'pointer', flexShrink:0 }}>

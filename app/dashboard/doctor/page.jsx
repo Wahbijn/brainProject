@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -14,11 +14,79 @@ import {
 import Particles from '@/components/Particles';
 import BrainScanTab from '@/components/BrainScanTab';
 
-const LOCKED_FEATURES = [
-  { id:'patients',     title:'Patient Records',      description:'View and manage patient medical histories, diagnoses, and treatment plans.', color:'#06b6d4', preview:['P. Alex Morgan','P. Jordan Lee','P. Casey Kim','+ 24 more'], icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
-  { id:'diagnostics',  title:'AI Diagnostics',       description:'Leverage MedVision AI for advanced diagnostic analysis and pattern recognition.', color:'#ff3d6e', preview:['MRI Analysis','ECG Interpretation','Lab Results AI','Risk Scoring'], icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12"/><path d="M12 6v6l4 2"/></svg> },
-  { id:'prescriptions',title:'E-Prescriptions',      description:'Issue digital prescriptions with AI-assisted drug interaction checks.', color:'#22c55e', preview:['New Prescription','Drug Interactions','Patient History','Refill Requests'], icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12h8M12 8v8"/></svg> },
-  { id:'analytics',   title:'Analytics & Reports',  description:'Review patient outcomes, treatment effectiveness, and performance metrics.', color:'#7a4dff', preview:['Patient Trends','Treatment Rates','Monthly Report','AI Insights'], icon:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> },
+const PREMIUM_FEATURES = [
+  {
+    id: 'brain-scan',
+    title: 'Neural Brain Scan AI',
+    subtitle: 'MRI · Tumor · Stroke Detection',
+    description: 'Upload MRI scans for instant AI classification: Glioma, Meningioma, Pituitary tumors & Stroke with confidence scoring.',
+    gradient: 'linear-gradient(135deg,#7c3aed,#0ea5e9)',
+    glowColor: 'rgba(124,58,237,0.4)',
+    accent: '#a78bfa',
+    badge: '97.4% Accuracy',
+    stats: [{ label:'AI Models', value:'2 Active' }, { label:'Classes', value:'5 types' }],
+    items: [
+      { dot:'#E24B4A', label:'Glioma Detection',    tag:'94%' },
+      { dot:'#EF9F27', label:'Meningioma Analysis', tag:'88%' },
+      { dot:'#7C3AED', label:'Stroke Screening',    tag:'91%' },
+      { dot:'#1D9E75', label:'Clear MRI Verified',  tag:'99%' },
+    ],
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9.5 2a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z"/><path d="M14.5 2a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z"/><path d="M3 10a9 9 0 0 1 18 0c0 4.97-4.03 9-9 9S3 14.97 3 10z"/><path d="M12 10v4"/><circle cx="12" cy="15" r="0.8" fill="white" stroke="white"/></svg>,
+  },
+  {
+    id: 'ai-chatbot',
+    title: 'MedVision AI Companion',
+    subtitle: 'Groq-Powered · Sub-second Response',
+    description: 'Real-time AI health guidance, clinical decision support, and patient education powered by Groq LLM.',
+    gradient: 'linear-gradient(135deg,#0ea5e9,#22c55e)',
+    glowColor: 'rgba(6,182,212,0.4)',
+    accent: '#22d3ee',
+    badge: 'Groq AI',
+    stats: [{ label:'Response', value:'<1s' }, { label:'Topics', value:'100+' }],
+    items: [
+      { dot:'#22d3ee', label:'Brain health protocols',   tag:'AI' },
+      { dot:'#f472b6', label:'Stroke prevention plans',  tag:'Personal' },
+      { dot:'#a78bfa', label:'Medication guidance',      tag:'Clinical' },
+      { dot:'#f59e0b', label:'Lab result interpretation',tag:'Instant' },
+    ],
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+  },
+  {
+    id: 'analytics',
+    title: 'Clinical Analytics Hub',
+    subtitle: 'Real-time · AI-Driven Insights',
+    description: 'Live dashboards tracking scan volumes, diagnosis distributions, patient outcomes & performance metrics.',
+    gradient: 'linear-gradient(135deg,#f59e0b,#ef4444)',
+    glowColor: 'rgba(245,158,11,0.4)',
+    accent: '#fbbf24',
+    badge: 'Live Data',
+    stats: [{ label:'Scans/mo', value:'+34%' }, { label:'Avg acc.', value:'96.1%' }],
+    items: [
+      { dot:'#fbbf24', label:'Scan volume trends',      tag:'↑ 12/wk' },
+      { dot:'#22c55e', label:'Top: No Tumor (61%)',      tag:'Most freq.' },
+      { dot:'#a78bfa', label:'Average confidence',       tag:'94.3%' },
+      { dot:'#f59e0b', label:'Doctor rating score',      tag:'4.8 ★' },
+    ],
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="3" y1="20" x2="21" y2="20"/></svg>,
+  },
+  {
+    id: 'messaging',
+    title: 'Secure Patient Comms',
+    subtitle: 'E2E Encrypted · HIPAA Compliant',
+    description: 'Real-time encrypted messaging, appointment coordination, and scan result delivery to patients.',
+    gradient: 'linear-gradient(135deg,#22c55e,#06b6d4)',
+    glowColor: 'rgba(34,197,94,0.4)',
+    accent: '#4ade80',
+    badge: 'E2E Secure',
+    stats: [{ label:'Delivery', value:'Instant' }, { label:'Encryption', value:'AES-256' }],
+    items: [
+      { dot:'#4ade80', label:'Appointment confirmations', tag:'Auto' },
+      { dot:'#22d3ee', label:'Scan result delivery',      tag:'Secure' },
+      { dot:'#a78bfa', label:'Treatment plan sharing',    tag:'PDF' },
+      { dot:'#f59e0b', label:'Patient Q&A threads',       tag:'Threaded' },
+    ],
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.79a16 16 0 0 0 6 6l.72-.72a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+  },
 ];
 
 const TABS = ['Overview', 'Schedule', 'Messages', 'Reviews', 'Profile', 'Brain Scan'];
@@ -42,7 +110,7 @@ function fmtDateLong(iso) {
   return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
 }
 
-function Avatar({ initials, size = 36, gradient = 'linear-gradient(135deg,#ff7a9c,#7a4dff)' }) {
+function Avatar({ initials, size = 36, gradient = 'linear-gradient(135deg,#0ea5e9,#7c3aed)' }) {
   return <div style={{ width:size, height:size, borderRadius:'50%', display:'grid', placeItems:'center', fontSize:size*0.32, fontWeight:700, color:'white', background:gradient, flexShrink:0 }}>{initials}</div>;
 }
 
@@ -113,8 +181,8 @@ function MiniCalendar({ appointments, year, month, onPrev, onNext, selected, onS
           return (
             <button key={day} onClick={() => onSelect(isSel ? null : ds)}
               style={{ aspectRatio:'1', borderRadius:8, fontSize:11, fontWeight:isToday||isSel?700:400, border:'none', cursor:'pointer', position:'relative', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:2,
-                background: isSel ? 'linear-gradient(135deg,#ff3d6e,#7a4dff)' : isToday ? 'rgba(255,61,110,0.12)' : statuses.length?'rgba(6,182,212,0.05)':'transparent',
-                color: isSel ? 'white' : isToday ? '#ff3d6e' : 'var(--ink-2)',
+                background: isSel ? 'linear-gradient(135deg,#06b6d4,#7c3aed)' : isToday ? 'rgba(6,182,212,0.12)' : statuses.length?'rgba(6,182,212,0.05)':'transparent',
+                color: isSel ? 'white' : isToday ? '#06b6d4' : 'var(--ink-2)',
               }}>
               {day}
               {statuses.length > 0 && !isSel && (
@@ -194,32 +262,104 @@ function ApptToast({ toast, onDismiss }) {
   );
 }
 
-/* ── Locked card (for unapproved doctors) ──────────────── */
-function LockedCard({ feature, locked }) {
+/* ── Premium feature card ──────────────────────────────── */
+function PremiumFeatureCard({ feature, locked, delay = 0 }) {
   return (
-    <div style={{ position:'relative', borderRadius:20, overflow:'hidden' }}>
-      <div className="glass-card" style={{ padding:22, filter:locked?'blur(3px)':'none', opacity:locked?0.45:1, pointerEvents:locked?'none':'auto', userSelect:locked?'none':'auto', transition:'all .3s' }}>
-        <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16 }}>
-          <div style={{ width:42, height:42, borderRadius:12, display:'flex', alignItems:'center', justifyContent:'center', color:feature.color, background:'rgba(0,0,0,0.06)', border:'1px solid rgba(0,0,0,0.08)' }}>{feature.icon}</div>
-          <div><div style={{ fontSize:15, fontWeight:600, color:'var(--ink)', marginBottom:2 }}>{feature.title}</div><div style={{ fontSize:12, color:'var(--ink-2)' }}>{feature.description}</div></div>
-        </div>
-        <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
-          {feature.preview.map((item, i) => (
-            <div key={i} style={{ display:'flex', alignItems:'center', gap:8, padding:'7px 10px', borderRadius:8, background:'var(--bg)', border:'1px solid var(--line)' }}>
-              <div style={{ width:6, height:6, borderRadius:'50%', background:feature.color, flexShrink:0 }} />
-              <span style={{ fontSize:12, color:'var(--ink-2)' }}>{item}</span>
+    <div style={{ position:'relative', borderRadius:22, overflow:'hidden', isolation:'isolate' }}>
+      {/* Ambient glow behind card when unlocked */}
+      {!locked && (
+        <div style={{ position:'absolute', inset:-2, borderRadius:24, background:feature.gradient, opacity:0.15, zIndex:-1, filter:'blur(12px)' }} />
+      )}
+
+      <div className="glass-card" style={{
+        padding:0, overflow:'hidden',
+        filter: locked ? 'blur(2.5px)' : 'none',
+        opacity: locked ? 0.38 : 1,
+        pointerEvents: locked ? 'none' : 'auto',
+        userSelect: locked ? 'none' : 'auto',
+        transition: 'all .35s',
+        border: locked ? '1px solid rgba(255,255,255,0.04)' : `1px solid ${feature.accent}28`,
+      }}>
+
+        {/* ── Gradient header ── */}
+        <div style={{ background:feature.gradient, padding:'15px 17px 13px', position:'relative', overflow:'hidden' }}>
+          {/* Decorative orbs */}
+          <div style={{ position:'absolute', top:-20, right:-12, width:76, height:76, borderRadius:'50%', background:'rgba(255,255,255,0.09)' }} />
+          <div style={{ position:'absolute', bottom:-28, left:44, width:56, height:56, borderRadius:'50%', background:'rgba(255,255,255,0.05)' }} />
+
+          {/* Icon + title + badge */}
+          <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', position:'relative', zIndex:1 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:9 }}>
+              <div style={{ width:34, height:34, borderRadius:10, background:'rgba(255,255,255,0.22)', border:'1px solid rgba(255,255,255,0.3)', backdropFilter:'blur(8px)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                {feature.icon}
+              </div>
+              <div>
+                <div style={{ fontSize:12.5, fontWeight:700, color:'white', letterSpacing:'0.01em', lineHeight:1.2 }}>{feature.title}</div>
+                <div style={{ fontSize:9, color:'rgba(255,255,255,0.62)', marginTop:2, letterSpacing:'0.02em' }}>{feature.subtitle}</div>
+              </div>
             </div>
-          ))}
+            <span style={{ fontSize:8, fontWeight:800, letterSpacing:'0.08em', textTransform:'uppercase', color:'white', background:'rgba(0,0,0,0.28)', padding:'3px 7px', borderRadius:5, backdropFilter:'blur(4px)', flexShrink:0, marginTop:2, border:'1px solid rgba(255,255,255,0.15)' }}>
+              {feature.badge}
+            </span>
+          </div>
+
+          {/* Mini stat pills */}
+          <div style={{ display:'flex', gap:7, marginTop:10, position:'relative', zIndex:1 }}>
+            {feature.stats.map((s, i) => (
+              <div key={i} style={{ background:'rgba(0,0,0,0.25)', borderRadius:7, padding:'4px 9px', backdropFilter:'blur(8px)', border:'1px solid rgba(255,255,255,0.12)' }}>
+                <div style={{ fontSize:12, fontWeight:800, color:'white', lineHeight:1 }}>{s.value}</div>
+                <div style={{ fontSize:8.5, color:'rgba(255,255,255,0.52)', marginTop:1.5 }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Card body ── */}
+        <div style={{ padding:'11px 15px 13px' }}>
+          <p style={{ fontSize:10.5, color:'var(--ink-3)', lineHeight:1.7, marginBottom:9 }}>{feature.description}</p>
+          <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+            {feature.items.map((item, i) => (
+              <div key={i} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'5px 9px', borderRadius:7, background:'var(--bg)', border:'1px solid var(--line)' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+                  <div style={{ width:7, height:7, borderRadius:'50%', background:item.dot, flexShrink:0, boxShadow:`0 0 6px ${item.dot}80` }} />
+                  <span style={{ fontSize:10.5, color:'var(--ink-2)' }}>{item.label}</span>
+                </div>
+                <span style={{ fontSize:9, fontWeight:700, color:item.dot, background:`${item.dot}16`, padding:'2px 6px', borderRadius:4, border:`1px solid ${item.dot}28`, flexShrink:0 }}>{item.tag}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+
+      {/* ── Locked overlay ── */}
       {locked && (
-        <div style={{ position:'absolute', inset:0, borderRadius:20, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', backdropFilter:'blur(2px)', background:'rgba(10,10,15,0.72)', border:'1px solid rgba(255,61,110,0.12)' }}>
-          <div style={{ width:48, height:48, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(255,61,110,0.12)', border:'1px solid rgba(255,61,110,0.3)', marginBottom:12 }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ff6a8d" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          </div>
-          <p style={{ fontSize:13, fontWeight:600, color:'rgba(255,255,255,0.7)', marginBottom:4 }}>Pending Admin Approval</p>
-          <p style={{ fontSize:11, color:'rgba(255,255,255,0.35)' }}>Contact Head of Department</p>
-        </div>
+        <motion.div
+          initial={{ opacity:0 }}
+          animate={{ opacity:1 }}
+          style={{ position:'absolute', inset:0, borderRadius:22, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', backdropFilter:'blur(7px)', background:'rgba(5,7,18,0.82)', border:`1px solid ${feature.accent}14`, overflow:'hidden' }}
+        >
+          {/* Shimmer sweep */}
+          <motion.div
+            animate={{ x:['-130%','230%'] }}
+            transition={{ duration:2.6, repeat:Infinity, ease:'linear', repeatDelay:1.4, delay }}
+            style={{ position:'absolute', inset:0, background:`linear-gradient(108deg, transparent 28%, ${feature.accent}10 50%, transparent 72%)`, pointerEvents:'none' }}
+          />
+
+          {/* Pulsing lock icon */}
+          <motion.div
+            animate={{ scale:[1,1.12,1], boxShadow:[`0 0 18px ${feature.glowColor}`,`0 0 36px ${feature.glowColor}`,`0 0 18px ${feature.glowColor}`] }}
+            transition={{ duration:2.4, repeat:Infinity, ease:'easeInOut' }}
+            style={{ width:52, height:52, borderRadius:'50%', background:`radial-gradient(circle, ${feature.glowColor} 0%, transparent 70%)`, border:`1px solid ${feature.accent}45`, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:10 }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={feature.accent} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </motion.div>
+
+          <p style={{ fontSize:12, fontWeight:700, color:'rgba(255,255,255,0.82)', marginBottom:3, position:'relative', zIndex:1 }}>Pending Approval</p>
+          <p style={{ fontSize:10, color:'rgba(255,255,255,0.3)', position:'relative', zIndex:1 }}>Admin review in progress</p>
+        </motion.div>
       )}
     </div>
   );
@@ -235,7 +375,7 @@ function RatingRing({ avg, count }) {
         <svg width={172} height={172} viewBox="0 0 172 172">
           <defs>
             <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#f59e0b"/><stop offset="50%" stopColor="#ff7a9c"/><stop offset="100%" stopColor="#7a4dff"/>
+              <stop offset="0%" stopColor="#f59e0b"/><stop offset="50%" stopColor="#0ea5e9"/><stop offset="100%" stopColor="#7c3aed"/>
             </linearGradient>
           </defs>
           <circle cx="86" cy="86" r={r} fill="none" stroke="var(--line)" strokeWidth="10"/>
@@ -400,8 +540,8 @@ function DoctorChat({ doctor, patient, onBack, onScanDone }) {
       <div style={{ flex:1,overflowY:'auto',padding:'16px 20px',display:'flex',flexDirection:'column',gap:4,background:'var(--bg)' }}>
         {groups.length===0&&(
           <div style={{ flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12,padding:'40px 0',textAlign:'center' }}>
-            <div style={{ width:56,height:56,borderRadius:16,background:'rgba(255,61,110,0.08)',border:'1px solid rgba(255,61,110,0.15)',display:'flex',alignItems:'center',justifyContent:'center' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff6a8d" strokeWidth="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <div style={{ width:56,height:56,borderRadius:16,background:'rgba(6,182,212,0.08)',border:'1px solid rgba(6,182,212,0.15)',display:'flex',alignItems:'center',justifyContent:'center' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" strokeWidth="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             </div>
             <div>
               <div style={{ fontSize:14,fontWeight:600,color:'var(--ink)',marginBottom:3 }}>Start a conversation</div>
@@ -427,9 +567,9 @@ function DoctorChat({ doctor, patient, onBack, onScanDone }) {
             return (
               <motion.div key={g.id} initial={{ opacity:0,y:8,scale:.97 }} animate={{ opacity:1,y:0,scale:1 }} transition={{ duration:.2 }}
                 style={{ display:'flex',flexDirection:'row-reverse',alignItems:'flex-end',gap:8,marginBottom:10 }}>
-                <div style={{ maxWidth:'78%', borderRadius:18, overflow:'hidden', border:'1px solid rgba(255,61,110,0.25)', boxShadow:'0 4px 20px -6px rgba(255,61,110,0.2)' }}>
-                  <div style={{ padding:'11px 14px', background:'linear-gradient(135deg,rgba(255,61,110,0.1),rgba(122,77,255,0.08))', borderBottom:'1px solid rgba(255,61,110,0.15)', display:'flex', alignItems:'center', gap:8 }}>
-                    <div style={{ width:30, height:30, borderRadius:9, background:'linear-gradient(135deg,#ff3d6e,#7a4dff)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                <div style={{ maxWidth:'78%', borderRadius:18, overflow:'hidden', border:'1px solid rgba(6,182,212,0.25)', boxShadow:'0 4px 20px -6px rgba(6,182,212,0.2)' }}>
+                  <div style={{ padding:'11px 14px', background:'linear-gradient(135deg,rgba(6,182,212,0.1),rgba(124,58,237,0.08))', borderBottom:'1px solid rgba(6,182,212,0.15)', display:'flex', alignItems:'center', gap:8 }}>
+                    <div style={{ width:30, height:30, borderRadius:9, background:'linear-gradient(135deg,#06b6d4,#7c3aed)', display:'flex', alignItems:'center', justifyContent:'center' }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z" strokeLinejoin="round"/></svg>
                     </div>
                     <div>
@@ -457,14 +597,14 @@ function DoctorChat({ doctor, patient, onBack, onScanDone }) {
               <div style={{ maxWidth:'72%',display:'flex',flexDirection:'column',alignItems:isMe?'flex-end':'flex-start' }}>
                 {/* Image message — patient sent a scan */}
                 {g.type==='image'&&g.imageData&&!isMe ? (
-                  <div style={{ borderRadius:`16px 16px 16px ${isLast?'4px':'16px'}`, overflow:'hidden', border:'2px solid rgba(122,77,255,0.3)', boxShadow:'0 6px 20px -6px rgba(122,77,255,0.3)', position:'relative' }}>
+                  <div style={{ borderRadius:`16px 16px 16px ${isLast?'4px':'16px'}`, overflow:'hidden', border:'2px solid rgba(124,58,237,0.3)', boxShadow:'0 6px 20px -6px rgba(124,58,237,0.3)', position:'relative' }}>
                     <img src={g.imageData} alt="scan" style={{ width:'100%', maxWidth:200, display:'block', objectFit:'cover', maxHeight:160 }} />
-                    <div style={{ padding:'8px 12px', background:'linear-gradient(135deg,rgba(122,77,255,0.12),rgba(124,58,237,0.1))', borderTop:'1px solid rgba(122,77,255,0.2)', display:'flex', alignItems:'center', gap:8 }}>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#7a4dff" strokeWidth="2"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z" strokeLinejoin="round"/></svg>
-                      <span style={{ fontSize:10, color:'#7a4dff', fontWeight:600, flex:1 }}>Brain scan from patient</span>
+                    <div style={{ padding:'8px 12px', background:'linear-gradient(135deg,rgba(124,58,237,0.12),rgba(124,58,237,0.1))', borderTop:'1px solid rgba(124,58,237,0.2)', display:'flex', alignItems:'center', gap:8 }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z" strokeLinejoin="round"/></svg>
+                      <span style={{ fontSize:10, color:'#7c3aed', fontWeight:600, flex:1 }}>Brain scan from patient</span>
                       <motion.button whileHover={{ scale:1.05 }} whileTap={{ scale:.95 }}
                         onClick={() => startScan(g.imageData)}
-                        style={{ padding:'5px 10px', borderRadius:8, border:'none', cursor:'pointer', background:'linear-gradient(135deg,#7a4dff,#7C3AED)', color:'white', fontSize:10, fontWeight:700, display:'flex', alignItems:'center', gap:5, boxShadow:'0 3px 10px -3px rgba(122,77,255,0.6)', flexShrink:0 }}>
+                        style={{ padding:'5px 10px', borderRadius:8, border:'none', cursor:'pointer', background:'linear-gradient(135deg,#7c3aed,#7C3AED)', color:'white', fontSize:10, fontWeight:700, display:'flex', alignItems:'center', gap:5, boxShadow:'0 3px 10px -3px rgba(124,58,237,0.6)', flexShrink:0 }}>
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                         Run AI Scan
                       </motion.button>
@@ -473,10 +613,10 @@ function DoctorChat({ doctor, patient, onBack, onScanDone }) {
                 ) : g.type==='image'&&g.imageData&&isMe ? (
                   <div style={{ borderRadius:`16px 16px ${isLast?'4px':'16px'} 16px`, overflow:'hidden', border:'1px solid var(--line)' }}>
                     <img src={g.imageData} alt="img" style={{ width:'100%', maxWidth:200, display:'block', objectFit:'cover', maxHeight:160 }} />
-                    <div style={{ padding:'5px 10px', background:'linear-gradient(135deg,#ff3d6e,#7a4dff)', fontSize:10, color:'rgba(255,255,255,0.75)', fontWeight:500 }}>Image sent</div>
+                    <div style={{ padding:'5px 10px', background:'linear-gradient(135deg,#06b6d4,#7c3aed)', fontSize:10, color:'rgba(255,255,255,0.75)', fontWeight:500 }}>Image sent</div>
                   </div>
                 ) : (
-                  <div style={{ padding:'10px 14px',borderRadius:isMe?`16px 16px ${isLast?'4px':'16px'} 16px`:`16px 16px 16px ${isLast?'4px':'16px'}`,background:isMe?'linear-gradient(135deg,#ff3d6e,#7a4dff)':'var(--frame)',border:isMe?'none':'1px solid var(--line)',color:isMe?'white':'var(--ink-2)',fontSize:13,lineHeight:1.55,boxShadow:isMe?'0 4px 16px -4px rgba(255,61,110,0.4)':'0 2px 8px -4px rgba(0,0,0,0.12)',wordBreak:'break-word' }}>
+                  <div style={{ padding:'10px 14px',borderRadius:isMe?`16px 16px ${isLast?'4px':'16px'} 16px`:`16px 16px 16px ${isLast?'4px':'16px'}`,background:isMe?'linear-gradient(135deg,#06b6d4,#7c3aed)':'var(--frame)',border:isMe?'none':'1px solid var(--line)',color:isMe?'white':'var(--ink-2)',fontSize:13,lineHeight:1.55,boxShadow:isMe?'0 4px 16px -4px rgba(6,182,212,0.4)':'0 2px 8px -4px rgba(0,0,0,0.12)',wordBreak:'break-word' }}>
                     {g.text}
                   </div>
                 )}
@@ -498,11 +638,11 @@ function DoctorChat({ doctor, patient, onBack, onScanDone }) {
         {scanTarget && (
           <motion.div initial={{ y:'100%', opacity:0 }} animate={{ y:0, opacity:1 }} exit={{ y:'100%', opacity:0 }}
             transition={{ type:'spring', stiffness:320, damping:32 }}
-            style={{ position:'absolute', bottom:0, left:0, right:0, zIndex:20, borderTop:'2px solid rgba(122,77,255,0.35)', background:'var(--frame)', maxHeight:'65%', display:'flex', flexDirection:'column', overflow:'hidden', boxShadow:'0 -16px 40px -8px rgba(122,77,255,0.2)' }}>
-            <div style={{ height:3, background:'linear-gradient(90deg,#7a4dff,#7C3AED,#ff3d6e)', flexShrink:0 }} />
+            style={{ position:'absolute', bottom:0, left:0, right:0, zIndex:20, borderTop:'2px solid rgba(124,58,237,0.35)', background:'var(--frame)', maxHeight:'65%', display:'flex', flexDirection:'column', overflow:'hidden', boxShadow:'0 -16px 40px -8px rgba(124,58,237,0.2)' }}>
+            <div style={{ height:3, background:'linear-gradient(90deg,#7c3aed,#7C3AED,#06b6d4)', flexShrink:0 }} />
             {/* Panel header */}
             <div style={{ padding:'12px 16px', borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', gap:12, flexShrink:0 }}>
-              <div style={{ width:36, height:36, borderRadius:10, background:'linear-gradient(135deg,#7a4dff,#7C3AED)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+              <div style={{ width:36, height:36, borderRadius:10, background:'linear-gradient(135deg,#7c3aed,#7C3AED)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><path d="M12 2C8 2 5 5 5 8.5c0 2.7 1.6 5 4 6.1L8.2 21h7.6L15 14.6c2.4-1.1 4-3.4 4-6.1C19 5 16 2 12 2z" strokeLinejoin="round"/></svg>
               </div>
               <div style={{ flex:1 }}>
@@ -527,7 +667,7 @@ function DoctorChat({ doctor, patient, onBack, onScanDone }) {
                   {scanning && (
                     <div style={{ position:'absolute', inset:0, borderRadius:12, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center' }}>
                       <motion.div animate={{ rotate:360 }} transition={{ repeat:Infinity, duration:1, ease:'linear' }}
-                        style={{ width:24, height:24, borderRadius:'50%', border:'3px solid rgba(122,77,255,0.3)', borderTopColor:'#7a4dff' }} />
+                        style={{ width:24, height:24, borderRadius:'50%', border:'3px solid rgba(124,58,237,0.3)', borderTopColor:'#7c3aed' }} />
                     </div>
                   )}
                   {scanResult && !scanResult.error && (
@@ -540,14 +680,14 @@ function DoctorChat({ doctor, patient, onBack, onScanDone }) {
                   {scanning ? (
                     <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
                       <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                        <motion.div animate={{ opacity:[0.4,1,0.4] }} transition={{ repeat:Infinity, duration:1.2 }} style={{ width:8, height:8, borderRadius:'50%', background:'#7a4dff' }} />
+                        <motion.div animate={{ opacity:[0.4,1,0.4] }} transition={{ repeat:Infinity, duration:1.2 }} style={{ width:8, height:8, borderRadius:'50%', background:'#7c3aed' }} />
                         <span style={{ fontSize:13, fontWeight:700, color:'var(--ink)' }}>Dual-model analysis running…</span>
                       </div>
                       {['Tumor Classification','Segmentation','Stroke Screening','Grad-CAM'].map((s,i)=>(
                         <motion.div key={s} initial={{ opacity:0, x:-10 }} animate={{ opacity:1, x:0 }} transition={{ delay:i*.3 }}
                           style={{ display:'flex', alignItems:'center', gap:6, fontSize:11, color:'var(--ink-3)' }}>
-                          <motion.div animate={{ background:['rgba(122,77,255,0.2)','rgba(122,77,255,0.8)','rgba(122,77,255,0.2)'] }} transition={{ repeat:Infinity, duration:1.8, delay:i*.25 }}
-                            style={{ width:6, height:6, borderRadius:'50%', background:'rgba(122,77,255,0.3)' }} />
+                          <motion.div animate={{ background:['rgba(124,58,237,0.2)','rgba(124,58,237,0.8)','rgba(124,58,237,0.2)'] }} transition={{ repeat:Infinity, duration:1.8, delay:i*.25 }}
+                            style={{ width:6, height:6, borderRadius:'50%', background:'rgba(124,58,237,0.3)' }} />
                           {s}
                         </motion.div>
                       ))}
@@ -622,7 +762,7 @@ function DoctorChat({ doctor, patient, onBack, onScanDone }) {
                       <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
                         {Object.entries(scanResult.all_confidences).map(([cls, val]) => {
                           const isActive = cls === scanResult.prediction;
-                          const barColor = cls === 'notumor' ? '#22c55e' : cls === 'glioma' ? '#E24B4A' : cls === 'meningioma' ? '#f59e0b' : '#7a4dff';
+                          const barColor = cls === 'notumor' ? '#22c55e' : cls === 'glioma' ? '#E24B4A' : cls === 'meningioma' ? '#f59e0b' : '#7c3aed';
                           return (
                             <div key={cls} style={{ display:'flex', alignItems:'center', gap:7 }}>
                               <span style={{ fontSize:9, width:76, flexShrink:0, color: isActive?'var(--ink)':'var(--ink-3)', fontWeight: isActive?700:400 }}>
@@ -673,7 +813,7 @@ function DoctorChat({ doctor, patient, onBack, onScanDone }) {
                   <textarea value={doctorNote} onChange={e=>setDoctorNote(e.target.value)} placeholder="Add your clinical note for the patient… (optional)"
                     style={{ width:'100%', height:60, borderRadius:10, padding:'9px 12px', fontSize:12, outline:'none', background:'var(--bg)', color:'var(--ink)', border:'1px solid var(--line)', resize:'none', lineHeight:1.5, fontFamily:'inherit', boxSizing:'border-box' }} />
                   <motion.button whileHover={{ y:-1 }} whileTap={{ scale:.97 }} onClick={sendReport}
-                    style={{ marginTop:8, width:'100%', height:42, borderRadius:11, fontSize:13, fontWeight:700, color:'white', background:'linear-gradient(135deg,#7a4dff,#7C3AED,#ff3d6e)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8, boxShadow:'0 6px 18px -4px rgba(122,77,255,0.5)' }}>
+                    style={{ marginTop:8, width:'100%', height:42, borderRadius:11, fontSize:13, fontWeight:700, color:'white', background:'linear-gradient(135deg,#7c3aed,#7C3AED,#06b6d4)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8, boxShadow:'0 6px 18px -4px rgba(124,58,237,0.5)' }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                     Send Report to {patient.name}
                   </motion.button>
@@ -690,7 +830,7 @@ function DoctorChat({ doctor, patient, onBack, onScanDone }) {
           <motion.div initial={{ height:0, opacity:0 }} animate={{ height:'auto', opacity:1 }} exit={{ height:0, opacity:0 }}
             style={{ borderTop:'1px solid var(--line)', padding:'10px 16px', background:'var(--frame)', display:'flex', alignItems:'center', gap:12, flexShrink:0, overflow:'hidden' }}>
             <div style={{ position:'relative', flexShrink:0 }}>
-              <img src={imgPreview.dataUrl} alt="preview" style={{ width:64, height:48, borderRadius:9, objectFit:'cover', border:'2px solid rgba(255,61,110,0.4)' }} />
+              <img src={imgPreview.dataUrl} alt="preview" style={{ width:64, height:48, borderRadius:9, objectFit:'cover', border:'2px solid rgba(6,182,212,0.4)' }} />
               <button onClick={() => setImgPreview(null)} style={{ position:'absolute', top:-5, right:-5, width:16, height:16, borderRadius:'50%', background:'#ef4444', border:'none', cursor:'pointer', display:'grid', placeItems:'center', color:'white' }}>
                 <svg width="7" height="7" viewBox="0 0 12 12" fill="none"><path d="M9 3L3 9M3 3l6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
               </button>
@@ -707,7 +847,7 @@ function DoctorChat({ doctor, patient, onBack, onScanDone }) {
       <div style={{ padding:'12px 16px',borderTop:'1px solid var(--line)',display:'flex',gap:10,alignItems:'flex-end',background:'var(--frame)',flexShrink:0, position:'relative', zIndex:1 }}>
         <input ref={fileRef} type="file" accept="image/*" style={{ display:'none' }} onChange={onFileChange} />
         <motion.button whileHover={{ scale:1.07 }} whileTap={{ scale:.92 }} onClick={() => fileRef.current?.click()}
-          title="Send image" style={{ width:38, height:38, borderRadius:11, border:'1px solid var(--line)', background:'var(--bg)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color:'#ff6a8d', transition:'all .2s' }}>
+          title="Send image" style={{ width:38, height:38, borderRadius:11, border:'1px solid var(--line)', background:'var(--bg)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color:'#22d3ee', transition:'all .2s' }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/><polyline points="21 15 16 10 5 21"/></svg>
         </motion.button>
         <div style={{ flex:1,borderRadius:16,border:'1px solid var(--line)',background:'var(--bg)',display:'flex',alignItems:'flex-end',padding:'6px 12px',gap:8 }}>
@@ -719,7 +859,7 @@ function DoctorChat({ doctor, patient, onBack, onScanDone }) {
         </div>
         <motion.button whileHover={{ scale:1.06 }} whileTap={{ scale:.93 }} onClick={send}
           disabled={(!input.trim()&&!imgPreview)||sending}
-          style={{ width:42,height:42,borderRadius:13,border:'none',cursor:(!input.trim()&&!imgPreview)?'not-allowed':'pointer',background:'linear-gradient(135deg,#ff3d6e,#7a4dff)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,boxShadow:'0 4px 14px -4px rgba(255,61,110,0.5)',opacity:(!input.trim()&&!imgPreview)?.4:1,transition:'opacity .2s' }}>
+          style={{ width:42,height:42,borderRadius:13,border:'none',cursor:(!input.trim()&&!imgPreview)?'not-allowed':'pointer',background:'linear-gradient(135deg,#06b6d4,#7c3aed)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,boxShadow:'0 4px 14px -4px rgba(6,182,212,0.5)',opacity:(!input.trim()&&!imgPreview)?.4:1,transition:'opacity .2s' }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         </motion.button>
       </div>
@@ -731,7 +871,7 @@ function LoadingScreen() {
   return (
     <div className="frame" style={{ minHeight:'calc(100vh - 28px)', display:'grid', placeItems:'center' }}>
       <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:16 }}>
-        <div style={{ width:40, height:40, borderRadius:'50%', border:'3px solid var(--line)', borderTopColor:'#ff3d6e', animation:'spin360 0.8s linear infinite' }} />
+        <div style={{ width:40, height:40, borderRadius:'50%', border:'3px solid var(--line)', borderTopColor:'#06b6d4', animation:'spin360 0.8s linear infinite' }} />
         <p style={{ fontSize:13, color:'var(--ink-3)' }}>Loading dashboard…</p>
       </div>
     </div>
@@ -909,8 +1049,8 @@ export default function DoctorDashboard() {
     <div className="frame" style={{ minHeight:'calc(100vh - 28px)', overflow:'hidden', position:'relative' }}>
       <Particles />
       <div style={{ position:'absolute', inset:0, pointerEvents:'none', zIndex:0 }}>
-        <div style={{ position:'absolute', top:'5%', right:'8%', width:380, height:380, borderRadius:'50%', background:'radial-gradient(circle,rgba(255,61,110,0.09),transparent 70%)', filter:'blur(70px)' }} />
-        <div style={{ position:'absolute', bottom:'8%', left:'5%', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle,rgba(122,77,255,0.09),transparent 70%)', filter:'blur(60px)' }} />
+        <div style={{ position:'absolute', top:'5%', right:'8%', width:380, height:380, borderRadius:'50%', background:'radial-gradient(circle,rgba(6,182,212,0.09),transparent 70%)', filter:'blur(70px)' }} />
+        <div style={{ position:'absolute', bottom:'8%', left:'5%', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle,rgba(124,58,237,0.09),transparent 70%)', filter:'blur(60px)' }} />
       </div>
 
       {/* ── Top bar ── */}
@@ -938,13 +1078,13 @@ export default function DoctorDashboard() {
         <nav style={{ display:'flex', alignItems:'center', gap:2, padding:4, borderRadius:100, background:'var(--frame)', border:'1px solid var(--line)' }}>
           {TABS.map(t => (
             <button key={t} onClick={() => setTab(t)}
-              style={{ padding:'8px 16px', borderRadius:100, fontSize:12, fontWeight:500, border:'none', cursor:'pointer', transition:'all .25s', background:tab===t?'linear-gradient(135deg,#ff3d6e,#7a4dff)':'transparent', color:tab===t?'white':'var(--ink-2)', position:'relative' }}>
+              style={{ padding:'8px 16px', borderRadius:100, fontSize:12, fontWeight:500, border:'none', cursor:'pointer', transition:'all .25s', background:tab===t?'linear-gradient(135deg,#06b6d4,#7c3aed)':'transparent', color:tab===t?'white':'var(--ink-2)', position:'relative' }}>
               {t}
               {t==='Schedule' && pendingAppts.length>0 && tab!=='Schedule' && (
                 <span style={{ position:'absolute', top:3, right:3, minWidth:16, height:16, borderRadius:100, background:'#f59e0b', color:'white', fontSize:9, fontWeight:800, display:'grid', placeItems:'center', border:'1.5px solid var(--frame)', lineHeight:1, padding:'0 3px' }}>{pendingAppts.length}</span>
               )}
               {t==='Messages' && tab!=='Messages' && (msgUnread>0 || pendingChatReqs.length>0) && (
-                <span style={{ position:'absolute', top:2, right:2, minWidth:16, height:16, borderRadius:100, background: pendingChatReqs.length>0 ? '#7a4dff' : '#ff3d6e', color:'white', fontSize:9, fontWeight:800, display:'grid', placeItems:'center', border:'1.5px solid var(--frame)', lineHeight:1, padding:'0 3px' }}>
+                <span style={{ position:'absolute', top:2, right:2, minWidth:16, height:16, borderRadius:100, background: pendingChatReqs.length>0 ? '#7c3aed' : '#06b6d4', color:'white', fontSize:9, fontWeight:800, display:'grid', placeItems:'center', border:'1.5px solid var(--frame)', lineHeight:1, padding:'0 3px' }}>
                   {pendingChatReqs.length > 0 ? pendingChatReqs.length : msgUnread}
                 </span>
               )}
@@ -974,7 +1114,7 @@ export default function DoctorDashboard() {
 
           {/* ══════════════ Overview ══════════════ */}
           {tab==='Overview' && (
-            <motion.div key="overview" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }} transition={{ duration:.45 }}>
+            <motion.div key="overview" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }} transition={{ duration:.45 }} style={{ paddingRight:72 }}>
               {!isApproved && !isRejected && (
                 <motion.div initial={{ opacity:0, y:-10 }} animate={{ opacity:1, y:0 }} transition={{ delay:.1 }}
                   style={{ marginBottom:24, padding:'18px 22px', borderRadius:16, display:'flex', alignItems:'center', gap:16, background:'rgba(245,158,11,0.08)', border:'1px solid rgba(245,158,11,0.25)', position:'relative', overflow:'hidden' }}>
@@ -1038,7 +1178,7 @@ export default function DoctorDashboard() {
                   {
                     label: 'Active Patients',
                     value: sysStats.activePatients,
-                    color: '#7a4dff',
+                    color: '#7c3aed',
                     icon: (
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -1048,7 +1188,7 @@ export default function DoctorDashboard() {
                   {
                     label: 'AI Scans Today',
                     value: sysStats.aiScansToday,
-                    color: '#ff3d6e',
+                    color: '#06b6d4',
                     pulse: sysStats.aiScansToday > 0,
                     icon: (
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -1085,14 +1225,33 @@ export default function DoctorDashboard() {
                 ))}
               </div>
               <div style={{ marginBottom:8 }}>
-                <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
-                  <h3 style={{ fontSize:14, fontWeight:600, color:'var(--ink)' }}>Premium Features</h3>
-                  {!isApproved && !isRejected && <span style={{ fontSize:11, padding:'2px 8px', borderRadius:6, background:'rgba(245,158,11,0.1)', color:'#f59e0b', border:'1px solid rgba(245,158,11,0.2)', fontWeight:500 }}>Locked pending approval</span>}
+                {/* ── Premium section header ── */}
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:18 }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                    <div style={{ width:32, height:32, borderRadius:10, background:'linear-gradient(135deg,#7c3aed,#f59e0b)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize:14, fontWeight:700, color:'var(--ink)', letterSpacing:'-0.01em' }}>Premium Features</h3>
+                      <p style={{ fontSize:10.5, color:'var(--ink-3)', marginTop:1 }}>Exclusive MedVision platform capabilities</p>
+                    </div>
+                  </div>
+                  {!isApproved && !isRejected && (
+                    <span style={{ fontSize:9.5, padding:'3px 10px', borderRadius:7, background:'rgba(245,158,11,0.09)', color:'#f59e0b', border:'1px solid rgba(245,158,11,0.22)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', flexShrink:0 }}>
+                      Locked · Pending Review
+                    </span>
+                  )}
+                  {isApproved && (
+                    <span style={{ fontSize:9.5, padding:'3px 10px', borderRadius:7, background:'rgba(34,197,94,0.09)', color:'#22c55e', border:'1px solid rgba(34,197,94,0.22)', fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', flexShrink:0 }}>
+                      ✓ Unlocked
+                    </span>
+                  )}
                 </div>
+
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
-                  {LOCKED_FEATURES.map((f,i)=>(
-                    <motion.div key={f.id} initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:.2+i*.08 }}>
-                      <LockedCard feature={f} locked={!isApproved}/>
+                  {PREMIUM_FEATURES.map((f,i)=>(
+                    <motion.div key={f.id} initial={{ opacity:0, y:22 }} animate={{ opacity:1, y:0 }} transition={{ delay:.18+i*.09 }}>
+                      <PremiumFeatureCard feature={f} locked={!isApproved} delay={i*0.6}/>
                     </motion.div>
                   ))}
                 </div>
@@ -1102,7 +1261,7 @@ export default function DoctorDashboard() {
 
           {/* ══════════════ Schedule ══════════════ */}
           {tab==='Schedule' && (
-            <motion.div key="schedule" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }} transition={{ duration:.45 }}>
+            <motion.div key="schedule" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }} transition={{ duration:.45 }} style={{ paddingRight:72 }}>
 
               {/* Header */}
               <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginBottom:24 }}>
@@ -1146,8 +1305,8 @@ export default function DoctorDashboard() {
               {/* Main layout: calendar + appointments */}
               {!isApproved ? (
                 <div className="glass-card" style={{ padding:56, textAlign:'center' }}>
-                  <div style={{ width:64, height:64, borderRadius:20, background:'rgba(255,61,110,0.08)', border:'1px solid rgba(255,61,110,0.2)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px' }}>
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ff6a8d" strokeWidth="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <div style={{ width:64, height:64, borderRadius:20, background:'rgba(6,182,212,0.08)', border:'1px solid rgba(6,182,212,0.2)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px' }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" strokeWidth="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                   </div>
                   <div style={{ fontSize:15, fontWeight:600, color:'var(--ink)', marginBottom:6 }}>Schedule locked</div>
                   <div style={{ fontSize:13, color:'var(--ink-3)' }}>Awaiting admin approval to access your schedule</div>
@@ -1198,7 +1357,7 @@ export default function DoctorDashboard() {
                                 exit={{ opacity:0, x:40, height:0, marginBottom:0, overflow:'hidden' }}
                                 transition={{ delay:i*.06 }}
                                 className="glass-card" style={{ marginBottom:12, overflow:'hidden', position:'relative' }}>
-                                <div style={{ height:3, background:'linear-gradient(90deg,#f59e0b,#ff7a9c)' }}/>
+                                <div style={{ height:3, background:'linear-gradient(90deg,#f59e0b,#0ea5e9)' }}/>
 
                                 <div style={{ padding:'18px 22px' }}>
                                   {/* Patient + time */}
@@ -1242,7 +1401,7 @@ export default function DoctorDashboard() {
                                 <AnimatePresence>
                                   {isDeclining && (
                                     <motion.div initial={{ height:0, opacity:0 }} animate={{ height:'auto', opacity:1 }} exit={{ height:0, opacity:0 }} transition={{ duration:.3 }}
-                                      style={{ overflow:'hidden', borderTop:'1px solid var(--line)', background:'linear-gradient(135deg,rgba(245,158,11,0.04),rgba(122,77,255,0.03))' }}>
+                                      style={{ overflow:'hidden', borderTop:'1px solid var(--line)', background:'linear-gradient(135deg,rgba(245,158,11,0.04),rgba(124,58,237,0.03))' }}>
                                       <div style={{ padding:'20px 22px 22px' }}>
                                         <div style={{ fontSize:13, fontWeight:700, color:'var(--ink)', marginBottom:4, display:'flex', alignItems:'center', gap:8 }}>
                                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -1288,7 +1447,7 @@ export default function DoctorDashboard() {
                                           <motion.button whileHover={{ y:-1 }} whileTap={{ scale:.97 }}
                                             disabled={!altDate||!altTime||altBusy}
                                             onClick={()=>handleProposeAlt(a)}
-                                            style={{ flex:1, height:44, borderRadius:11, fontSize:13, fontWeight:700, color:'white', background:'linear-gradient(135deg,#f59e0b,#ff7a9c 50%,#7a4dff)', border:'none', cursor:!altDate||!altTime?'not-allowed':'pointer', opacity:!altDate||!altTime?.5:1, display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+                                            style={{ flex:1, height:44, borderRadius:11, fontSize:13, fontWeight:700, color:'white', background:'linear-gradient(135deg,#f59e0b,#0ea5e9 50%,#7c3aed)', border:'none', cursor:!altDate||!altTime?'not-allowed':'pointer', opacity:!altDate||!altTime?.5:1, display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
                                             {altBusy
                                               ? <span style={{ width:13, height:13, borderRadius:'50%', border:'2px solid rgba(255,255,255,0.3)', borderTopColor:'white', animation:'spin360 0.8s linear infinite', display:'inline-block' }}/>
                                               : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>}
@@ -1318,9 +1477,9 @@ export default function DoctorDashboard() {
                         {(visibleAppts ? visibleAppts.filter(a=>a.status==='counter_proposed') : proposedAppts).map((a,i)=>(
                           <motion.div key={a.id} initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:i*.06 }}
                             className="glass-card" style={{ marginBottom:12, overflow:'hidden' }}>
-                            <div style={{ height:3, background:'linear-gradient(90deg,#a78bfa,#7a4dff)' }}/>
+                            <div style={{ height:3, background:'linear-gradient(90deg,#a78bfa,#7c3aed)' }}/>
                             <div style={{ padding:'16px 22px', display:'flex', alignItems:'center', gap:14 }}>
-                              <div style={{ width:44, height:44, borderRadius:13, background:'linear-gradient(135deg,#a78bfa,#7a4dff)', display:'grid', placeItems:'center', fontSize:13, fontWeight:700, color:'white', flexShrink:0 }}>
+                              <div style={{ width:44, height:44, borderRadius:13, background:'linear-gradient(135deg,#a78bfa,#7c3aed)', display:'grid', placeItems:'center', fontSize:13, fontWeight:700, color:'white', flexShrink:0 }}>
                                 {a.patientName?.split(' ').map(w=>w[0]).join('').slice(0,2)||'P'}
                               </div>
                               <div style={{ flex:1 }}>
@@ -1392,12 +1551,12 @@ export default function DoctorDashboard() {
 
           {/* ══════════════ Messages ══════════════ */}
           {tab==='Messages' && (
-            <motion.div key="messages" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }} transition={{ duration:.45 }}>
+            <motion.div key="messages" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }} transition={{ duration:.45 }} style={{ paddingRight:72 }}>
 
               {!isApproved ? (
                 <div className="glass-card" style={{ padding:56, textAlign:'center' }}>
-                  <div style={{ width:64,height:64,borderRadius:20,background:'rgba(255,61,110,0.08)',border:'1px solid rgba(255,61,110,0.2)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px' }}>
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ff6a8d" strokeWidth="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <div style={{ width:64,height:64,borderRadius:20,background:'rgba(6,182,212,0.08)',border:'1px solid rgba(6,182,212,0.2)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px' }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" strokeWidth="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                   </div>
                   <div style={{ fontSize:15,fontWeight:600,color:'var(--ink)',marginBottom:6 }}>Messages locked</div>
                   <div style={{ fontSize:13,color:'var(--ink-3)' }}>Awaiting admin approval to access patient messaging</div>
@@ -1413,7 +1572,7 @@ export default function DoctorDashboard() {
                         {selPatient
                           ? `Chatting with ${selPatient.name}`
                           : pendingChatReqs.length > 0
-                            ? <span style={{ color:'#7a4dff', fontWeight:600 }}>
+                            ? <span style={{ color:'#7c3aed', fontWeight:600 }}>
                                 <motion.span animate={{ opacity:[1,0.5,1] }} transition={{ duration:1.6, repeat:Infinity }}>⚡ </motion.span>
                                 {pendingChatReqs.length} access request{pendingChatReqs.length>1?'s':''} waiting · {allPatients.length} patient{allPatients.length!==1?'s':''}
                               </span>
@@ -1442,12 +1601,12 @@ export default function DoctorDashboard() {
                       >
                         {/* Section label */}
                         <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
-                          <div style={{ width:8, height:8, borderRadius:'50%', background:'#7a4dff' }} className="pulse-dot" />
-                          <span style={{ fontSize:11, fontWeight:700, letterSpacing:'0.1em', textTransform:'uppercase', color:'#7a4dff' }}>
+                          <div style={{ width:8, height:8, borderRadius:'50%', background:'#7c3aed' }} className="pulse-dot" />
+                          <span style={{ fontSize:11, fontWeight:700, letterSpacing:'0.1em', textTransform:'uppercase', color:'#7c3aed' }}>
                             Chat Access Requests
                           </span>
-                          <div style={{ height:1, flex:1, background:'rgba(122,77,255,0.2)' }} />
-                          <div style={{ padding:'3px 10px', borderRadius:100, background:'rgba(122,77,255,0.12)', border:'1px solid rgba(122,77,255,0.3)', fontSize:11, fontWeight:800, color:'#7a4dff' }}>
+                          <div style={{ height:1, flex:1, background:'rgba(124,58,237,0.2)' }} />
+                          <div style={{ padding:'3px 10px', borderRadius:100, background:'rgba(124,58,237,0.12)', border:'1px solid rgba(124,58,237,0.3)', fontSize:11, fontWeight:800, color:'#7c3aed' }}>
                             {pendingChatReqs.length}
                           </div>
                         </div>
@@ -1465,23 +1624,23 @@ export default function DoctorDashboard() {
                                 style={{ minWidth:240, maxWidth:260, flexShrink:0, overflow:'hidden', position:'relative' }}
                               >
                                 {/* Gradient top bar */}
-                                <div style={{ height:3, background:'linear-gradient(90deg,#7a4dff,#ff3d6e,#06b6d4)' }} />
+                                <div style={{ height:3, background:'linear-gradient(90deg,#7c3aed,#06b6d4,#06b6d4)' }} />
 
                                 {/* Glow orb */}
-                                <div style={{ position:'absolute', top:0, right:0, width:100, height:100, borderRadius:'50%', background:'radial-gradient(circle,rgba(122,77,255,0.1),transparent 70%)', pointerEvents:'none' }} />
+                                <div style={{ position:'absolute', top:0, right:0, width:100, height:100, borderRadius:'50%', background:'radial-gradient(circle,rgba(124,58,237,0.1),transparent 70%)', pointerEvents:'none' }} />
 
                                 <div style={{ padding:'14px 16px' }}>
                                   {/* Patient info */}
                                   <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
                                     <div style={{ position:'relative', flexShrink:0 }}>
-                                      <div style={{ width:44, height:44, borderRadius:13, background:'linear-gradient(135deg,#7a4dff,#ff3d6e)', display:'grid', placeItems:'center', fontSize:14, fontWeight:700, color:'white', boxShadow:'0 4px 14px -4px rgba(122,77,255,0.5)' }}>
+                                      <div style={{ width:44, height:44, borderRadius:13, background:'linear-gradient(135deg,#7c3aed,#06b6d4)', display:'grid', placeItems:'center', fontSize:14, fontWeight:700, color:'white', boxShadow:'0 4px 14px -4px rgba(124,58,237,0.5)' }}>
                                         {req.patientAvatar || req.patientName?.slice(0,2).toUpperCase()}
                                       </div>
                                       {/* Animated ring */}
                                       <motion.div
                                         animate={{ scale:[1,1.28,1], opacity:[0.6,0,0.6] }}
                                         transition={{ duration:2.2, repeat:Infinity, ease:'easeInOut' }}
-                                        style={{ position:'absolute', inset:-4, borderRadius:17, border:'1.5px solid rgba(122,77,255,0.45)', pointerEvents:'none' }}
+                                        style={{ position:'absolute', inset:-4, borderRadius:17, border:'1.5px solid rgba(124,58,237,0.45)', pointerEvents:'none' }}
                                       />
                                     </div>
                                     <div style={{ flex:1, minWidth:0 }}>
@@ -1494,7 +1653,7 @@ export default function DoctorDashboard() {
                                   </div>
 
                                   {/* Request description */}
-                                  <div style={{ fontSize:11, color:'var(--ink-3)', lineHeight:1.5, marginBottom:14, padding:'8px 10px', borderRadius:9, background:'rgba(122,77,255,0.05)', border:'1px solid rgba(122,77,255,0.1)' }}>
+                                  <div style={{ fontSize:11, color:'var(--ink-3)', lineHeight:1.5, marginBottom:14, padding:'8px 10px', borderRadius:9, background:'rgba(124,58,237,0.05)', border:'1px solid rgba(124,58,237,0.1)' }}>
                                     Wants permission to chat with you directly
                                   </div>
 
@@ -1577,7 +1736,7 @@ export default function DoctorDashboard() {
                               return (
                                 <motion.button key={p.id} initial={{ opacity:0, x:-10 }} animate={{ opacity:1, x:0 }} transition={{ delay:i*.04 }}
                                   onClick={() => { setSelPatient(p); }}
-                                  style={{ width:'100%', padding:'14px 18px', border:'none', borderBottom:'1px solid var(--line)', cursor:'pointer', display:'flex', alignItems:'center', gap:12, textAlign:'left', background:isSelected?'rgba(255,61,110,0.07)':'transparent', transition:'background .2s' }}>
+                                  style={{ width:'100%', padding:'14px 18px', border:'none', borderBottom:'1px solid var(--line)', cursor:'pointer', display:'flex', alignItems:'center', gap:12, textAlign:'left', background:isSelected?'rgba(6,182,212,0.07)':'transparent', transition:'background .2s' }}>
                                   <div style={{ position:'relative', flexShrink:0 }}>
                                     <div style={{ width:42,height:42,borderRadius:12,background:'linear-gradient(135deg,#0ea5e9,#06b6d4)',display:'grid',placeItems:'center',fontSize:13,fontWeight:700,color:'white' }}>{p.avatar}</div>
                                     <div style={{ position:'absolute',bottom:-1,right:-1,width:12,height:12,borderRadius:'50%',background:'#22c55e',border:'2px solid var(--frame)' }}/>
@@ -1592,7 +1751,7 @@ export default function DoctorDashboard() {
                                     </div>
                                   </div>
                                   {unread > 0 && (
-                                    <div style={{ minWidth:20,height:20,borderRadius:100,background:'#ff3d6e',color:'white',fontSize:10,fontWeight:800,display:'grid',placeItems:'center',flexShrink:0,padding:'0 5px' }}>{unread}</div>
+                                    <div style={{ minWidth:20,height:20,borderRadius:100,background:'#06b6d4',color:'white',fontSize:10,fontWeight:800,display:'grid',placeItems:'center',flexShrink:0,padding:'0 5px' }}>{unread}</div>
                                   )}
                                 </motion.button>
                               );
@@ -1607,8 +1766,8 @@ export default function DoctorDashboard() {
                       className="glass-card" style={{ overflow:'hidden', display:'flex', flexDirection:'column', position:'relative' }}>
                       {/* Decorative */}
                       <div style={{ position:'absolute',inset:0,pointerEvents:'none',zIndex:0,overflow:'hidden' }}>
-                        <div style={{ position:'absolute',top:'10%',right:'5%',width:250,height:250,borderRadius:'50%',background:'radial-gradient(circle,rgba(255,61,110,0.04),transparent 70%)',filter:'blur(40px)' }}/>
-                        <div style={{ position:'absolute',bottom:'10%',left:'5%',width:200,height:200,borderRadius:'50%',background:'radial-gradient(circle,rgba(122,77,255,0.04),transparent 70%)',filter:'blur(35px)' }}/>
+                        <div style={{ position:'absolute',top:'10%',right:'5%',width:250,height:250,borderRadius:'50%',background:'radial-gradient(circle,rgba(6,182,212,0.04),transparent 70%)',filter:'blur(40px)' }}/>
+                        <div style={{ position:'absolute',bottom:'10%',left:'5%',width:200,height:200,borderRadius:'50%',background:'radial-gradient(circle,rgba(124,58,237,0.04),transparent 70%)',filter:'blur(35px)' }}/>
                       </div>
                       <div style={{ position:'relative',zIndex:1,flex:1,display:'flex',flexDirection:'column',minHeight:0 }}>
                         {selPatient ? (
@@ -1616,8 +1775,8 @@ export default function DoctorDashboard() {
                         ) : (
                           <div style={{ flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:16,padding:'40px' }}>
                             <motion.div initial={{ scale:.85,opacity:0 }} animate={{ scale:1,opacity:1 }} transition={{ type:'spring',stiffness:200,delay:.2 }}
-                              style={{ width:80,height:80,borderRadius:24,background:'linear-gradient(135deg,rgba(255,61,110,0.1),rgba(122,77,255,0.1))',border:'1px solid rgba(255,61,110,0.2)',display:'flex',alignItems:'center',justifyContent:'center' }}>
-                              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ff6a8d" strokeWidth="1.3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                              style={{ width:80,height:80,borderRadius:24,background:'linear-gradient(135deg,rgba(6,182,212,0.1),rgba(124,58,237,0.1))',border:'1px solid rgba(6,182,212,0.2)',display:'flex',alignItems:'center',justifyContent:'center' }}>
+                              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" strokeWidth="1.3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                             </motion.div>
                             <div style={{ textAlign:'center' }}>
                               <div style={{ fontSize:16,fontWeight:600,color:'var(--ink)',marginBottom:6 }}>Select a patient</div>
@@ -1650,7 +1809,7 @@ export default function DoctorDashboard() {
 
           {/* ══════════════ Reviews ══════════════ */}
           {tab==='Reviews' && (
-            <motion.div key="reviews" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }} transition={{ duration:.45 }}>
+            <motion.div key="reviews" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-16 }} transition={{ duration:.45 }} style={{ paddingRight:72 }}>
               <div style={{ marginBottom:28 }}>
                 <h2 className="font-serif" style={{ fontSize:28, fontWeight:400, color:'var(--ink)', marginBottom:4 }}>Patient <em className="text-gradient">Reviews</em></h2>
                 <p style={{ fontSize:13, color:'var(--ink-3)' }}>{reviews.length>0?`${reviews.length} verified review${reviews.length!==1?'s':''} from your patients`:'Patient reviews will appear here after your consultations'}</p>
@@ -1750,26 +1909,26 @@ export default function DoctorDashboard() {
                               <p style={{ fontSize:13, color:'var(--ink-3)', fontStyle:'italic', marginBottom:20 }}>No written comment left.</p>
                             )}
                           </div>
-                          <div style={{ borderTop:'1px solid var(--line)', background:'linear-gradient(135deg,rgba(255,61,110,0.02),rgba(122,77,255,0.02))' }}>
+                          <div style={{ borderTop:'1px solid var(--line)', background:'linear-gradient(135deg,rgba(6,182,212,0.02),rgba(124,58,237,0.02))' }}>
                             {r.doctorResponse&&!isReplying&&(
                               <div style={{ padding:'16px 24px' }}>
                                 <div style={{ display:'flex', gap:12 }}>
-                                  <div style={{ width:36, height:36, borderRadius:'50%', background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:11, fontWeight:700, color:'white', flexShrink:0, boxShadow:'0 4px 12px -4px rgba(122,77,255,0.45)' }}>{user.avatar}</div>
+                                  <div style={{ width:36, height:36, borderRadius:'50%', background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'grid', placeItems:'center', fontSize:11, fontWeight:700, color:'white', flexShrink:0, boxShadow:'0 4px 12px -4px rgba(124,58,237,0.45)' }}>{user.avatar}</div>
                                   <div style={{ flex:1, minWidth:0 }}>
                                     <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
                                       <span style={{ fontSize:12, fontWeight:700, color:'var(--ink)' }}>{user.name||`Dr. ${user.firstName} ${user.lastName}`}</span>
-                                      <span style={{ fontSize:9, fontWeight:700, padding:'2px 7px', borderRadius:100, background:'rgba(255,61,110,0.1)', border:'1px solid rgba(255,61,110,0.2)', color:'#ff6a8d', letterSpacing:'0.06em' }}>DOCTOR REPLY</span>
+                                      <span style={{ fontSize:9, fontWeight:700, padding:'2px 7px', borderRadius:100, background:'rgba(6,182,212,0.1)', border:'1px solid rgba(6,182,212,0.2)', color:'#22d3ee', letterSpacing:'0.06em' }}>DOCTOR REPLY</span>
                                       {r.responseDate&&<span style={{ fontSize:10, color:'var(--ink-3)', marginLeft:'auto' }}>{timeAgo(r.responseDate)}</span>}
                                     </div>
                                     <p style={{ fontSize:13, color:'var(--ink-2)', lineHeight:1.65, margin:0 }}>{r.doctorResponse}</p>
-                                    <button onClick={()=>openReply(r)} style={{ marginTop:10, fontSize:11, fontWeight:600, color:'#7a4dff', background:'rgba(122,77,255,0.07)', border:'1px solid rgba(122,77,255,0.18)', borderRadius:8, padding:'4px 12px', cursor:'pointer' }}>✏ Edit Reply</button>
+                                    <button onClick={()=>openReply(r)} style={{ marginTop:10, fontSize:11, fontWeight:600, color:'#7c3aed', background:'rgba(124,58,237,0.07)', border:'1px solid rgba(124,58,237,0.18)', borderRadius:8, padding:'4px 12px', cursor:'pointer' }}>✏ Edit Reply</button>
                                   </div>
                                 </div>
                               </div>
                             )}
                             {!r.doctorResponse&&!isReplying&&(
                               <div style={{ padding:'12px 24px' }}>
-                                <button onClick={()=>openReply(r)} style={{ display:'flex', alignItems:'center', gap:7, fontSize:12, fontWeight:600, color:'var(--ink-3)', background:'none', border:'none', cursor:'pointer', padding:0, transition:'color .2s' }} onMouseEnter={e=>e.currentTarget.style.color='#ff6a8d'} onMouseLeave={e=>e.currentTarget.style.color='var(--ink-3)'}>
+                                <button onClick={()=>openReply(r)} style={{ display:'flex', alignItems:'center', gap:7, fontSize:12, fontWeight:600, color:'var(--ink-3)', background:'none', border:'none', cursor:'pointer', padding:0, transition:'color .2s' }} onMouseEnter={e=>e.currentTarget.style.color='#22d3ee'} onMouseLeave={e=>e.currentTarget.style.color='var(--ink-3)'}>
                                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                                   Reply to this review…
                                 </button>
@@ -1780,19 +1939,19 @@ export default function DoctorDashboard() {
                                 <motion.div initial={{ opacity:0, height:0 }} animate={{ opacity:1, height:'auto' }} exit={{ opacity:0, height:0 }} transition={{ duration:.25 }} style={{ overflow:'hidden' }}>
                                   <div style={{ padding:'16px 24px 20px' }}>
                                     <div style={{ display:'flex', gap:12 }}>
-                                      <div style={{ width:36, height:36, borderRadius:'50%', background:'linear-gradient(135deg,#ff7a9c,#7a4dff)', display:'grid', placeItems:'center', fontSize:11, fontWeight:700, color:'white', flexShrink:0, boxShadow:'0 4px 12px -4px rgba(122,77,255,0.45)' }}>{user.avatar}</div>
+                                      <div style={{ width:36, height:36, borderRadius:'50%', background:'linear-gradient(135deg,#0ea5e9,#7c3aed)', display:'grid', placeItems:'center', fontSize:11, fontWeight:700, color:'white', flexShrink:0, boxShadow:'0 4px 12px -4px rgba(124,58,237,0.45)' }}>{user.avatar}</div>
                                       <div style={{ flex:1 }}>
                                         <div style={{ fontSize:11, fontWeight:600, color:'var(--ink-3)', marginBottom:8, letterSpacing:'0.04em' }}>Replying as <span style={{ color:'var(--ink)', fontWeight:700 }}>{user.name||`Dr. ${user.firstName} ${user.lastName}`}</span></div>
                                         <textarea value={replyDraft} onChange={e=>setReplyDraft(e.target.value)} maxLength={600} placeholder="Write a professional, thoughtful response visible to all patients…" autoFocus
-                                          style={{ width:'100%', minHeight:88, borderRadius:12, padding:'11px 14px', fontSize:13, color:'var(--ink)', background:'var(--bg)', border:'1.5px solid rgba(122,77,255,0.35)', outline:'none', resize:'vertical', lineHeight:1.6, boxSizing:'border-box', fontFamily:'inherit', transition:'border-color .2s' }}
-                                          onFocus={e=>e.target.style.borderColor='rgba(122,77,255,0.7)'}
-                                          onBlur={e=>e.target.style.borderColor='rgba(122,77,255,0.35)'}/>
+                                          style={{ width:'100%', minHeight:88, borderRadius:12, padding:'11px 14px', fontSize:13, color:'var(--ink)', background:'var(--bg)', border:'1.5px solid rgba(124,58,237,0.35)', outline:'none', resize:'vertical', lineHeight:1.6, boxSizing:'border-box', fontFamily:'inherit', transition:'border-color .2s' }}
+                                          onFocus={e=>e.target.style.borderColor='rgba(124,58,237,0.7)'}
+                                          onBlur={e=>e.target.style.borderColor='rgba(124,58,237,0.35)'}/>
                                         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginTop:10 }}>
                                           <span style={{ fontSize:10, color:'var(--ink-3)' }}>{replyDraft.length}/600</span>
                                           <div style={{ display:'flex', gap:8 }}>
                                             <button onClick={()=>{ setReplyingTo(null); setReplyDraft(''); }} style={{ padding:'7px 14px', borderRadius:10, fontSize:12, fontWeight:600, color:'var(--ink-2)', background:'var(--line)', border:'none', cursor:'pointer' }}>Cancel</button>
                                             <motion.button whileHover={{ y:-1 }} whileTap={{ scale:.97 }} disabled={!replyDraft.trim()||replyBusy} onClick={()=>handleReply(r.id)}
-                                              style={{ padding:'7px 18px', borderRadius:10, fontSize:12, fontWeight:600, color:'white', background:'linear-gradient(135deg,#ff3d6e,#7a4dff)', border:'none', cursor:!replyDraft.trim()||replyBusy?'not-allowed':'pointer', opacity:!replyDraft.trim()?.5:1, display:'flex', alignItems:'center', gap:6 }}>
+                                              style={{ padding:'7px 18px', borderRadius:10, fontSize:12, fontWeight:600, color:'white', background:'linear-gradient(135deg,#06b6d4,#7c3aed)', border:'none', cursor:!replyDraft.trim()||replyBusy?'not-allowed':'pointer', opacity:!replyDraft.trim()?.5:1, display:'flex', alignItems:'center', gap:6 }}>
                                               {replyBusy?<span style={{ width:12, height:12, borderRadius:'50%', border:'2px solid rgba(255,255,255,0.3)', borderTopColor:'white', animation:'spin360 0.8s linear infinite', display:'inline-block' }}/>:<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>}
                                               Post Reply
                                             </motion.button>
@@ -1819,7 +1978,7 @@ export default function DoctorDashboard() {
 
           {/* ══════════════ Profile ══════════════ */}
           {tab==='Profile' && (
-            <motion.div key="profile" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }}>
+            <motion.div key="profile" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} transition={{ duration:.4 }} style={{ paddingRight:72 }}>
               <h2 className="font-serif" style={{ fontSize:26, fontWeight:400, color:'var(--ink)', marginBottom:24 }}>My Profile</h2>
               <div className="glass-card" style={{ padding:28, maxWidth:560 }}>
                 <div style={{ display:'flex', alignItems:'center', gap:18, marginBottom:28, paddingBottom:22, borderBottom:'1px solid var(--line)' }}>

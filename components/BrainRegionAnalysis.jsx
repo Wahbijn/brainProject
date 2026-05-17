@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
    ───────────────────────────────────────────────────────────────── */
 const REGION_INFO = {
   frontal: {
-    label: 'Frontal Lobe', color: '#7a4dff',
+    label: 'Frontal Lobe', color: '#7c3aed',
     cx: 95, cy: 95,                    // SVG centroid (lateral view)
     axialCenter: [0.30, 0.22],         // normalized position in axial MRI (bilateral)
     axialSigma:  [0.20, 0.13],
@@ -34,7 +34,7 @@ const REGION_INFO = {
     clinicalNote: 'Parietal lesions may produce contralateral hemisensory loss, visuospatial neglect, or difficulty with complex tasks such as dressing. Left-sided involvement specifically risks language processing deficits.',
   },
   temporal: {
-    label: 'Temporal Lobe', color: '#ff3d6e',
+    label: 'Temporal Lobe', color: '#0ea5e9',
     cx: 115, cy: 192,
     axialCenter: [0.15, 0.55],          // bilateral — scored from both hemispheres
     axialSigma:  [0.10, 0.11],
@@ -433,7 +433,7 @@ export default function BrainRegionAnalysis({
             <span style={{ fontSize: 14, fontWeight: 800, color: '#f0eeff' }}>Neural Region Impact Analysis</span>
             <div style={{
               padding: '2px 8px', borderRadius: 20,
-              background: 'rgba(122,77,255,0.2)', border: '1px solid rgba(122,77,255,0.4)',
+              background: 'rgba(124,58,237,0.2)', border: '1px solid rgba(124,58,237,0.4)',
               fontSize: 8.5, fontWeight: 800, color: '#c4b5fd', letterSpacing: '0.09em',
             }}>AI ASSISTED</div>
             {isReady && analysisMode && (
@@ -472,7 +472,7 @@ export default function BrainRegionAnalysis({
             initial={{ width: '0%' }}
             animate={{ width: isAnalyzing ? '80%' : isScanning ? '45%' : '0%' }}
             transition={{ duration: isAnalyzing ? 0.8 : 1.6, ease: [0.4, 0, 0.2, 1] }}
-            style={{ height: '100%', background: `linear-gradient(90deg,${meta.riskColor},#7a4dff,#06b6d4)` }}
+            style={{ height: '100%', background: `linear-gradient(90deg,${meta.riskColor},#7c3aed,#06b6d4)` }}
           />
         </div>
       )}
@@ -480,7 +480,7 @@ export default function BrainRegionAnalysis({
         <motion.div
           initial={{ width: '80%' }} animate={{ width: '100%' }}
           transition={{ duration: 0.35, ease: 'easeOut' }}
-          style={{ height: 2, background: `linear-gradient(90deg,${meta.riskColor},#7a4dff,#06b6d4)` }}
+          style={{ height: 2, background: `linear-gradient(90deg,${meta.riskColor},#7c3aed,#06b6d4)` }}
         />
       )}
 
@@ -499,7 +499,7 @@ export default function BrainRegionAnalysis({
             </div>
             <div style={{
               position: 'relative', borderRadius: 16, overflow: 'hidden',
-              background: 'rgba(6,4,20,0.95)', border: '1px solid rgba(122,77,255,0.14)',
+              background: 'rgba(6,4,20,0.95)', border: '1px solid rgba(124,58,237,0.14)',
             }}>
               <svg viewBox="0 0 305 244" width="305" height="244" style={{ display: 'block' }}>
                 <defs>
@@ -531,10 +531,10 @@ export default function BrainRegionAnalysis({
                 {/* Neural grid */}
                 <g clipPath="url(#bra2-clip)" opacity="0.05">
                   {Array.from({ length: 14 }).map((_, i) => (
-                    <line key={`gh${i}`} x1="30" x2="275" y1={8 + i * 17} y2={8 + i * 17} stroke="#7a4dff" strokeWidth="0.5" />
+                    <line key={`gh${i}`} x1="30" x2="275" y1={8 + i * 17} y2={8 + i * 17} stroke="#7c3aed" strokeWidth="0.5" />
                   ))}
                   {Array.from({ length: 16 }).map((_, i) => (
-                    <line key={`gv${i}`} x1={20 + i * 18} x2={20 + i * 18} y1="8" y2="238" stroke="#7a4dff" strokeWidth="0.5" />
+                    <line key={`gv${i}`} x1={20 + i * 18} x2={20 + i * 18} y1="8" y2="238" stroke="#7c3aed" strokeWidth="0.5" />
                   ))}
                 </g>
 
@@ -626,8 +626,8 @@ export default function BrainRegionAnalysis({
                 {isScanning && (
                   <motion.g initial={{ x: -10 }} animate={{ x: 315 }}
                     transition={{ duration: 1.8, ease: 'linear' }}>
-                    <rect x={0} y={0} width={1.5} height={244} fill="rgba(122,77,255,0.65)" />
-                    <rect x={-7} y={0} width={16} height={244} fill="rgba(122,77,255,0.10)" />
+                    <rect x={0} y={0} width={1.5} height={244} fill="rgba(124,58,237,0.65)" />
+                    <rect x={-7} y={0} width={16} height={244} fill="rgba(124,58,237,0.10)" />
                   </motion.g>
                 )}
               </svg>
@@ -636,8 +636,8 @@ export default function BrainRegionAnalysis({
               {!isReady && (
                 <div style={{ position: 'absolute', bottom: 10, left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
                   <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.1 }}
-                    style={{ padding: '3px 12px', borderRadius: 20, background: 'rgba(122,77,255,0.22)',
-                      border: '1px solid rgba(122,77,255,0.38)', fontSize: 8.5, fontWeight: 800,
+                    style={{ padding: '3px 12px', borderRadius: 20, background: 'rgba(124,58,237,0.22)',
+                      border: '1px solid rgba(124,58,237,0.38)', fontSize: 8.5, fontWeight: 800,
                       color: '#c4b5fd', letterSpacing: '0.11em' }}>
                     {isScanning ? 'EXTRACTING TUMOR COORDINATES…' : 'MAPPING TO NEUROANATOMICAL ATLAS…'}
                   </motion.div>
@@ -707,7 +707,7 @@ export default function BrainRegionAnalysis({
                       <div style={{ height: 3, borderRadius: 20, background: 'rgba(255,255,255,0.04)', overflow: 'hidden' }}>
                         <motion.div animate={{ x: ['-100%', '200%'] }}
                           transition={{ repeat: Infinity, duration: 1.1, ease: 'linear', delay: i * 0.18 }}
-                          style={{ height: '100%', width: '50%', background: 'linear-gradient(90deg,transparent,rgba(122,77,255,0.35),transparent)' }} />
+                          style={{ height: '100%', width: '50%', background: 'linear-gradient(90deg,transparent,rgba(124,58,237,0.35),transparent)' }} />
                       </div>
                     </div>
                   ))}

@@ -52,7 +52,7 @@ function buildSulci(parent, side) {
     const p = document.createElementNS(NS, 'path');
     p.setAttribute('d', d);
     p.setAttribute('fill', 'none');
-    p.setAttribute('stroke', '#7a1822');
+    p.setAttribute('stroke', '#0a2e46');
     p.setAttribute('stroke-width', (0.8 + Math.random() * 0.8).toFixed(2));
     p.setAttribute('stroke-linecap', 'round');
     p.setAttribute('stroke-opacity', 0.45 + Math.random() * 0.25);
@@ -140,7 +140,7 @@ export default function Brain() {
       const dot = document.createElementNS(NS, 'circle');
       dot.setAttribute('cx', x); dot.setAttribute('cy', y);
       dot.setAttribute('r', 1.1 + Math.random() * 1.4);
-      dot.setAttribute('fill', Math.random() > 0.5 ? '#ffe5d8' : '#ffaab2');
+      dot.setAttribute('fill', Math.random() > 0.5 ? '#67e8f9' : '#a5f3fc');
       dot.setAttribute('opacity', 0.7);
       const an = document.createElementNS(NS, 'animate');
       an.setAttribute('attributeName', 'opacity');
@@ -164,8 +164,8 @@ export default function Brain() {
       { x: 560, y: 580, a: -0.9, len: 130, c: 'red' }, { x: 400, y: 725, a: Math.PI / 2, len: 90, c: 'red' },
     ];
     const col = (c, l) => l === 'back'
-      ? (c === 'red' ? '#a82c3a' : '#3a72c4')
-      : l === 'mid' ? (c === 'red' ? '#c93d4a' : '#4a90e2') : (c === 'red' ? '#e64a55' : '#5fa8ff');
+      ? (c === 'red' ? '#0a4862' : '#1a588a')
+      : l === 'mid' ? (c === 'red' ? '#0d7090' : '#2478b5') : (c === 'red' ? '#12b4d8' : '#42c6f8');
     seeds.forEach(s => {
       veinPath(s.x, s.y, s.a + (Math.random() - 0.5) * 0.3, s.len * 1.4, 4, col(s.c, 'back'), back.current, { width: 0.7, opacity: 0.6, corp: false });
       veinPath(s.x, s.y, s.a + (Math.random() - 0.5) * 0.2, s.len * 1.15, 4, col(s.c, 'mid'), mid.current, { width: 1.0, opacity: 0.75 });
@@ -203,24 +203,24 @@ export default function Brain() {
       <svg viewBox="0 0 800 800" className="w-full h-full overflow-visible" xmlns={NS}>
         <defs>
           <radialGradient id="brainShade" cx="36%" cy="28%" r="78%">
-            <stop offset="0%" stopColor="#ffe2dc" />
-            <stop offset="22%" stopColor="#ffb3ab" />
-            <stop offset="48%" stopColor="#ff8a82" />
-            <stop offset="72%" stopColor="#e85f64" />
-            <stop offset="100%" stopColor="#8a1f2a" />
+            <stop offset="0%"   stopColor="#c8eef7" />
+            <stop offset="22%"  stopColor="#6ccce4" />
+            <stop offset="48%"  stopColor="#1a8eae" />
+            <stop offset="72%"  stopColor="#0d5878" />
+            <stop offset="100%" stopColor="#041e36" />
           </radialGradient>
           <radialGradient id="brainHi" cx="32%" cy="22%" r="32%">
             <stop offset="0%" stopColor="#ffffff" stopOpacity="0.7" />
             <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
           </radialGradient>
           <linearGradient id="sulcusGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#7a1822" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#3a0a12" stopOpacity="0.75" />
+            <stop offset="0%" stopColor="#0a3048" stopOpacity="0.65" />
+            <stop offset="100%" stopColor="#021220" stopOpacity="0.82" />
           </linearGradient>
           <radialGradient id="coreGlow" cx="50%" cy="55%" r="55%">
-            <stop offset="0%" stopColor="#ff5a5a" stopOpacity="0" />
-            <stop offset="60%" stopColor="#c93d4a" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#5a1018" stopOpacity="0.6" />
+            <stop offset="0%" stopColor="#06b6d4" stopOpacity="0" />
+            <stop offset="60%" stopColor="#0891b2" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="#042840" stopOpacity="0.48" />
           </radialGradient>
           <filter id="softBlur"><feGaussianBlur stdDeviation="0.6" /></filter>
           <filter id="bigBlur"><feGaussianBlur stdDeviation="6" /></filter>
@@ -241,7 +241,7 @@ export default function Brain() {
 
         <g>
           <path d="M335 600 C 330 645, 360 672, 400 672 C 440 672, 470 645, 465 600 Z" fill="url(#brainShade)" />
-          <g stroke="#8a1f2a" strokeWidth="1.1" fill="none" opacity="0.65" strokeLinecap="round">
+          <g stroke="#0a2840" strokeWidth="1.1" fill="none" opacity="0.65" strokeLinecap="round">
             <path d="M345 615 Q 358 638, 358 668" />
             <path d="M362 610 Q 374 638, 374 670" />
             <path d="M380 608 Q 388 638, 388 672" />
@@ -250,13 +250,13 @@ export default function Brain() {
             <path d="M446 614 Q 442 638, 442 668" />
           </g>
         </g>
-        <path d="M380 660 C 380 695, 390 715, 400 725 C 410 715, 420 695, 420 660 Z" fill="#a8323d" />
+        <path d="M380 660 C 380 695, 390 715, 400 725 C 410 715, 420 695, 420 660 Z" fill="#0d4a6e" />
 
         <g clipPath="url(#brainClip)">
           <g ref={sulciL} className="gyri-shimmer" />
           <g ref={sulciR} className="gyri-shimmer" />
-          <path d="M400 215 Q 397 320, 400 420 Q 403 520, 400 605" stroke="#3a0a12" strokeWidth="3.5" fill="none" opacity="0.7" />
-          <path d="M400 220 Q 398 320, 400 420 Q 402 520, 400 600" stroke="#1a0408" strokeWidth="1.5" fill="none" opacity="0.85" />
+          <path d="M400 215 Q 397 320, 400 420 Q 403 520, 400 605" stroke="#041524" strokeWidth="3.5" fill="none" opacity="0.7" />
+          <path d="M400 220 Q 398 320, 400 420 Q 402 520, 400 600" stroke="#020e1a" strokeWidth="1.5" fill="none" opacity="0.85" />
           <ellipse cx="345" cy="265" rx="80" ry="38" fill="url(#brainHi)" opacity="0.7" />
           <ellipse cx="400" cy="430" rx="220" ry="200" fill="url(#coreGlow)" opacity="0.6" />
           <g ref={surfaceN} />
